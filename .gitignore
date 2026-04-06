@@ -1,0 +1,20 @@
+# Build artifacts
+*.o
+*.dSYM/
+test_runner
+test_runner_asan
+xor_example
+benchmark
+gradient_check
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Debug
+core
+vgcore.*
