@@ -69,6 +69,10 @@ jobs:
         working-directory: e2e
         run: npx playwright install --with-deps chromium
 
+      - name: Generate Playwright specs from Gherkin features
+        working-directory: e2e
+        run: npx bddgen
+
       - name: Run E2E suite
         working-directory: e2e
         run: npx playwright test --reporter=list,html

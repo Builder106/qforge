@@ -4,10 +4,11 @@
   "private": true,
   "description": "Playwright + playwright-bdd end-to-end tests for the qforge web demo",
   "scripts": {
+    "pretest": "bddgen",
     "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed",
-    "test:debug": "PWDEBUG=1 playwright test",
+    "test:ui": "bddgen && playwright test --ui",
+    "test:headed": "bddgen && playwright test --headed",
+    "test:debug": "bddgen && PWDEBUG=1 playwright test",
     "report": "playwright show-report"
   },
   "devDependencies": {
