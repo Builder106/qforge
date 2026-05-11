@@ -1,4 +1,8 @@
-# C-Neural-Engine
+<picture>
+  <source media="(prefers-color-scheme: dark)"  srcset="docs/banner-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="docs/banner-light.png">
+  <img alt="qforge — a neural network from scratch in C99" src="docs/banner-dark.png">
+</picture>
 
 > An AI that learns to trade stocks — built entirely from scratch in C, with no libraries.
 
