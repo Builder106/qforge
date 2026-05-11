@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Cancel in-flight runs for the same PR — speeds up the iteration loop and
+# prevents wasteful spend when a contributor force-pushes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   c-suite:
     name: C unit + integration tests
@@ -51,8 +57,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -75,3 +80,10 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report/
           retention-days: 7
+
+# ---- Deployment ----
+# Vercel handles deployment via its native GitHub integration (auto-deploy on
+# push to main, preview deploys on PRs). The CI jobs above run in parallel
+# with Vercel's build — they don't gate it. To require these checks before
+# Vercel ships to production, enable "Only deploy if checks pass" in the
+# Vercel project settings (Settings → Git → Production Branch checks).
