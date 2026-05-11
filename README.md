@@ -78,21 +78,31 @@ The project has two layers: a **core engine** (the neural network library) and *
 
 ### Core Engine
 
-Built bottom-up from raw matrix math to a complete learning system:
+Built bottom-up from raw matrix math to a complete learning system. Every arrow is a real `#include`:
 
+```mermaid
+%%{init: {'flowchart': {'curve': 'basis'}}}%%
+flowchart TB
+    Tensor("<b>Tensor</b><br/><sub>matmul · transpose · hadamard · broadcasting</sub>")
+    Activation("<b>Activation</b><br/><sub>ReLU · Sigmoid · Tanh · Softmax (+ derivatives)</sub>")
+    Loss("<b>Loss</b><br/><sub>MSE · Cross-Entropy (ε-clamped)</sub>")
+    Layer("<b>Layer</b><br/><sub>Dense — forward + backward, Xavier/He init</sub>")
+    Network("<b>Network</b><br/><sub>Sequential model — stack layers, train, predict</sub>")
+    Optimizer("<b>Optimizer</b><br/><sub>SGD with momentum, per-layer velocity</sub>")
+    Apps[/"<b>Applications</b><br/><sub>XOR · DQN trader · Market generator · Benchmarks</sub>"/]
+
+    Tensor --> Activation
+    Tensor --> Loss
+    Tensor --> Layer
+    Activation --> Layer
+    Layer --> Network
+    Loss --> Optimizer
+    Network --> Optimizer
+    Network --> Apps
+    Optimizer --> Apps
 ```
- Tensor            →  matrix algebra (multiply, transpose, add)
-   ↓
- Activation        →  ReLU, Sigmoid, Tanh, Softmax
-   ↓
- Loss              →  MSE, Cross-Entropy (how wrong is the AI?)
-   ↓
- Layer             →  connect neurons, cache values for learning
-   ↓
- Network           →  stack layers into a complete brain
-   ↓
- Optimizer         →  SGD with momentum (how the AI improves)
-```
+
+Six modules, ~2,000 lines total. Each one is independently testable — the [56-test unit suite](tests/) walks bottom-up, the same way the code was built.
 
 ### Application 1: Synthetic Market Data Generator
 
