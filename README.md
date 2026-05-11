@@ -16,69 +16,54 @@ Everything — the math engine, the learning algorithms, the trading logic — i
 
 ## Demo
 
-```
-$ make dqn
+> **Try it live in your browser:** [qforge-neural.vercel.app](https://qforge-neural.vercel.app) — every demo below runs as WebAssembly with no install. The GIFs are recorded asciinema sessions of the native binaries.
 
-  C-Neural-Engine — DQN Trading Agent
+### `$ make dqn` — Reinforcement-learning trading agent
 
-  Training an AI to trade a simulated stock...
-  Episodes: 300 × 200 steps
+![DQN trader demo: 300-episode training run beating buy-and-hold](docs/demos/dqn.gif)
 
-  Episode   100 │ P&L: +16.29%  │ ε: 0.606   (exploring)
-  Episode   200 │ P&L:  +4.96%  │ ε: 0.367
-  Episode   300 │ P&L: -43.65%  │ ε: 0.222   (still learning)
+### `$ make market_gen` — Synthetic market data generator
 
-  ── Final Evaluation (AI makes its own decisions) ──
+![Market generator demo: trains on GARCH-simulated returns and reproduces stylized facts](docs/demos/market_gen.gif)
 
-  ┌──────────────────────┬──────────────┐
-  │ AI Agent return      │   +11.89%    │
-  │ Buy & Hold return    │    -6.89%    │
-  └──────────────────────┴──────────────┘
-  ✓ AI agent outperformed buy & hold by 18.8%
-```
+<details>
+<summary><strong>More demos</strong> — XOR convergence and matmul benchmarks</summary>
 
-```
-$ make market_gen
+### `$ make examples` — XOR (the classic hello-world of neural networks)
 
-  C-Neural-Engine — Synthetic Market Data Generator
+![XOR training demo: 2→4→1 MLP converges in under a second](docs/demos/xor.gif)
 
-  Training on 1,000 S&P 500-like daily returns...
-  Generating 1,000 fake returns and comparing to real data:
+### `$ make bench` — Matmul + training-step throughput
 
-  ┌───────────────────────┬────────────┬────────────┐
-  │ Statistical Property  │ Real Data  │ AI-Made    │
-  ├───────────────────────┼────────────┼────────────┤
-  │ Avg daily return      │   -0.04%   │   +0.01%   │
-  │ Volatility            │    1.09%   │    0.56%   │
-  │ Crash bias (skewness) │   -0.61    │   -0.48    │  ✓
-  │ Fat tails (kurtosis)  │   +2.26    │   +3.09    │  ✓
-  │ Vol clustering        │   +0.21    │   +0.08    │  ✓
-  └───────────────────────┴────────────┴────────────┘
-  ✓ Synthetic data preserves real market behavior
-```
+![Benchmark demo: matmul up to 512×512 and full forward+backward+SGD timings](docs/demos/benchmark.gif)
+
+</details>
 
 ---
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/C-Neural-Engine.git
-cd C-Neural-Engine
-make test         # Run 51 unit tests — all should pass
-make dqn          # Train the AI trading agent (~5 sec)
-make market_gen   # Generate synthetic market data (~30 sec)
+git clone https://github.com/Builder106/qforge.git
+cd qforge
+make test         # 56 unit tests — all should pass
+make dqn          # Train the AI trading agent (~30 sec)
+make market_gen   # Generate synthetic market data (~20 sec)
 ```
 
 ### All Commands
 
 | Command | What it does |
 |---------|-------------|
-| `make test` | Run 51 unit tests |
+| `make test` | Run 56 unit tests (engine + scenario tests) |
+| `make integration` | Black-box tests of the compiled example binaries |
 | `make dqn` | Train the AI trading agent |
 | `make market_gen` | Generate synthetic market data |
 | `make examples` | Train on the XOR problem (hello world of AI) |
 | `make bench` | Measure computation speed (MFLOP/s) |
 | `make gradcheck` | Verify math correctness via finite differences |
+| `make wasm` | Build every example as a WebAssembly module |
+| `make e2e` | Run the Playwright + Gherkin E2E suite |
 | `make memcheck` | Check for memory leaks |
 
 ---
@@ -240,7 +225,7 @@ C_engine/
 │   ├── network.h                 sequential model
 │   └── optimizer.h               SGD + momentum
 ├── src/                        # Engine implementation
-├── tests/                      # 51 unit tests (TDD)
+├── tests/                      # 56 unit tests (TDD) + integration script
 │   └── test_harness.h            custom zero-dep test framework
 ├── examples/                   # Applications
 │   ├── market_generator.c        synthetic market data
