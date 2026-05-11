@@ -57,42 +57,42 @@ test: $(TEST_BIN)
 	./$(TEST_BIN)
 
 $(TEST_BIN): $(SRCS) $(TEST_SRCS)
-	$(CC) $(CFLAGS) $(INCLUDES) -lm $^ -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -lm -o $@
 
 # ---- Examples ----
 examples: $(XOR_BIN)
 	./$(XOR_BIN)
 
 $(XOR_BIN): $(SRCS) $(EXAMPLE_DIR)/xor.c
-	$(CC) $(CFLAGS) $(INCLUDES) -lm $^ -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -lm -o $@
 
 # ---- Benchmark ----
 bench: $(BENCH_BIN)
 	./$(BENCH_BIN)
 
 $(BENCH_BIN): $(SRCS) $(EXAMPLE_DIR)/benchmark.c
-	$(CC) $(CFLAGS) $(INCLUDES) -lm $^ -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -lm -o $@
 
 # ---- Gradient Check ----
 gradcheck: $(GRADCHECK_BIN)
 	./$(GRADCHECK_BIN)
 
 $(GRADCHECK_BIN): $(SRCS) $(EXAMPLE_DIR)/gradient_check.c
-	$(CC) $(CFLAGS) $(INCLUDES) -lm $^ -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -lm -o $@
 
 # ---- Market Data Generator ----
 market_gen: $(MKTGEN_BIN)
 	./$(MKTGEN_BIN)
 
 $(MKTGEN_BIN): $(SRCS) $(EXAMPLE_DIR)/market_generator.c
-	$(CC) $(CFLAGS) $(INCLUDES) -lm $^ -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -lm -o $@
 
 # ---- DQN Trading Agent ----
 dqn: $(DQN_BIN)
 	./$(DQN_BIN)
 
 $(DQN_BIN): $(SRCS) $(EXAMPLE_DIR)/dqn_trader.c
-	$(CC) $(CFLAGS) $(INCLUDES) -lm $^ -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -lm -o $@
 
 # ---- Memory Check (Valgrind or LeakSanitizer) ----
 memcheck: $(TEST_BIN)
@@ -100,7 +100,7 @@ memcheck: $(TEST_BIN)
 		valgrind --leak-check=full --error-exitcode=1 ./$(TEST_BIN); \
 	else \
 		echo "Valgrind not found. Rebuilding with AddressSanitizer..."; \
-		$(CC) $(CFLAGS) $(INCLUDES) -fsanitize=address -lm $(SRCS) $(TEST_SRCS) -o $(TEST_BIN)_asan; \
+		$(CC) $(CFLAGS) $(INCLUDES) -fsanitize=address $(SRCS) $(TEST_SRCS) -lm -o $(TEST_BIN)_asan; \
 		./$(TEST_BIN)_asan; \
 		rm -f $(TEST_BIN)_asan; \
 	fi
