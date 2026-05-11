@@ -21,6 +21,13 @@
 #include <math.h>
 #include <time.h>
 
+/* M_PI is a POSIX extension — glibc only defines it under _GNU_SOURCE,
+ * while macOS / BSD libcs expose it by default. Define a local fallback
+ * so the project stays portable without leaning on -D_GNU_SOURCE. */
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #include "tensor.h"
 #include "network.h"
 #include "optimizer.h"
