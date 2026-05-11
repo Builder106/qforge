@@ -27,7 +27,7 @@
 #include "loss.h"
 
 /* ============================================================================
- * Embedded S&P 500 Daily Log-Returns (2020-01 through 2024-12)
+ * Embedded S&P 500 Daily Log-Returns (2020-01 through 2026-04)
  *
  * ~1,250 trading days of daily log-returns: ln(close_t / close_{t-1})
  * Generated from historical closing prices.

@@ -43,7 +43,7 @@ DQN_BIN       = dqn_trader_bin
 # Targets
 # ============================================================================
 
-.PHONY: all test clean memcheck examples bench gradcheck market_gen dqn
+.PHONY: all test clean memcheck examples bench gradcheck market_gen dqn wasm wasm-clean
 
 all: $(OBJS)
 
@@ -103,6 +103,52 @@ memcheck: $(TEST_BIN)
 		./$(TEST_BIN)_asan; \
 		rm -f $(TEST_BIN)_asan; \
 	fi
+
+# ============================================================================
+# WebAssembly builds (Emscripten) — powers the in-browser demo at web/
+# ============================================================================
+
+EMCC       = emcc
+WASM_DIR   = web/wasm
+EMCC_FLAGS = -O2 -Iinclude \
+             -sMODULARIZE=1 \
+             -sENVIRONMENT=web,worker \
+             -sALLOW_MEMORY_GROWTH=1 \
+             -sINITIAL_MEMORY=33554432 \
+             -sINVOKE_RUN=0 \
+             -sEXPORTED_RUNTIME_METHODS=callMain \
+             -sEXIT_RUNTIME=1
+
+.PHONY: wasm wasm-clean
+
+wasm: $(WASM_DIR)/xor.js \
+      $(WASM_DIR)/dqn.js \
+      $(WASM_DIR)/market_gen.js \
+      $(WASM_DIR)/benchmark.js \
+      $(WASM_DIR)/gradient_check.js
+
+$(WASM_DIR)/xor.js: $(SRCS) $(EXAMPLE_DIR)/xor.c
+	@mkdir -p $(WASM_DIR)
+	$(EMCC) $(EMCC_FLAGS) -sEXPORT_NAME=createXor $^ -o $@
+
+$(WASM_DIR)/dqn.js: $(SRCS) $(EXAMPLE_DIR)/dqn_trader.c
+	@mkdir -p $(WASM_DIR)
+	$(EMCC) $(EMCC_FLAGS) -sEXPORT_NAME=createDqn $^ -o $@
+
+$(WASM_DIR)/market_gen.js: $(SRCS) $(EXAMPLE_DIR)/market_generator.c
+	@mkdir -p $(WASM_DIR)
+	$(EMCC) $(EMCC_FLAGS) -sEXPORT_NAME=createMarketGen $^ -o $@
+
+$(WASM_DIR)/benchmark.js: $(SRCS) $(EXAMPLE_DIR)/benchmark.c
+	@mkdir -p $(WASM_DIR)
+	$(EMCC) $(EMCC_FLAGS) -sEXPORT_NAME=createBenchmark $^ -o $@
+
+$(WASM_DIR)/gradient_check.js: $(SRCS) $(EXAMPLE_DIR)/gradient_check.c
+	@mkdir -p $(WASM_DIR)
+	$(EMCC) $(EMCC_FLAGS) -sEXPORT_NAME=createGradientCheck $^ -o $@
+
+wasm-clean:
+	rm -rf $(WASM_DIR)
 
 # ---- Clean ----
 clean:

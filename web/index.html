@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>qforge — a neural network from scratch in C99</title>
+<meta name="description" content="A zero-dependency deep-learning framework written by hand in ~2,000 lines of C99. Trains a reinforcement-learning trading agent and generates synthetic market data — all running live in your browser via WebAssembly.">
+
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3.8.0/dist/bundle/asciinema-player.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header class="hero">
+  <div class="container">
+    <p class="eyebrow">a project by Yinka Vaughan</p>
+    <h1>qforge</h1>
+    <p class="tagline">A neural network framework written from scratch in <strong>~2,000 lines of C99</strong>. Zero dependencies — no BLAS, no PyTorch, just raw matrix math, backprop, and an SGD optimizer built by hand. Two finance applications on top: a reinforcement-learning <strong>trading agent</strong> that beats buy-and-hold, and a <strong>synthetic market data generator</strong> that preserves the statistical signatures of real returns.</p>
+
+    <div class="actions">
+      <a class="btn btn-primary" href="#run">Run it in your browser</a>
+      <a class="btn" href="https://github.com/Builder106/qforge" target="_blank" rel="noopener">View on GitHub →</a>
+    </div>
+
+    <ul class="stats">
+      <li><strong>51</strong> unit tests passing</li>
+      <li><strong>2,400</strong> MFLOP/s on one core</li>
+      <li><strong>~2,000</strong> lines of C</li>
+      <li><strong>0</strong> dependencies</li>
+    </ul>
+  </div>
+</header>
+
+<section class="section" id="watch">
+  <div class="container">
+    <h2>Watch it run</h2>
+    <p class="lede">Recorded terminal sessions. They autoplay when this section scrolls into view and loop. Click any demo to switch; the playback controls let you scrub or pause.</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab tab-active" data-cast="casts/dqn.cast"        data-rows="32" data-cols="80">DQN trader</button>
+      <button class="tab"            data-cast="casts/market_gen.cast" data-rows="32" data-cols="80">Market generator</button>
+      <button class="tab"            data-cast="casts/benchmark.cast"  data-rows="28" data-cols="80">Benchmarks</button>
+      <button class="tab"            data-cast="casts/xor.cast"        data-rows="24" data-cols="80">XOR (smoke test)</button>
+    </div>
+
+    <div id="player" class="player"></div>
+
+    <details class="caption">
+      <summary>What am I looking at?</summary>
+      <ul>
+        <li><strong>DQN trader</strong> — A 6-feature → 64 → 32 → 3 Q-network trains for 300 episodes on a simulated price series with regime changes. Buys, sells, and holds based on price, position, P&amp;L, volatility, and lagged returns. Compares final policy to a buy-and-hold baseline.</li>
+        <li><strong>Market generator</strong> — A 5 → 32 → 16 → 1 MLP trains on GARCH(1,1)-simulated S&amp;P 500 daily returns, then generates a new return series. The table compares stylized facts: fat tails, volatility clustering, and negative skewness all survive.</li>
+        <li><strong>Benchmarks</strong> — Wall-clock timing of matmul, transpose, element-wise ops, and full forward+backward+SGD training steps across multiple sizes.</li>
+        <li><strong>XOR</strong> — Classic 2 → 4 → 1 MLP convergence test. Trains to &lt; 0.01 MSE in well under a second.</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<section class="section section-alt" id="run">
+  <div class="container">
+    <h2>Run it yourself</h2>
+    <p class="lede">The exact same C code, compiled to <strong>WebAssembly</strong> with Emscripten and executed in a Web Worker. No server — all computation happens locally in your browser.</p>
+
+    <div class="runner">
+      <div class="runner-controls">
+        <button class="btn-run" data-demo="xor">▶ XOR (~&lt;1s)</button>
+        <button class="btn-run" data-demo="benchmark">▶ Benchmarks (~5s)</button>
+        <button class="btn-run" data-demo="dqn">▶ DQN trader (~30s)</button>
+        <button class="btn-run" data-demo="market_gen">▶ Market generator (~20s)</button>
+        <button class="btn-run" data-demo="gradient_check">▶ Gradient check (~1s)</button>
+        <button class="btn-clear" id="clear-term">clear</button>
+      </div>
+      <div id="terminal" class="terminal"></div>
+      <p class="hint" id="hint">↑ Pick a demo. Output streams here as the WASM binary runs.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="container">
+    <h2>How it works</h2>
+
+    <div class="arch">
+<pre>
+ Tensor       →  matrix algebra (multiply, transpose, add, hadamard)
+   ↓
+ Activation   →  ReLU, Sigmoid, Tanh, Softmax (+ derivatives)
+   ↓
+ Loss         →  MSE, Cross-Entropy (+ derivatives, ε-clamped)
+   ↓
+ Layer        →  Dense layer: forward + backward, Xavier/He init
+   ↓
+ Network      →  Sequential model — stack layers, train, predict
+   ↓
+ Optimizer    →  SGD with momentum (per-layer velocity buffers)
+</pre>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Correctness</h3>
+        <p>Every layer is test-driven. Backpropagation is independently verified against <strong>central finite differences</strong> (<code>dL/dw ≈ [L(w+ε) − L(w−ε)] / 2ε</code>) — max relative error <code>≤ 2.3 × 10⁻⁷</code> across four architectures.</p>
+      </div>
+      <div class="card">
+        <h3>Numerical stability</h3>
+        <p>Sigmoid branches on sign of input. Softmax subtracts row-max before <code>exp()</code>. Cross-entropy clamps predictions to <code>[ε, 1−ε]</code>. Weights init via Xavier or He, auto-selected by activation type.</p>
+      </div>
+      <div class="card">
+        <h3>Memory safety</h3>
+        <p>Every tensor op returns a freshly allocated tensor; ownership is explicit. Verified leak-free with AddressSanitizer on the full test suite plus all example binaries.</p>
+      </div>
+      <div class="card">
+        <h3>Performance</h3>
+        <p>Plain C with <code>-O2</code>, no SIMD intrinsics or BLAS. 64×64 matmul: <strong>0.22 ms</strong> (2.4 GFLOP/s). A full forward + backward + SGD step on a 16→32→1 net: <strong>0.011 ms</strong>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="code">
+  <div class="container">
+    <h2>The code</h2>
+    <p class="lede">Six modules, ~2,000 lines, built bottom-up TDD over 14 commits. Every function has a test before it has an implementation.</p>
+
+    <pre class="tree">qforge/
+├── include/                    # public headers
+│   ├── tensor.h                  matrix math
+│   ├── activation.h              ReLU, Sigmoid, Tanh, Softmax
+│   ├── loss.h                    MSE, Cross-Entropy
+│   ├── layer.h                   dense layer (forward + backward)
+│   ├── network.h                 sequential model
+│   └── optimizer.h               SGD + momentum
+├── src/                        # implementations (one .c per header)
+├── tests/                      # 51 unit tests
+│   └── test_harness.h            zero-dependency test framework
+├── examples/
+│   ├── xor.c                     classic AI proof-of-concept
+│   ├── benchmark.c               performance measurement
+│   ├── gradient_check.c          finite-difference verification
+│   ├── market_generator.c        synthetic market data
+│   └── dqn_trader.c              reinforcement-learning trader
+└── web/                        # this page (asciinema + WASM build)
+</pre>
+
+    <p class="cta">
+      <a class="btn btn-primary" href="https://github.com/Builder106/qforge" target="_blank" rel="noopener">Read the source on GitHub →</a>
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Built by <a href="mailto:vaughanolayinka@gmail.com">Yinka Vaughan</a> · MIT license · <a href="https://github.com/Builder106/qforge" target="_blank" rel="noopener">source on GitHub</a></p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/asciinema-player@3.8.0/dist/bundle/asciinema-player.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

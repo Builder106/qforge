@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!--
+    qforge favicon — a lowercase "q" rendered as two shapes:
+      • a stroked circle for the bowl,
+      • a filled rectangle for the stem + descender.
+    Light/dark variants follow the browser color-scheme preference and the
+    accents match the page's CSS variables.
+  -->
+  <style>
+    .bg { fill: #0b0d10; }
+    .fg { color: #7cc4ff; }
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #ffffff; }
+      .fg { color: #0066cc; }
+    }
+  </style>
+  <rect class="bg" width="32" height="32" rx="7"/>
+  <g class="fg">
+    <circle cx="12.5" cy="14" r="5" fill="none" stroke="currentColor" stroke-width="3"/>
+    <rect x="16" y="11" width="3" height="13" fill="currentColor"/>
+  </g>
+</svg>

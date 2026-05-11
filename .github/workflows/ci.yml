@@ -1,0 +1,35 @@
+name: CI — unit tests + WASM build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Run unit tests (native C99)
+        run: make test
+
+      - name: Set up Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 3.1.74
+          actions-cache-folder: emsdk-cache
+
+      - name: Build WebAssembly modules
+        run: make wasm
+
+      - name: Confirm built artifacts match committed
+        run: |
+          if ! git diff --quiet -- web/wasm; then
+            echo "::warning::web/wasm differs from committed artifacts — run 'make wasm' locally and commit the result"
+            git --no-pager diff --stat -- web/wasm
+          else
+            echo "WASM artifacts in repo match a fresh build"
+          fi
