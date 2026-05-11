@@ -20,10 +20,16 @@
 #include <stdio.h>
 #include <math.h>
 
-/* --- Global counters --- */
-static int test_count    = 0;
-static int test_failures = 0;
-static int test_passes   = 0;
+/* --- Global counters ---
+ * Declared `extern` here and defined exactly once in test_main.c. The previous
+ * `static int ...` pattern gave every TU its own private copy, so an
+ * ASSERT_FAIL in test_tensor.c would increment that TU's failure counter while
+ * RUN_TEST in test_main.c read its own (always-zero) counter — making failing
+ * tests report as passed. The shared `extern` definition also silences gcc's
+ * -Werror=unused-variable in the per-test TUs that don't call RUN_TEST. */
+extern int test_count;
+extern int test_failures;
+extern int test_passes;
 
 /* --- ANSI color codes for terminal output --- */
 #define CLR_RED    "\033[1;31m"

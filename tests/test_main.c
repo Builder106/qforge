@@ -4,6 +4,12 @@
 
 #include "test_harness.h"
 
+/* Single definition of the harness counters declared `extern` in
+ * test_harness.h. All TUs that include the header read/write these. */
+int test_count    = 0;
+int test_failures = 0;
+int test_passes   = 0;
+
 /* --- Tensor tests --- */
 extern void test_tensor_create_dimensions(void);
 extern void test_tensor_create_zeroed(void);
