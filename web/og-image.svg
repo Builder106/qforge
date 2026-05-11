@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!--
+    Social-share card (1200×630, the OpenGraph standard size).
+    Source SVG; rasterized to PNG via `rsvg-convert -w 1200 og-image.svg`.
+    Fonts: monospace fallback so rendering is consistent across environments
+    that lack ui-monospace / SF Mono (e.g. Linux CI).
+  -->
+
+  <defs>
+    <radialGradient id="glow" cx="30%" cy="-10%" r="80%">
+      <stop offset="0%"   stop-color="#7cc4ff" stop-opacity="0.20"/>
+      <stop offset="60%"  stop-color="#7cc4ff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#0b0d10" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0b0d10"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Top eyebrow -->
+  <text x="80" y="105"
+        font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+        font-size="22" fill="#9aa3ad" letter-spacing="2">
+    A PROJECT BY YINKA VAUGHAN
+  </text>
+
+  <!-- Wordmark -->
+  <text x="80" y="265"
+        font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+        font-size="180" font-weight="700" fill="#e6e8eb" letter-spacing="-6">
+    qforge
+  </text>
+
+  <!-- Primary tagline (kept short so it doesn't collide with the q on the right) -->
+  <text x="80" y="340"
+        font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+        font-size="34" fill="#b3f5a8" font-weight="600">
+    A neural network from scratch in C99.
+  </text>
+
+  <!-- Secondary tagline -->
+  <text x="80" y="390"
+        font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+        font-size="26" fill="#9aa3ad">
+    Zero deps · ~2,000 lines of C · WASM in-browser
+  </text>
+
+  <!-- Stats row, mono numerals -->
+  <g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+     font-size="22" fill="#9aa3ad">
+    <text x="80" y="490">
+      <tspan fill="#b3f5a8" font-weight="700">56</tspan> tests   <tspan fill="#9aa3ad">·</tspan>
+      <tspan fill="#b3f5a8" font-weight="700">2,400</tspan> MFLOP/s   <tspan fill="#9aa3ad">·</tspan>
+      <tspan fill="#b3f5a8" font-weight="700">0</tspan> deps   <tspan fill="#9aa3ad">·</tspan>
+      <tspan fill="#b3f5a8" font-weight="700">MIT</tspan>
+    </text>
+  </g>
+
+  <!-- URL footer -->
+  <text x="80" y="560"
+        font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+        font-size="20" fill="#5a6068">
+    qforge-neural.vercel.app   ·   github.com/Builder106/qforge
+  </text>
+
+  <!-- Large q monogram on the right — matches the favicon.
+       Positioned so the leftmost stroke edge sits at x≈945, leaving room for
+       the text block on the left half to grow without collision. -->
+  <g transform="translate(1030, 230)">
+    <circle cx="0" cy="0" r="100" fill="none" stroke="#7cc4ff" stroke-width="32"/>
+    <rect x="88" y="-70" width="32" height="240" fill="#7cc4ff"/>
+  </g>
+</svg>
