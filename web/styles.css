@@ -281,8 +281,30 @@ code {
   cursor: wait;
 }
 
-.btn-clear {
+.btn-stop {
   margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 6px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.btn-stop:hover:not(:disabled) {
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+.btn-stop:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-clear {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-dim);
@@ -295,18 +317,156 @@ code {
 
 .btn-clear:hover { color: var(--text); }
 
+/* ---- Tweak panel (hyperparameter UI) ---- */
+
+.tweak-panel {
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+}
+
+.tweak-panel summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tweak-panel summary::-webkit-details-marker { display: none; }
+
+.tweak-panel summary::before {
+  content: "▸";
+  color: var(--text-dim);
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.tweak-panel[open] summary::before { transform: rotate(90deg); }
+
+.tweak-icon { color: var(--accent); }
+
+.tweak-hint { color: var(--text-dim); font-size: 12px; }
+
+.tweak-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  padding: 4px 14px 14px;
+}
+
+.tweak-demo h4 {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent-2);
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tweak-demo label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.tweak-demo label span { flex: 1; }
+
+.tweak-demo input[type="number"] {
+  width: 100px;
+  padding: 4px 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: right;
+  -moz-appearance: textfield;
+}
+
+.tweak-demo input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.tweak-demo input[type="number"]::-webkit-outer-spin-button,
+.tweak-demo input[type="number"]::-webkit-inner-spin-button {
+  opacity: 0.6;
+}
+
+.tweak-foot {
+  margin: 0;
+  padding: 0 14px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-link:hover { color: var(--accent-2); }
+
 .terminal {
   height: 460px;
   padding: 8px;
   background: var(--terminal-bg);
+  overflow: hidden;
+}
+
+/* Force xterm's scrollbar to stay visible on macOS, which auto-hides native
+ * scrollbars by default. Without this, users have no visual cue that the
+ * terminal is scrollable. */
+.terminal .xterm-viewport::-webkit-scrollbar { width: 10px; }
+.terminal .xterm-viewport::-webkit-scrollbar-track { background: transparent; }
+.terminal .xterm-viewport::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 5px;
+}
+.terminal .xterm-viewport::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
+}
+.terminal .xterm-viewport {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
 .hint {
   font-family: var(--mono);
   font-size: 12px;
-  color: var(--text-dim);
-  margin: 12px 0 0;
-  padding: 0 12px 4px;
+  color: var(--text);
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+}
+
+.hint strong {
+  color: var(--accent-2);
+  font-weight: 600;
 }
 
 /* ---- How it works ---- */

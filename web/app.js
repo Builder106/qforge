@@ -159,18 +159,35 @@
     theme: isDark() ? TERM_THEMES.dark : TERM_THEMES.light,
   });
 
-  term.open(document.getElementById('terminal'));
+  const termContainer = document.getElementById('terminal');
+  term.open(termContainer);
 
   function fitTerminalToContainer() {
-    /* Rough heuristic: estimate cols from container width, since we don't
-     * pull in the FitAddon. Each cell is ~7.8px wide at 13px font size. */
-    const containerWidth = document.getElementById('terminal').clientWidth;
-    const cols = Math.max(60, Math.floor((containerWidth - 16) / 7.8));
-    const rows = 32;
+    /* Rough heuristic: estimate cell size from font metrics, since we don't
+     * pull in xterm's FitAddon. Each cell ~7.8px wide at 13px font; row
+     * height = font * lineHeight = 13 * 1.2 = 15.6px. Compute cols + rows
+     * to match the container so the viewport fills the visible area exactly
+     * (otherwise xterm would render more rows than fit, breaking scroll). */
+    const containerWidth  = termContainer.clientWidth;
+    const containerHeight = termContainer.clientHeight;
+    const cols = Math.max(60, Math.floor((containerWidth  - 16) / 7.8));
+    const rows = Math.max(10, Math.floor((containerHeight - 16) / 15.6));
     try { term.resize(cols, rows); } catch (e) { /* ignore */ }
   }
   fitTerminalToContainer();
   window.addEventListener('resize', fitTerminalToContainer);
+
+  /* Wheel-scroll the terminal buffer when the user mouses over it. xterm's
+   * default capture works only when the terminal is focused; this delegates
+   * any wheel event over the container directly to term.scrollLines() so the
+   * scrollback works on first try without a click. */
+  termContainer.addEventListener('wheel', (e) => {
+    if (e.ctrlKey) return; /* leave Ctrl+wheel for browser zoom */
+    e.preventDefault();
+    /* deltaY > 0 = scroll down (newer); negative = up (older) */
+    const lines = Math.sign(e.deltaY) * 3;
+    term.scrollLines(lines);
+  }, { passive: false });
 
   /* Idle banner: a muted preview of what's about to happen so the empty
    * terminal state isn't a black void. ANSI 90 = bright black (grey) keeps
@@ -201,21 +218,85 @@
 
   /* ---- Demo runner: spawn a Web Worker per run ---- */
 
+  /* DEMOS table — each demo declares which DOM input ids feed its argv.
+   * Order in `args` matches the positional argv parsing in the C source
+   * (e.g. dqn_trader.c reads argv[1]=episodes, [2]=γ, [3]=lr, [4]=ε-decay).
+   * If `args` is omitted the demo runs with its built-in defaults. */
   const DEMOS = {
-    xor:            { js: 'wasm/xor.js',            exportName: 'createXor',           label: 'XOR' },
-    benchmark:      { js: 'wasm/benchmark.js',      exportName: 'createBenchmark',     label: 'benchmark' },
-    dqn:            { js: 'wasm/dqn.js',            exportName: 'createDqn',           label: 'DQN trader' },
-    market_gen:     { js: 'wasm/market_gen.js',     exportName: 'createMarketGen',     label: 'market generator' },
-    gradient_check: { js: 'wasm/gradient_check.js', exportName: 'createGradientCheck', label: 'gradient check' },
+    xor: {
+      js: 'wasm/xor.js',
+      exportName: 'createXor',
+      label: 'XOR',
+      args: ['xor-epochs', 'xor-lr'],
+    },
+    benchmark: {
+      js: 'wasm/benchmark.js',
+      exportName: 'createBenchmark',
+      label: 'benchmark',
+    },
+    dqn: {
+      js: 'wasm/dqn.js',
+      exportName: 'createDqn',
+      label: 'DQN trader',
+      args: ['dqn-episodes', 'dqn-gamma', 'dqn-lr', 'dqn-eps-decay'],
+    },
+    market_gen: {
+      js: 'wasm/market_gen.js',
+      exportName: 'createMarketGen',
+      label: 'market generator',
+    },
+    gradient_check: {
+      js: 'wasm/gradient_check.js',
+      exportName: 'createGradientCheck',
+      label: 'gradient check',
+    },
   };
+
+  /* Defaults for the reset button — keyed by input id. */
+  const TWEAK_DEFAULTS = {
+    'xor-epochs':    '10000',
+    'xor-lr':        '1.0',
+    'dqn-episodes':  '300',
+    'dqn-gamma':     '0.95',
+    'dqn-lr':        '0.001',
+    'dqn-eps-decay': '0.995',
+  };
+
+  function collectArgs(demo) {
+    if (!Array.isArray(demo.args)) return [];
+    return demo.args.map((id) => {
+      const el = document.getElementById(id);
+      if (!el) return '';
+      const v = el.value.trim();
+      return v === '' ? el.defaultValue : v;
+    });
+  }
+
+  function argsLookOverridden(demo, args) {
+    if (!Array.isArray(demo.args)) return false;
+    return demo.args.some((id, i) => {
+      const def = TWEAK_DEFAULTS[id];
+      return def !== undefined && args[i] !== def;
+    });
+  }
 
   const runButtons = document.querySelectorAll('.btn-run');
   const clearBtn = document.getElementById('clear-term');
+  const stopBtn = document.getElementById('stop-term');
   const hint = document.getElementById('hint');
   let activeWorker = null;
 
-  function setButtonsDisabled(disabled) {
-    runButtons.forEach((b) => { b.disabled = disabled; });
+  function setRunning(running) {
+    runButtons.forEach((b) => { b.disabled = running; });
+    stopBtn.disabled = !running;
+  }
+
+  function finishRun() {
+    setRunning(false);
+    if (activeWorker) {
+      activeWorker.terminate();
+      activeWorker = null;
+    }
   }
 
   function runDemo(name) {
@@ -227,9 +308,17 @@
       activeWorker = null;
     }
 
-    term.writeln('\x1b[90m$ ./' + name + '_bin\x1b[0m');
-    setButtonsDisabled(true);
-    hint.textContent = 'Running ' + demo.label + ' — output streams below.';
+    const args = collectArgs(demo);
+    const overridden = argsLookOverridden(demo, args);
+
+    /* Echo the command exactly as it would be invoked on a shell so users
+     * can see what argv values their tweaks produced. */
+    const argvDisplay = args.length ? ' ' + args.join(' ') : '';
+    term.writeln('\x1b[90m$ ./' + name + '_bin' + argvDisplay + '\x1b[0m');
+    setRunning(true);
+    hint.textContent = 'Running ' + demo.label +
+      (overridden ? ' (with your custom hyperparameters)' : '') +
+      ' — output streams below. Hit stop to kill it.';
 
     const t0 = performance.now();
     const worker = new Worker('worker.js');
@@ -245,37 +334,50 @@
         const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
         term.writeln('\x1b[90m[exited in ' + elapsed + 's]\x1b[0m');
         term.writeln('');
-        setButtonsDisabled(false);
         hint.textContent = '↑ Pick another demo, or run the same one again with a fresh seed.';
-        worker.terminate();
-        if (activeWorker === worker) activeWorker = null;
+        finishRun();
       } else if (msg.type === 'error') {
         term.writeln('\x1b[31m[error] ' + msg.message + '\x1b[0m');
         term.writeln('');
-        setButtonsDisabled(false);
         hint.textContent = '↑ Something went wrong. Check the browser console for details.';
-        worker.terminate();
-        if (activeWorker === worker) activeWorker = null;
+        finishRun();
       }
     };
 
     worker.onerror = (err) => {
       term.writeln('\x1b[31m[worker error] ' + (err.message || err) + '\x1b[0m');
       term.writeln('');
-      setButtonsDisabled(false);
-      worker.terminate();
-      if (activeWorker === worker) activeWorker = null;
+      finishRun();
     };
 
-    worker.postMessage({ js: demo.js, exportName: demo.exportName });
+    worker.postMessage({ js: demo.js, exportName: demo.exportName, args });
   }
 
   runButtons.forEach((btn) => {
     btn.addEventListener('click', () => runDemo(btn.dataset.demo));
   });
 
+  stopBtn.addEventListener('click', () => {
+    if (!activeWorker) return;
+    term.writeln('\x1b[33m^C (killed by user)\x1b[0m');
+    term.writeln('');
+    hint.textContent = '↑ Killed. Pick a demo to run another one.';
+    finishRun();
+  });
+
   clearBtn.addEventListener('click', () => {
     term.clear();
   });
+
+  /* Reset all tweak inputs back to their compiled-in defaults. */
+  const resetBtn = document.getElementById('tweak-reset');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      Object.entries(TWEAK_DEFAULTS).forEach(([id, def]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = def;
+      });
+    });
+  }
 
 })();

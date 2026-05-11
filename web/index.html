@@ -73,10 +73,55 @@
         <button class="btn-run" data-demo="dqn">▶ DQN trader (~30s)</button>
         <button class="btn-run" data-demo="market_gen">▶ Market generator (~20s)</button>
         <button class="btn-run" data-demo="gradient_check">▶ Gradient check (~1s)</button>
+        <button class="btn-stop" id="stop-term" disabled>■ stop</button>
         <button class="btn-clear" id="clear-term">clear</button>
       </div>
+
+      <details class="tweak-panel" id="tweak-panel">
+        <summary><span class="tweak-icon">⚙</span> tweak hyperparameters <span class="tweak-hint">— defaults match the recorded demos</span></summary>
+
+        <div class="tweak-grid">
+          <div class="tweak-demo">
+            <h4>XOR</h4>
+            <label>
+              <span>epochs</span>
+              <input type="number" id="xor-epochs" value="10000" min="500" max="50000" step="500">
+            </label>
+            <label>
+              <span>learning rate</span>
+              <input type="number" id="xor-lr" value="1.0" min="0.05" max="3.0" step="0.05">
+            </label>
+          </div>
+
+          <div class="tweak-demo">
+            <h4>DQN trader</h4>
+            <label>
+              <span>episodes</span>
+              <input type="number" id="dqn-episodes" value="300" min="20" max="1500" step="20">
+            </label>
+            <label>
+              <span>γ (discount)</span>
+              <input type="number" id="dqn-gamma" value="0.95" min="0.50" max="0.999" step="0.005">
+            </label>
+            <label>
+              <span>learning rate</span>
+              <input type="number" id="dqn-lr" value="0.001" min="0.00001" max="0.05" step="0.0001">
+            </label>
+            <label>
+              <span>ε decay</span>
+              <input type="number" id="dqn-eps-decay" value="0.995" min="0.95" max="0.9999" step="0.0005">
+            </label>
+          </div>
+        </div>
+
+        <p class="tweak-foot">
+          The other demos run with fixed defaults — their parameters aren't tunable yet.
+          <button type="button" class="btn-link" id="tweak-reset">reset to defaults</button>
+        </p>
+      </details>
+
       <div id="terminal" class="terminal"></div>
-      <p class="hint" id="hint">↑ Pick a demo. Output streams here as the WASM binary runs.</p>
+      <p class="hint" id="hint">↑ Pick a demo. Output is read-only — scroll with your mouse wheel over the terminal, or hit <strong>stop</strong> to kill a running demo.</p>
     </div>
   </div>
 </section>

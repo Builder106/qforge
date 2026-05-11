@@ -19,9 +19,16 @@
 #include "optimizer.h"
 #include "loss.h"
 
-int main(void) {
+int main(int argc, char **argv) {
     /* Seed RNG for weight initialization */
     srand((unsigned int)time(NULL));
+
+    /* ── Runtime-overridable hyperparameters (argv[1]=epochs, argv[2]=lr) ── */
+    int    epochs        = 10000;
+    double learning_rate = 1.0;
+    double momentum      = 0.9;
+    if (argc > 1) epochs        = atoi(argv[1]);
+    if (argc > 2) learning_rate = atof(argv[2]);
 
     printf("\n");
     printf("╔══════════════════════════════════════════════╗\n");
@@ -44,13 +51,11 @@ int main(void) {
     network_add_layer(net, 4, 1, ACT_SIGMOID);   /* Output layer */
 
     /* ── Optimizer: SGD with momentum ── */
-    double learning_rate = 1.0;
-    double momentum      = 0.9;
     Optimizer *opt = optimizer_create_sgd(learning_rate, momentum, net);
 
     /* ── Training Loop ── */
-    int epochs = 10000;
-    int print_every = 1000;
+    int print_every = epochs / 10;
+    if (print_every < 1) print_every = 1;
 
     printf("  Architecture: 2 → 4 (sigmoid) → 1 (sigmoid)\n");
     printf("  Optimizer:    SGD (lr=%.2f, momentum=%.2f)\n", learning_rate, momentum);

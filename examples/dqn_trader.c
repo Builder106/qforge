@@ -280,8 +280,21 @@ static void copy_weights(Network *target, const Network *source) {
  * Main Training Loop
  * ============================================================================ */
 
-int main(void) {
+int main(int argc, char **argv) {
     srand((unsigned int)time(NULL));
+
+    /* ── Runtime-overridable hyperparameters ──
+     * Defaults match the original constants; the web UI passes overrides
+     * as argv so a recruiter can tweak γ, learning rate, etc. and re-run
+     * without recompiling. argv[1..4] are positional. */
+    int    num_episodes  = NUM_EPISODES;
+    double gamma_d       = GAMMA;
+    double learning_rate = LEARNING_RATE;
+    double eps_decay     = EPS_DECAY;
+    if (argc > 1) num_episodes  = atoi(argv[1]);
+    if (argc > 2) gamma_d       = atof(argv[2]);
+    if (argc > 3) learning_rate = atof(argv[3]);
+    if (argc > 4) eps_decay     = atof(argv[4]);
 
     printf("\n");
     printf("╔══════════════════════════════════════════════════════════════╗\n");
@@ -305,7 +318,7 @@ int main(void) {
 
     copy_weights(target_net, q_net);
 
-    Optimizer *opt = optimizer_create_sgd(LEARNING_RATE, MOMENTUM, q_net);
+    Optimizer *opt = optimizer_create_sgd(learning_rate, MOMENTUM, q_net);
     ReplayBuffer *replay = replay_create(REPLAY_SIZE);
 
     /* ── Market environment ── */
@@ -317,21 +330,28 @@ int main(void) {
            STATE_DIM, NUM_ACTIONS);
     printf("  Replay buffer: %d\n", REPLAY_SIZE);
     printf("  Batch size:    %d\n", BATCH_SIZE);
-    printf("  Gamma:         %.2f\n", GAMMA);
-    printf("  Epsilon:       %.2f → %.2f (decay=%.3f)\n",
-           EPS_START, EPS_END, EPS_DECAY);
-    printf("  Episodes:      %d × %d steps\n\n", NUM_EPISODES, EPISODE_LEN);
+    printf("  Gamma:         %.3f%s\n", gamma_d,
+           (gamma_d != GAMMA) ? "  (overridden)" : "");
+    printf("  Learning rate: %.4f%s\n", learning_rate,
+           (learning_rate != LEARNING_RATE) ? "  (overridden)" : "");
+    printf("  Epsilon:       %.2f → %.2f (decay=%.4f%s)\n",
+           EPS_START, EPS_END, eps_decay,
+           (eps_decay != EPS_DECAY) ? ", overridden" : "");
+    printf("  Episodes:      %d × %d steps%s\n\n", num_episodes, EPISODE_LEN,
+           (num_episodes != NUM_EPISODES) ? "  (overridden)" : "");
 
     /* ── Training ── */
     double epsilon = EPS_START;
     double best_pnl = -1e9;
-    int print_every = 25;
+    /* Aim for ~12 progress lines regardless of episode count */
+    int print_every = num_episodes / 12;
+    if (print_every < 1) print_every = 1;
 
     printf("  ┌─────────┬────────────┬────────────┬───────────┬──────────┐\n");
     printf("  │ Episode │ Total P&L  │ Avg Reward │ Epsilon   │ Trades   │\n");
     printf("  ├─────────┼────────────┼────────────┼───────────┼──────────┤\n");
 
-    for (int ep = 0; ep < NUM_EPISODES; ep++) {
+    for (int ep = 0; ep < num_episodes; ep++) {
         env_reset(&env);
         double state[STATE_DIM];
         env_get_state(&env, state);
@@ -384,7 +404,7 @@ int main(void) {
                             double q = tensor_get(target_qs, 0, a);
                             if (q > max_q) max_q = q;
                         }
-                        target_q = exp->reward + GAMMA * max_q;
+                        target_q = exp->reward + gamma_d * max_q;
 
                         tensor_free(ns);
                         tensor_free(target_qs);
@@ -428,7 +448,7 @@ int main(void) {
 
         /* Decay epsilon */
         if (epsilon > EPS_END) {
-            epsilon *= EPS_DECAY;
+            epsilon *= eps_decay;
             if (epsilon < EPS_END) epsilon = EPS_END;
         }
 

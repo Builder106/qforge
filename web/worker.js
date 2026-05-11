@@ -6,7 +6,7 @@
  * ============================================================================ */
 
 self.onmessage = async (e) => {
-  const { js, exportName } = e.data;
+  const { js, exportName, args } = e.data;
 
   try {
     self.importScripts(js);
@@ -26,7 +26,10 @@ self.onmessage = async (e) => {
       noInitialRun: true,
     });
 
-    Module.callMain([]);
+    /* Emscripten's callMain takes an array of strings — these become argv[1..]
+     * inside C (argv[0] is the program name, auto-supplied). The tweak panel
+     * on the page collects user-set hyperparameters and forwards them here. */
+    Module.callMain(Array.isArray(args) ? args.map(String) : []);
     self.postMessage({ type: 'done' });
   } catch (err) {
     self.postMessage({ type: 'error', message: String(err && err.message ? err.message : err) });

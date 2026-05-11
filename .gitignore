@@ -27,3 +27,4 @@ web/diag.html
 # Debug
 core
 vgcore.*
+.vercel
