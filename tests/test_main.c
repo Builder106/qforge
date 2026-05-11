@@ -67,6 +67,13 @@ extern void test_optimizer_step_updates_weights(void);
 extern void test_optimizer_momentum_accumulates(void);
 extern void test_optimizer_velocity_initial_zero(void);
 
+/* --- Scenario tests (multi-module integration) --- */
+extern void test_layer_caches_after_forward(void);
+extern void test_optimizer_reduces_loss_on_linear_regression(void);
+extern void test_xor_converges(void);
+extern void test_tensor_copy_is_deep(void);
+extern void test_tensor_matmul_4x2_2x3(void);
+
 int main(void) {
     printf("\n");
     printf("╔══════════════════════════════════════════╗\n");
@@ -155,6 +162,14 @@ int main(void) {
     RUN_TEST(test_optimizer_step_updates_weights);
     RUN_TEST(test_optimizer_momentum_accumulates);
     RUN_TEST(test_optimizer_velocity_initial_zero);
+
+    /* ── Scenario / cross-module ── */
+    RUN_SUITE("Scenarios: multi-module integration");
+    RUN_TEST(test_layer_caches_after_forward);
+    RUN_TEST(test_tensor_copy_is_deep);
+    RUN_TEST(test_tensor_matmul_4x2_2x3);
+    RUN_TEST(test_optimizer_reduces_loss_on_linear_regression);
+    RUN_TEST(test_xor_converges);
 
     /* ── Report ── */
     TEST_REPORT();

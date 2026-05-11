@@ -1,4 +1,4 @@
-name: CI — unit tests + WASM build
+name: CI — unit + integration + E2E
 
 on:
   push:
@@ -8,13 +8,23 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  c-suite:
+    name: C unit + integration tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
-      - name: Run unit tests (native C99)
+      - name: Run unit tests (56 — engine + scenarios)
         run: make test
+
+      - name: Run integration tests (compiled example binaries)
+        run: make integration
+
+  wasm-build:
+    name: WASM build drift check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
 
       - name: Set up Emscripten
         uses: mymindstorm/setup-emsdk@v14
@@ -33,3 +43,35 @@ jobs:
           else
             echo "WASM artifacts in repo match a fresh build"
           fi
+
+  e2e:
+    name: Web E2E (Playwright + Gherkin BDD)
+    runs-on: ubuntu-latest
+    needs: c-suite
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm install
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E suite
+        working-directory: e2e
+        run: npx playwright test --reporter=list,html
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7

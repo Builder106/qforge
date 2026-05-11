@@ -29,7 +29,8 @@ TEST_SRCS = $(TEST_DIR)/test_main.c \
             $(TEST_DIR)/test_loss.c \
             $(TEST_DIR)/test_layer.c \
             $(TEST_DIR)/test_network.c \
-            $(TEST_DIR)/test_optimizer.c
+            $(TEST_DIR)/test_optimizer.c \
+            $(TEST_DIR)/test_scenarios.c
 TEST_BIN  = test_runner
 
 # Example binaries
@@ -43,7 +44,7 @@ DQN_BIN       = dqn_trader_bin
 # Targets
 # ============================================================================
 
-.PHONY: all test clean memcheck examples bench gradcheck market_gen dqn wasm wasm-clean
+.PHONY: all test clean memcheck examples bench gradcheck market_gen dqn wasm wasm-clean integration e2e e2e-install
 
 all: $(OBJS)
 
@@ -149,6 +150,23 @@ $(WASM_DIR)/gradient_check.js: $(SRCS) $(EXAMPLE_DIR)/gradient_check.c
 
 wasm-clean:
 	rm -rf $(WASM_DIR)
+
+# ============================================================================
+# Integration tests — black-box runs of compiled binaries
+# ============================================================================
+
+integration: $(XOR_BIN) $(DQN_BIN) $(MKTGEN_BIN) $(BENCH_BIN) $(GRADCHECK_BIN)
+	@./tests/integration/run.sh
+
+# ============================================================================
+# End-to-end tests — Playwright + playwright-bdd against the web/ demo
+# ============================================================================
+
+e2e-install:
+	cd e2e && npm install && npx playwright install --with-deps chromium
+
+e2e:
+	cd e2e && npx playwright test
 
 # ---- Clean ----
 clean:
