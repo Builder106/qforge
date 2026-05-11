@@ -4,6 +4,13 @@
   <img alt="qforge — a neural network from scratch in C99" src="docs/banner-dark.png">
 </picture>
 
+[![CI](https://github.com/Builder106/qforge/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Builder106/qforge/actions/workflows/ci.yml)
+[![C99](https://img.shields.io/badge/C-99-A8B9CC.svg?logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C99)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-103%20passing-success.svg)](tests/)
+[![WebAssembly](https://img.shields.io/badge/WebAssembly-Emscripten-654FF0.svg?logo=webassembly&logoColor=white)](https://emscripten.org)
+[![Demo](https://img.shields.io/badge/demo-live-success.svg?logo=vercel&logoColor=white)](https://qforge-neural.vercel.app)
+
 > An AI that learns to trade stocks — built entirely from scratch in C, with no libraries.
 
 ## What This Does
