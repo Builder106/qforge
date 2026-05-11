@@ -10,6 +10,14 @@
  * C-Neural-Engine: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
+/* Request the POSIX 199309 monotonic-clock additions (clock_gettime,
+ * struct timespec, CLOCK_MONOTONIC). glibc gates these behind
+ * _POSIX_C_SOURCE under -std=c99; macOS/BSD libcs expose them by
+ * default. MUST be defined before any system header is included. */
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 199309L
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
