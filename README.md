@@ -88,15 +88,21 @@ The project has two layers: a **core engine** (the neural network library) and *
 Built bottom-up from raw matrix math to a complete learning system. Every arrow is a real `#include`:
 
 ```mermaid
-%%{init: {'flowchart': {'curve': 'basis'}}}%%
 flowchart TB
-    Tensor("<b>Tensor</b><br/><sub>matmul · transpose · hadamard · broadcasting</sub>")
-    Activation("<b>Activation</b><br/><sub>ReLU · Sigmoid · Tanh · Softmax (+ derivatives)</sub>")
-    Loss("<b>Loss</b><br/><sub>MSE · Cross-Entropy (ε-clamped)</sub>")
-    Layer("<b>Layer</b><br/><sub>Dense — forward + backward, Xavier/He init</sub>")
-    Network("<b>Network</b><br/><sub>Sequential model — stack layers, train, predict</sub>")
-    Optimizer("<b>Optimizer</b><br/><sub>SGD with momentum, per-layer velocity</sub>")
-    Apps[/"<b>Applications</b><br/><sub>XOR · DQN trader · Market generator · Benchmarks</sub>"/]
+    Tensor["`**Tensor**
+    matmul · transpose · hadamard · broadcasting`"]
+    Activation["`**Activation**
+    ReLU · Sigmoid · Tanh · Softmax (+ derivatives)`"]
+    Loss["`**Loss**
+    MSE · Cross-Entropy (ε-clamped)`"]
+    Layer["`**Layer**
+    Dense — forward + backward, Xavier/He init`"]
+    Network["`**Network**
+    Sequential model — stack layers, train, predict`"]
+    Optimizer["`**Optimizer**
+    SGD with momentum, per-layer velocity`"]
+    Apps[/"`**Applications**
+    XOR · DQN trader · Market generator · Benchmarks`"/]
 
     Tensor --> Activation
     Tensor --> Loss
