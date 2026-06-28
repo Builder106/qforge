@@ -12,9 +12,9 @@
     "report": "playwright show-report"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
-    "@types/node": "^22.10.0",
-    "playwright-bdd": "^8.5.1",
-    "typescript": "^5.7.0"
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.0.1",
+    "playwright-bdd": "^9.2.0",
+    "typescript": "^6.0.3"
   }
 }
