@@ -318,3 +318,15 @@ void test_tensor_sum_cols(void) {
 
     tensor_free(a); tensor_free(s);
 }
+
+void test_tensor_print(void) {
+    /* Test tensor_print to cover the print lines */
+    Tensor *a = tensor_create(2, 2);
+    tensor_fill(a, 3.14);
+    
+    /* Just call it. We assume it prints to stdout successfully. */
+    tensor_print(a, "Test Tensor");
+    tensor_print(a, NULL);
+    
+    tensor_free(a);
+}

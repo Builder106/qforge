@@ -29,6 +29,7 @@ extern void test_tensor_transpose(void);
 extern void test_tensor_transpose_1x1(void);
 extern void test_tensor_add_row_vector(void);
 extern void test_tensor_sum_cols(void);
+extern void test_tensor_print(void);
 
 /* --- Activation tests --- */
 extern void test_relu_positive(void);
@@ -59,6 +60,8 @@ extern void test_layer_forward_shape(void);
 extern void test_layer_forward_no_activation(void);
 extern void test_layer_forward_relu(void);
 extern void test_layer_backward_gradient_shape(void);
+extern void test_layer_activation_tanh(void);
+extern void test_layer_activation_default(void);
 
 /* --- Network tests --- */
 extern void test_network_create(void);
@@ -66,6 +69,7 @@ extern void test_network_add_layer(void);
 extern void test_network_forward_shape(void);
 extern void test_network_backward(void);
 extern void test_network_predict(void);
+extern void test_network_capacity_realloc(void);
 
 /* --- Optimizer tests --- */
 extern void test_optimizer_create_sgd(void);
@@ -114,6 +118,7 @@ int main(void) {
     RUN_TEST(test_tensor_transpose_1x1);
     RUN_TEST(test_tensor_add_row_vector);
     RUN_TEST(test_tensor_sum_cols);
+    RUN_TEST(test_tensor_print);
 
     /* ── Activation Module ── */
     RUN_SUITE("Activation: ReLU");
@@ -153,6 +158,8 @@ int main(void) {
     RUN_TEST(test_layer_forward_no_activation);
     RUN_TEST(test_layer_forward_relu);
     RUN_TEST(test_layer_backward_gradient_shape);
+    RUN_TEST(test_layer_activation_tanh);
+    RUN_TEST(test_layer_activation_default);
 
     /* ── Network Module ── */
     RUN_SUITE("Network");
@@ -161,6 +168,7 @@ int main(void) {
     RUN_TEST(test_network_forward_shape);
     RUN_TEST(test_network_backward);
     RUN_TEST(test_network_predict);
+    RUN_TEST(test_network_capacity_realloc);
 
     /* ── Optimizer Module ── */
     RUN_SUITE("Optimizer: SGD");

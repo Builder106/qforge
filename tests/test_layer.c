@@ -131,3 +131,65 @@ void test_layer_backward_gradient_shape(void) {
     tensor_free(input);
     layer_free(l);
 }
+
+void test_layer_activation_tanh(void) {
+    Layer *l = layer_create(2, 2, ACT_TANH);
+    
+    tensor_set(l->weights, 0, 0, 1.0);  tensor_set(l->weights, 0, 1, -1.0);
+    tensor_set(l->weights, 1, 0, 0.0);  tensor_set(l->weights, 1, 1, 0.0);
+    tensor_set(l->biases, 0, 0, 0.0);   tensor_set(l->biases, 0, 1, 0.0);
+
+    Tensor *input = tensor_create(1, 2);
+    tensor_set(input, 0, 0, 5.0);
+    tensor_set(input, 0, 1, 0.0);
+
+    Tensor *output = layer_forward(l, input);
+    /* z = [5, -5], tanh => [tanh(5), tanh(-5)] */
+    ASSERT_NEAR(tensor_get(output, 0, 0), tanh(5.0), 1e-6);
+    ASSERT_NEAR(tensor_get(output, 0, 1), tanh(-5.0), 1e-6);
+
+    /* Test backward pass to hit apply_activation_deriv */
+    Tensor *d_output = tensor_create(1, 2);
+    tensor_fill(d_output, 1.0);
+    Tensor *d_input = layer_backward(l, d_output);
+    
+    ASSERT_NOT_NULL(d_input);
+    
+    tensor_free(d_input);
+    tensor_free(d_output);
+    tensor_free(output);
+    tensor_free(input);
+    layer_free(l);
+}
+
+void test_layer_activation_default(void) {
+    /* ACT_NONE or an invalid enum will trigger the default case */
+    Layer *l = layer_create(2, 2, 999);
+    
+    tensor_set(l->weights, 0, 0, 1.0);  tensor_set(l->weights, 0, 1, -1.0);
+    tensor_set(l->weights, 1, 0, 0.0);  tensor_set(l->weights, 1, 1, 0.0);
+    tensor_set(l->biases, 0, 0, 0.0);   tensor_set(l->biases, 0, 1, 0.0);
+
+    Tensor *input = tensor_create(1, 2);
+    tensor_set(input, 0, 0, 5.0);
+    tensor_set(input, 0, 1, 0.0);
+
+    Tensor *output = layer_forward(l, input);
+    /* z = [5, -5], default returns z directly */
+    ASSERT_NEAR(tensor_get(output, 0, 0), 5.0, 1e-6);
+    ASSERT_NEAR(tensor_get(output, 0, 1), -5.0, 1e-6);
+
+    /* Test backward pass to hit default deriv (returns ones) */
+    Tensor *d_output = tensor_create(1, 2);
+    tensor_fill(d_output, 1.0);
+    Tensor *d_input = layer_backward(l, d_output);
+    
+    ASSERT_NOT_NULL(d_input);
+    
+    tensor_free(d_input);
+    tensor_free(d_output);
+    tensor_free(output);
+    tensor_free(input);
+    layer_free(l);
+}
+

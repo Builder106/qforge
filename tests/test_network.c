@@ -105,3 +105,17 @@ void test_network_predict(void) {
     tensor_free(input);
     network_free(net);
 }
+
+void test_network_capacity_realloc(void) {
+    Network *net = network_create();
+    
+    /* INITIAL_CAPACITY is typically 16. Adding 20 layers should trigger realloc */
+    for (int i = 0; i < 20; i++) {
+        network_add_layer(net, 2, 2, ACT_NONE);
+    }
+    
+    ASSERT_EQ(net->num_layers, 20);
+    ASSERT_TRUE(net->capacity >= 20);
+    
+    network_free(net);
+}
