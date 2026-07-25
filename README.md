@@ -100,7 +100,7 @@ flowchart TB
     Network["`**Network**
     Sequential model — stack layers, train, predict`"]
     Optimizer["`**Optimizer**
-    SGD with momentum, per-layer velocity`"]
+    SGD with momentum & Adam adaptive estimation`"]
     Apps[/"`**Applications**
     XOR · DQN trader · Market generator · Benchmarks`"/]
 

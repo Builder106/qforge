@@ -127,3 +127,51 @@ void test_optimizer_velocity_initial_zero(void) {
     optimizer_free(opt);
     network_free(net);
 }
+
+/* --- Adam Creation & Step --- */
+
+void test_optimizer_create_adam(void) {
+    Network *net = network_create();
+    network_add_layer(net, 2, 3, ACT_RELU);
+    network_add_layer(net, 3, 1, ACT_NONE);
+
+    Optimizer *opt = optimizer_create_adam(0.001, 0.9, 0.999, 1e-8, net);
+    ASSERT_NOT_NULL(opt);
+    ASSERT_EQ(opt->type, OPT_ADAM);
+    ASSERT_NEAR(opt->learning_rate, 0.001, 1e-9);
+    ASSERT_NEAR(opt->momentum, 0.9, 1e-9);
+    ASSERT_NEAR(opt->beta2, 0.999, 1e-9);
+    ASSERT_EQ(opt->num_layers, 2);
+
+    optimizer_free(opt);
+    network_free(net);
+}
+
+void test_optimizer_adam_step(void) {
+    Network *net = network_create();
+    network_add_layer(net, 2, 1, ACT_NONE);
+
+    Optimizer *opt = optimizer_create_adam(0.01, 0.9, 0.999, 1e-8, net);
+
+    Tensor *input = tensor_create(1, 2);
+    tensor_set(input, 0, 0, 1.0);
+    tensor_set(input, 0, 1, 1.0);
+
+    Tensor *output = network_forward(net, input);
+    Tensor *d_output = tensor_create(1, 1);
+    tensor_fill(d_output, 1.0);
+    network_backward(net, d_output);
+
+    double w_before = tensor_get(net->layers[0]->weights, 0, 0);
+    optimizer_step(opt, net);
+    double w_after = tensor_get(net->layers[0]->weights, 0, 0);
+
+    ASSERT_TRUE(fabs(w_after - w_before) > 1e-12);
+    ASSERT_EQ(opt->t, 1);
+
+    tensor_free(output);
+    tensor_free(d_output);
+    tensor_free(input);
+    optimizer_free(opt);
+    network_free(net);
+}

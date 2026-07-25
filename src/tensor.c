@@ -134,12 +134,11 @@ Tensor* tensor_matmul(const Tensor *a, const Tensor *b) {
     Tensor *result = tensor_create(a->rows, b->cols);
 
     for (int i = 0; i < a->rows; i++) {
-        for (int j = 0; j < b->cols; j++) {
-            double sum = 0.0;
-            for (int k = 0; k < a->cols; k++) {
-                sum += a->data[i * a->cols + k] * b->data[k * b->cols + j];
+        for (int k = 0; k < a->cols; k++) {
+            double a_ik = a->data[i * a->cols + k];
+            for (int j = 0; j < b->cols; j++) {
+                result->data[i * b->cols + j] += a_ik * b->data[k * b->cols + j];
             }
-            result->data[i * b->cols + j] = sum;
         }
     }
     return result;

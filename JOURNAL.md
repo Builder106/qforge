@@ -4,7 +4,9 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
-## 2026-06-03 — Dropped Homebrew's emscripten for the official emsdk #decision #incident
+## 2026-07-24 — Adam Optimizer Implementation and i-k-j Matmul Cache Locality #feature #milestone
+
+Implemented the Adam adaptive moment estimation optimizer (`optimizer_create_adam`) with first and second moment bias corrections in pure C99, extending the framework's optimization toolkit alongside SGD with momentum. In parallel, refactored `tensor_matmul` from standard `i-j-k` triple loops to unit-stride `i-k-j` iteration order to maximize CPU L1/L2 cache line hits and enable SIMD auto-vectorization. Verified zero memory leaks, numerical gradient alignment, and 62 passing unit tests across GCC and Clang.
 
 `brew doctor` started nagging about a deprecated `icu4c@77`, and the chain turned out to be `emscripten → yuicompressor → icu4c@77` — Homebrew's emscripten formula drags in yuicompressor for JS minification, and that's the only thing still pinning the old ICU. Rather than chase a different C→WASM toolchain (Zig, WASI SDK, bare Clang all looked tempting but would've meant rewriting ~240 `Module`/HEAP marshalling calls in the web demo for zero gain), the fix was just to swap the *source* of `emcc`: installed the official emsdk to `~/emsdk` and removed the brew formula, which let `brew autoremove` take yuicompressor and `icu4c@77` with it. Nice side effect — local now matches CI, which already builds via `mymindstorm/setup-emsdk`. Verified `make wasm` produces byte-identical artifacts before pulling the trigger.
 

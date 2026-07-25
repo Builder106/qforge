@@ -76,6 +76,8 @@ extern void test_optimizer_create_sgd(void);
 extern void test_optimizer_step_updates_weights(void);
 extern void test_optimizer_momentum_accumulates(void);
 extern void test_optimizer_velocity_initial_zero(void);
+extern void test_optimizer_create_adam(void);
+extern void test_optimizer_adam_step(void);
 
 /* --- Scenario tests (multi-module integration) --- */
 extern void test_layer_caches_after_forward(void);
@@ -171,11 +173,13 @@ int main(void) {
     RUN_TEST(test_network_capacity_realloc);
 
     /* ── Optimizer Module ── */
-    RUN_SUITE("Optimizer: SGD");
+    RUN_SUITE("Optimizer: SGD & Adam");
     RUN_TEST(test_optimizer_create_sgd);
     RUN_TEST(test_optimizer_step_updates_weights);
     RUN_TEST(test_optimizer_momentum_accumulates);
     RUN_TEST(test_optimizer_velocity_initial_zero);
+    RUN_TEST(test_optimizer_create_adam);
+    RUN_TEST(test_optimizer_adam_step);
 
     /* ── Scenario / cross-module ── */
     RUN_SUITE("Scenarios: multi-module integration");
