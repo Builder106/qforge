@@ -65,7 +65,7 @@ make market_gen   # Generate synthetic market data (~20 sec)
 ### All Commands
 
 | Command | What it does |
-|---------|-------------|
+| --------- | ------------- |
 | `make test` | Run 56 unit tests (engine + scenario tests) |
 | `make integration` | Black-box tests of the compiled example binaries |
 | `make dqn` | Train the AI trading agent |
@@ -158,6 +158,7 @@ A reinforcement learning agent that learns to trade by trial and error — no hu
 │ • hadam. │ • derivs │          │ • he     │          │              │
 └──────────┴──────────┴──────────┴──────────┴──────────┴──────────────┘
 ```
+
 </details>
 
 <details>
@@ -175,6 +176,7 @@ A reinforcement learning agent that learns to trade by trial and error — no hu
   train  64→128→10  │   0.105 ms │
   train  256→512→32 │   3.015 ms │
 ```
+
 </details>
 
 <details>
@@ -191,6 +193,7 @@ Backpropagation correctness validated against central finite differences:
 
   ✓ All gradient checks passed. Backpropagation is numerically correct.
 ```
+
 </details>
 
 <details>
@@ -200,6 +203,7 @@ Backpropagation correctness validated against central finite differences:
 - **Sigmoid**: Branches on sign to avoid large negative exponents
 - **Cross-Entropy**: Clamps predictions to `[ε, 1-ε]` to avoid `log(0)`
 - **Weight Init**: Xavier (sigmoid/tanh) and He (ReLU), auto-selected
+
 </details>
 
 <details>
@@ -238,6 +242,7 @@ for (int epoch = 0; epoch < 10000; epoch++) {
 optimizer_free(opt);
 network_free(net);
 ```
+
 </details>
 
 ## Project Structure

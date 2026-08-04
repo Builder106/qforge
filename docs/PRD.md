@@ -1,9 +1,11 @@
 # C-Neural-Engine — Product Requirements Document
 
 ## Vision
+
 A **zero-dependency deep learning framework written entirely in C99**, implementing core neural network primitives — matrix algebra, automatic differentiation (backpropagation), activation functions, loss functions, and gradient-based optimizers — from scratch.
 
 ## Goals
+
 1. **Zero external dependencies** — no BLAS, no libm beyond `<math.h>`, no third-party libraries
 2. **Clean, modular C99** — compiles with `-std=c99 -Wall -Wextra -Werror -pedantic`
 3. **Correct numerics** — validated via TDD at every layer of the stack
@@ -15,7 +17,7 @@ A **zero-dependency deep learning framework written entirely in C99**, implement
 6 modules, tested independently:
 
 | # | Module | Purpose |
-|---|--------|---------|
+| --- | -------- | --------- |
 | 1 | **Tensor** | Matrix struct, allocation, arithmetic, transpose |
 | 2 | **Activation** | ReLU, Sigmoid, Tanh, Softmax + derivatives |
 | 3 | **Loss** | MSE, Cross-Entropy + derivatives |
@@ -24,6 +26,7 @@ A **zero-dependency deep learning framework written entirely in C99**, implement
 | 6 | **Optimizer** | SGD, SGD+Momentum |
 
 ## Technical Decisions
+
 - **Data type**: `double` (64-bit) for numerical precision
 - **Test framework**: Custom zero-dependency test harness (~120 lines)
 - **Weight init**: Xavier (sigmoid/tanh) and He (ReLU), auto-selected
@@ -31,6 +34,7 @@ A **zero-dependency deep learning framework written entirely in C99**, implement
 - **Numerical stability**: Sigmoid (sign-branched), Softmax (subtract-max), Cross-entropy (epsilon-clamped)
 
 ## Verification
+
 - 51 unit tests across all modules
 - AddressSanitizer / Valgrind for memory safety
 - XOR convergence to < 0.01 MSE as functional validation

@@ -16,7 +16,7 @@ If both pass, your environment is ready.
 ## Prerequisites
 
 | Tool | Required for | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `gcc` or `clang` (C99) | core engine, examples, unit + integration tests | macOS ships with clang; Ubuntu: `apt install build-essential` |
 | `make` | every build target | macOS: pre-installed; Linux: usually pre-installed |
 | `emcc` ([Emscripten](https://emscripten.org)) | WASM build | only needed if you touch the in-browser demo |
@@ -55,7 +55,7 @@ qforge/
 ## Build targets
 
 | Command | What it does |
-|---|---|
+| --- | --- |
 | `make test` | Build and run all C unit tests (56). Required to pass on every commit. |
 | `make integration` | Build the example binaries and run black-box assertions on their stdout (40 checks). |
 | `make memcheck` | Run unit tests under AddressSanitizer (or Valgrind if installed). |
@@ -150,6 +150,7 @@ Then bump `CAST_VERSION` in `web/app.js` so browsers fetch the new file instead 
 ## Reporting bugs
 
 Open an issue with:
+
 - The exact command you ran and the output (paste the full stderr/stdout, not a screenshot).
 - Your `gcc --version` and OS.
 - For web-demo bugs, the browser + version and any console errors.
