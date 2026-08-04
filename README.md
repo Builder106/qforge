@@ -145,7 +145,7 @@ A reinforcement learning agent that learns to trade by trial and error — no hu
 <details>
 <summary><strong>Architecture diagram</strong></summary>
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────────┐
 │                        C-Neural-Engine                               │
 ├──────────┬──────────┬──────────┬──────────┬──────────┬──────────────┤
@@ -164,7 +164,7 @@ A reinforcement learning agent that learns to trade by trial and error — no hu
 <details>
 <summary><strong>Performance benchmarks</strong></summary>
 
-```
+```text
   Operation         │ Avg Time   │ Throughput
   ──────────────────┼────────────┼──────────────────
   matmul    32×32   │   0.029 ms │  2,256 MFLOP/s
@@ -185,7 +185,7 @@ A reinforcement learning agent that learns to trade by trial and error — no hu
 Backpropagation correctness validated against central finite differences:
 `dL/dw ≈ [L(w+ε) - L(w-ε)] / 2ε`
 
-```
+```text
   Test 1: [2→3(σ)→1(σ)]           — all passed (max rel error: 1.17e-08)
   Test 2: [4→8(relu)→4(relu)→2(σ)] — all passed (max rel error: 2.33e-07)
   Test 3: [3→5(none)→2(none)]      — all passed (max rel error: 3.50e-10)
@@ -247,7 +247,7 @@ network_free(net);
 
 ## Project Structure
 
-```
+```text
 C_engine/
 ├── include/                    # Core engine headers
 │   ├── tensor.h                  matrix math

@@ -27,7 +27,7 @@ You do **not** need a Python venv, npm globally, or any framework — the C engi
 
 ## Repository layout
 
-```
+```text
 qforge/
 ├── include/                # public C headers (one per module)
 ├── src/                    # C implementations
