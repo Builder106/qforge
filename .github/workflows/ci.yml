@@ -78,7 +78,7 @@ jobs:
 
       - name: Install E2E dependencies
         working-directory: e2e
-        run: npm ci || npm install
+        run: npm ci
 
       - name: Node dependency audit
         working-directory: e2e
