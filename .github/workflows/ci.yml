@@ -27,18 +27,48 @@ jobs:
           GITLEAKS_NOTIFY_USER_LIST: ""
 
   c-suite:
-    name: C unit + integration tests
-    runs-on: ubuntu-latest
+    name: C unit + integration tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
 
+      # Windows has no native make/gcc; MSYS2 gives us the same GNU toolchain
+      # the Makefile expects (make, gcc, libm) instead of rewriting the build.
+      - name: Set up MSYS2 (Windows only)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc make
+
       - name: Run unit tests (56 — engine + scenarios)
+        if: runner.os != 'Windows'
         run: make test
 
+      - name: Run unit tests (56 — engine + scenarios, Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: make test
+
+      # ASan/UBSan via MinGW-w64 GCC is unreliable (incomplete sanitizer
+      # runtime support), so this check stays Linux/macOS only. The plain
+      # unit + integration suites above still run everywhere.
       - name: Run ASan + UBSan checks
+        if: runner.os != 'Windows'
         run: make clean && make test CFLAGS="-fsanitize=address,undefined -g"
 
       - name: Run integration tests (compiled example binaries)
+        if: runner.os != 'Windows'
+        run: make integration
+
+      - name: Run integration tests (compiled example binaries, Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
         run: make integration
 
   wasm-build:
