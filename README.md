@@ -18,7 +18,7 @@
 This project builds a **brain for trading** from the ground up — no TensorFlow, no PyTorch, no dependencies at all. Just raw C code that:
 
 1. 🧠 **Learns patterns** — A neural network trained on market data that generates realistic fake stock returns for [stress-testing portfolios](https://www.cfainstitute.org/)
-2. 📈 **Makes trades** — An AI trading agent that learns when to buy, sell, or hold — and **outperforms a passive buy-and-hold strategy**
+2. 📈 **Makes trades**— An AI trading agent that learns when to buy, sell, or hold — and**outperforms a passive buy-and-hold strategy**
 3. ⚡ **Runs fast** — Matrix math optimized to process 2,400 million operations per second on a single CPU core
 
 Everything — the math engine, the learning algorithms, the trading logic — is written by hand in ~2,000 lines of C.
@@ -81,7 +81,7 @@ make market_gen   # Generate synthetic market data (~20 sec)
 
 ## How It Works
 
-The project has two layers: a **core engine** (the neural network library) and **applications** that use it.
+The project has two layers: a **core engine**(the neural network library) and**applications** that use it.
 
 ### Core Engine
 
@@ -201,7 +201,7 @@ Backpropagation correctness validated against central finite differences:
 
 - **Softmax**: Subtracts row-max before `exp()` to prevent overflow
 - **Sigmoid**: Branches on sign to avoid large negative exponents
-- **Cross-Entropy**: Clamps predictions to `[ε, 1-ε]` to avoid `log(0)`
+- **Cross-Entropy**: Clamps predictions to `[ε, 1-ε]`to avoid`log(0)`
 - **Weight Init**: Xavier (sigmoid/tanh) and He (ReLU), auto-selected
 
 </details>
@@ -216,9 +216,12 @@ All tensor operations return **new** heap-allocated tensors. Callers are respons
 <summary><strong>API usage</strong></summary>
 
 ```c
-#include "network.h"
-#include "optimizer.h"
-#include "loss.h"
+
+# include "network.h"
+
+# include "optimizer.h"
+
+# include "loss.h"
 
 // Create a 3-layer neural network
 Network *net = network_create();
