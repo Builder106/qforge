@@ -4,6 +4,10 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-08-14: Accessible plain-English documentation update #decision
+
+Refactored the README introduction, tagline, and feature descriptions to highlight the zero-dependency neural network and reinforcement learning trader in plain English. Removed unnecessary technical shorthand and punctuation artifacts while keeping the low-level C99 matrix benchmarks intact for systems engineers.
+
 ## 2026-07-24 — Adam Optimizer Implementation and i-k-j Matmul Cache Locality #feature #milestone
 
 Implemented the Adam adaptive moment estimation optimizer (`optimizer_create_adam`) with first and second moment bias corrections in pure C99, extending the framework's optimization toolkit alongside SGD with momentum. In parallel, refactored `tensor_matmul`from standard`i-j-k`triple loops to unit-stride`i-k-j` iteration order to maximize CPU L1/L2 cache line hits and enable SIMD auto-vectorization. Verified zero memory leaks, numerical gradient alignment, and 62 passing unit tests across GCC and Clang.

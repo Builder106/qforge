@@ -1,7 +1,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)"  srcset="docs/banner-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="docs/banner-light.png">
-  <img alt="qforge — a neural network from scratch in C99" src="docs/banner-dark.png">
+  <img alt="qforge: Building artificial intelligence from raw math in C" src="docs/banner-dark.png">
 </picture>
 
 [![CI](https://github.com/Builder106/qforge/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Builder106/qforge/actions/workflows/ci.yml)
@@ -11,17 +11,19 @@
 [![WebAssembly](https://img.shields.io/badge/WebAssembly-Emscripten-654FF0.svg?logo=webassembly&logoColor=white)](https://emscripten.org)
 [![Demo](https://img.shields.io/badge/demo-live-success.svg?logo=vercel&logoColor=white)](https://qforge-neural.vercel.app)
 
-> An AI that learns to trade stocks — built entirely from scratch in C, with no libraries.
+> **Building artificial intelligence from raw math.** A self-teaching trading AI written in pure C without external machine learning libraries.
 
-## What This Does
+## 💡 What is QForge?
 
-This project builds a **brain for trading** from the ground up — no TensorFlow, no PyTorch, no dependencies at all. Just raw C code that:
+Most modern AI relies on massive third-party software libraries. QForge builds an entire learning engine from the ground up using pure math and foundational C code. It generates a simulated market and trains an AI agent to trade over time through trial and error.
 
-1. 🧠 **Learns patterns** — A neural network trained on market data that generates realistic fake stock returns for [stress-testing portfolios](https://www.cfainstitute.org/)
-2. 📈 **Makes trades**— An AI trading agent that learns when to buy, sell, or hold — and**outperforms a passive buy-and-hold strategy**
-3. ⚡ **Runs fast** — Matrix math optimized to process 2,400 million operations per second on a single CPU core
+This project builds a brain for trading from scratch without TensorFlow, PyTorch, or external dependencies:
 
-Everything — the math engine, the learning algorithms, the trading logic — is written by hand in ~2,000 lines of C.
+1. **Learns patterns**: A neural network trained on market data that generates realistic synthetic stock returns for stress-testing portfolios.
+2. **Makes trades**: An AI trading agent that learns when to buy, sell, or hold, outperforming a passive buy-and-hold strategy.
+3. **Runs fast**: Custom matrix math optimized to process 2,400 million operations per second on a single CPU core.
+
+Everything (the math engine, the learning algorithms, and the trading logic) is written by hand in ~2,000 lines of C.
 
 ---
 
