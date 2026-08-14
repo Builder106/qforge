@@ -38,13 +38,49 @@ jobs:
 
       # Windows has no native make/gcc; MSYS2 gives us the same GNU toolchain
       # the Makefile expects (make, gcc, libm) instead of rewriting the build.
+      # Network instability can cause "socket hang up" during MSYS2 package downloads.
+      # Cache MSYS2 to avoid repeated downloads, and retry the package update with
+      # exponential backoff when network failures occur.
+      - name: Cache MSYS2 (Windows only)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: C:\msys64
+          key: msys2-${{ runner.os }}-${{ hashFiles('Makefile') }}
+          restore-keys: |
+            msys2-${{ runner.os }}-
       - name: Set up MSYS2 (Windows only)
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
-          update: true
+          update: false
           install: mingw-w64-ucrt-x86_64-gcc make
+      - name: Update MSYS2 packages with retry (Windows only)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          max_attempts=3
+          attempt=1
+          base_delay=30
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt of $max_attempts to update MSYS2 packages..."
+            if pacman -Syu --noconfirm; then
+              echo "MSYS2 package update completed successfully."
+              break
+            else
+              echo "Attempt $attempt failed."
+              if [ $attempt -eq $max_attempts ]; then
+                echo "All $max_attempts attempts failed. MSYS2 package update failed."
+                exit 1
+              fi
+              delay=$((base_delay * 2 ** (attempt - 1)))
+              echo "Waiting $delay seconds before retry..."
+              sleep $delay
+              attempt=$((attempt + 1))
+            fi
+          done
 
       - name: Run unit tests (56 — engine + scenarios)
         if: runner.os != 'Windows'
