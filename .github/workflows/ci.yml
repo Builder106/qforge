@@ -56,32 +56,6 @@ jobs:
           msystem: UCRT64
           update: false
           install: mingw-w64-ucrt-x86_64-gcc make
-      - name: Update MSYS2 packages with retry (Windows only)
-        if: runner.os == 'Windows'
-        shell: msys2 {0}
-        run: |
-          max_attempts=3
-          attempt=1
-          base_delay=30
-
-          while [ $attempt -le $max_attempts ]; do
-            echo "Attempt $attempt of $max_attempts to update MSYS2 packages..."
-            if pacman -Syu --noconfirm; then
-              echo "MSYS2 package update completed successfully."
-              break
-            else
-              echo "Attempt $attempt failed."
-              if [ $attempt -eq $max_attempts ]; then
-                echo "All $max_attempts attempts failed. MSYS2 package update failed."
-                exit 1
-              fi
-              delay=$((base_delay * 2 ** (attempt - 1)))
-              echo "Waiting $delay seconds before retry..."
-              sleep $delay
-              attempt=$((attempt + 1))
-            fi
-          done
-
       - name: Run unit tests (56 — engine + scenarios)
         if: runner.os != 'Windows'
         run: make test
