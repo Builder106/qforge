@@ -144,6 +144,7 @@ Then bump `CAST_VERSION`in`web/app.js` so browsers fetch the new file instead of
 - **c-suite** — `make test`+`make integration`
 - **wasm-build** — verifies `web/wasm/*` matches a fresh Emscripten build
 - **e2e** — Playwright + Gherkin BDD against a local web server
+
 1. PRs need all three jobs green. Vercel deploys a preview URL for every PR — link it in your description if reviewers should see it live.
 
 ## A few specific things to keep in mind
