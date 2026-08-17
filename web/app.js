@@ -148,35 +148,46 @@
   /* ---- xterm.js terminal ---- */
 
   const term = new Terminal({
-    fontFamily: '"JetBrains Mono", "Fira Code", "Cascadia Code", monospace',
+    fontFamily: 'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace',
     fontSize: 13,
-    lineHeight: 1.25,
-    cursorBlink: true,
-    theme: isDark() ? TERM_THEMES.dark : TERM_THEMES.light,
+    lineHeight: 1.2,
+    cursorBlink: false,
+    cursorStyle: 'block',
+    disableStdin: true,
     convertEol: true,
-    scrollback: 2000,
+    scrollback: 5000,
+    theme: isDark() ? TERM_THEMES.dark : TERM_THEMES.light,
   });
-
-  const fitAddon = new FitAddon.FitAddon();
-  term.loadAddon(fitAddon);
 
   const termContainer = document.getElementById('terminal');
   term.open(termContainer);
-  fitAddon.fit();
 
-  window.addEventListener('resize', () => {
-    try { fitAddon.fit(); } catch (e) {}
+  function fitTerminalToContainer() {
+    /* Rough heuristic: estimate cell size from font metrics, since we don't
+     * pull in xterm's FitAddon. Each cell ~7.8px wide at 13px font; row
+     * height = font * lineHeight = 13 * 1.2 = 15.6px. Compute cols + rows
+     * to match the container so the viewport fills the visible area exactly
+     * (otherwise xterm would render more rows than fit, breaking scroll). */
+    const containerWidth  = termContainer.clientWidth;
+    const containerHeight = termContainer.clientHeight;
+    const cols = Math.max(60, Math.floor((containerWidth  - 16) / 7.8));
+    const rows = Math.max(10, Math.floor((containerHeight - 16) / 15.6));
+    try { term.resize(cols, rows); } catch (e) { /* ignore */ }
+  }
+  fitTerminalToContainer();
+  window.addEventListener('resize', fitTerminalToContainer);
+
+  /* Wheel-scroll the terminal buffer when the user mouses over it. xterm's
+   * default capture works only when the terminal is focused; this delegates
+   * any wheel event over the container directly to term.scrollLines() so the
+   * scrollback works on first try without a click. */
+  termContainer.addEventListener('wheel', (e) => {
+    if (e.ctrlKey) return; /* leave Ctrl+wheel for browser zoom */
+    e.preventDefault();
+    /* deltaY > 0 = scroll down (newer); negative = up (older) */
+    const lines = Math.sign(e.deltaY) * 3;
+    term.scrollLines(lines);
   });
-
-  /* Touch scrolling for the terminal on mobile: touch events on xterm's
-   * viewport can be swallowed or conflict with page scroll. Forward touchmove
-   * so swiping over the terminal scrolls the surrounding page. */
-  termContainer.addEventListener('touchmove', (e) => {
-    /* If the terminal has scrollback, let xterm handle it; otherwise allow page scroll */
-    if (term.buffer.active.baseY === 0) {
-      /* at top of scrollback: don't preventDefault, let the page scroll */
-    }
-  }, { passive: false });
 
   /* Idle banner: a muted preview of what's about to happen so the empty
    * terminal state isn't a black void. ANSI 90 = bright black (grey) keeps
