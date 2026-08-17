@@ -1,14 +1,12 @@
 /* ============================================================================
  * network.c — Sequential neural network implementation
  * 
- * C-Neural-Engine: zero-dependency deep learning framework in C99
+ * qforge: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
 #include "network.h"
 #include <stdlib.h>
 #include <assert.h>
-
-/* ---- Create ---- */
 
 Network* network_create(void) {
     Network *net = (Network *)malloc(sizeof(Network));
@@ -21,8 +19,6 @@ Network* network_create(void) {
 
     return net;
 }
-
-/* ---- Free ---- */
 
 void network_free(Network *net) {
     if (net == NULL) return;

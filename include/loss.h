@@ -1,7 +1,7 @@
 /* ============================================================================
  * loss.h — Loss functions and their derivatives
  * 
- * C-Neural-Engine: zero-dependency deep learning framework in C99
+ * qforge: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
 #ifndef LOSS_H

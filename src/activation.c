@@ -1,7 +1,7 @@
 /* ============================================================================
  * activation.c — Implementation of activation functions
  * 
- * C-Neural-Engine: zero-dependency deep learning framework in C99
+ * qforge: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
 #include "activation.h"

@@ -1,5 +1,5 @@
 /* ============================================================================
- * app.js — main thread: asciinema-player tabs + xterm.js terminal + WASM runner
+ * app.js: main thread: asciinema-player tabs + xterm.js terminal + WASM runner
  *
  * The page respects the user's prefers-color-scheme: dark and light themes are
  * propagated through CSS variables, the asciinema-player theme prop, and the
@@ -105,7 +105,7 @@
 
     /* Autoplay if the player is on-screen at creation time (e.g. tab switch
      * while the section is in view). play() returns a Promise that can reject
-     * if the cast hasn't loaded yet — swallow that and rely on the observer
+     * if the cast hasn't loaded yet: swallow that and rely on the observer
      * to retry once the section becomes visible again. */
     if (playerVisible) {
       try {
@@ -117,7 +117,7 @@
 
   /* IntersectionObserver: play when the player scrolls into view, pause when
    * it scrolls out. Threshold 0.25 means a quarter of the player must be
-   * visible — avoids triggering when only a sliver pokes into the viewport. */
+   * visible, avoiding triggering when only a sliver pokes into the viewport. */
   const playerObserver = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       playerVisible = entry.isIntersecting;
@@ -129,7 +129,7 @@
         } else {
           currentPlayer.pause();
         }
-      } catch (e) { /* player not ready or already in target state */ }
+      } catch (e) { /* ignore */ }
     }
   }, { threshold: 0.25 });
   playerObserver.observe(playerContainer);
@@ -148,45 +148,34 @@
   /* ---- xterm.js terminal ---- */
 
   const term = new Terminal({
-    fontFamily: 'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace',
+    fontFamily: '"JetBrains Mono", "Fira Code", "Cascadia Code", monospace',
     fontSize: 13,
-    lineHeight: 1.2,
-    cursorBlink: false,
-    cursorStyle: 'block',
-    disableStdin: true,
-    convertEol: true,
-    scrollback: 5000,
+    lineHeight: 1.25,
+    cursorBlink: true,
     theme: isDark() ? TERM_THEMES.dark : TERM_THEMES.light,
+    convertEol: true,
+    scrollback: 2000,
   });
+
+  const fitAddon = new FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
 
   const termContainer = document.getElementById('terminal');
   term.open(termContainer);
+  fitAddon.fit();
 
-  function fitTerminalToContainer() {
-    /* Rough heuristic: estimate cell size from font metrics, since we don't
-     * pull in xterm's FitAddon. Each cell ~7.8px wide at 13px font; row
-     * height = font * lineHeight = 13 * 1.2 = 15.6px. Compute cols + rows
-     * to match the container so the viewport fills the visible area exactly
-     * (otherwise xterm would render more rows than fit, breaking scroll). */
-    const containerWidth  = termContainer.clientWidth;
-    const containerHeight = termContainer.clientHeight;
-    const cols = Math.max(60, Math.floor((containerWidth  - 16) / 7.8));
-    const rows = Math.max(10, Math.floor((containerHeight - 16) / 15.6));
-    try { term.resize(cols, rows); } catch (e) { /* ignore */ }
-  }
-  fitTerminalToContainer();
-  window.addEventListener('resize', fitTerminalToContainer);
+  window.addEventListener('resize', () => {
+    try { fitAddon.fit(); } catch (e) {}
+  });
 
-  /* Wheel-scroll the terminal buffer when the user mouses over it. xterm's
-   * default capture works only when the terminal is focused; this delegates
-   * any wheel event over the container directly to term.scrollLines() so the
-   * scrollback works on first try without a click. */
-  termContainer.addEventListener('wheel', (e) => {
-    if (e.ctrlKey) return; /* leave Ctrl+wheel for browser zoom */
-    e.preventDefault();
-    /* deltaY > 0 = scroll down (newer); negative = up (older) */
-    const lines = Math.sign(e.deltaY) * 3;
-    term.scrollLines(lines);
+  /* Touch scrolling for the terminal on mobile: touch events on xterm's
+   * viewport can be swallowed or conflict with page scroll. Forward touchmove
+   * so swiping over the terminal scrolls the surrounding page. */
+  termContainer.addEventListener('touchmove', (e) => {
+    /* If the terminal has scrollback, let xterm handle it; otherwise allow page scroll */
+    if (term.buffer.active.baseY === 0) {
+      /* at top of scrollback: don't preventDefault, let the page scroll */
+    }
   }, { passive: false });
 
   /* Idle banner: a muted preview of what's about to happen so the empty
@@ -196,10 +185,10 @@
     '',
     '\x1b[90m  ╔══════════════════════════════════════════════════════════════╗\x1b[0m',
     '\x1b[90m  ║                                                              ║\x1b[0m',
-    '\x1b[90m  ║   qforge — \x1b[36min-browser WASM runtime\x1b[90m                          ║\x1b[0m',
+    '\x1b[90m  ║   qforge: \x1b[36min-browser WASM runtime\x1b[90m                           ║\x1b[0m',
     '\x1b[90m  ║                                                              ║\x1b[0m',
     '\x1b[90m  ║   Same C99 source, compiled to WebAssembly.                  ║\x1b[0m',
-    '\x1b[90m  ║   Every demo runs in a Web Worker — output streams here.     ║\x1b[0m',
+    '\x1b[90m  ║   Every demo runs in a Web Worker; output streams here.      ║\x1b[0m',
     '\x1b[90m  ║                                                              ║\x1b[0m',
     '\x1b[90m  ╚══════════════════════════════════════════════════════════════╝\x1b[0m',
     '',
@@ -218,7 +207,7 @@
 
   /* ---- Demo runner: spawn a Web Worker per run ---- */
 
-  /* DEMOS table — each demo declares which DOM input ids feed its argv.
+  /* DEMOS table: each demo declares which DOM input ids feed its argv.
    * Order in `args` matches the positional argv parsing in the C source
    * (e.g. dqn_trader.c reads argv[1]=episodes, [2]=γ, [3]=lr, [4]=ε-decay).
    * If `args` is omitted the demo runs with its built-in defaults. */
@@ -252,7 +241,7 @@
     },
   };
 
-  /* Defaults for the reset button — keyed by input id. */
+  /* Defaults for the reset button (keyed by input id). */
   const TWEAK_DEFAULTS = {
     'xor-epochs':    '10000',
     'xor-lr':        '1.0',
@@ -318,7 +307,7 @@
     setRunning(true);
     hint.textContent = 'Running ' + demo.label +
       (overridden ? ' (with your custom hyperparameters)' : '') +
-      ' — output streams below. Hit stop to kill it.';
+      ', output streams below. Hit stop to kill it.';
 
     const t0 = performance.now();
     const worker = new Worker('worker.js');

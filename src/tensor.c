@@ -1,7 +1,7 @@
 /* ============================================================================
  * tensor.c — Implementation of Tensor operations
  * 
- * C-Neural-Engine: zero-dependency deep learning framework in C99
+ * qforge: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
 #include "tensor.h"
@@ -9,8 +9,6 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
-
-/* ---- Lifecycle ---- */
 
 Tensor* tensor_create(int rows, int cols) {
     assert(rows > 0 && cols > 0);
@@ -40,8 +38,6 @@ Tensor* tensor_copy(const Tensor *t) {
     memcpy(copy->data, t->data, (size_t)(t->rows * t->cols) * sizeof(double));
     return copy;
 }
-
-/* ---- Accessors ---- */
 
 double tensor_get(const Tensor *t, int row, int col) {
     assert(t != NULL);

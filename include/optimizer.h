@@ -1,7 +1,7 @@
 /* ============================================================================
  * optimizer.h — Gradient-based optimizers (SGD, SGD+Momentum)
  * 
- * C-Neural-Engine: zero-dependency deep learning framework in C99
+ * qforge: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
 #ifndef OPTIMIZER_H

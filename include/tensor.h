@@ -1,7 +1,7 @@
 /* ============================================================================
  * tensor.h — Tensor (Matrix) data structure and linear algebra operations
  * 
- * C-Neural-Engine: zero-dependency deep learning framework in C99
+ * qforge: zero-dependency deep learning framework in C99
  * All tensors are 2D (rows × cols), stored row-major in a flat double array.
  * ============================================================================ */
 

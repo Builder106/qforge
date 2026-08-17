@@ -1,7 +1,7 @@
 /* ============================================================================
  * layer.c — Dense layer implementation (forward + backward)
  * 
- * C-Neural-Engine: zero-dependency deep learning framework in C99
+ * qforge: zero-dependency deep learning framework in C99
  *
  * Forward:  z = input * weights + bias
  *           output = activation(z)

@@ -1,7 +1,7 @@
 /* ============================================================================
  * network.h — Sequential neural network model
  * 
- * C-Neural-Engine: zero-dependency deep learning framework in C99
+ * qforge: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
 #ifndef NETWORK_H
