@@ -31,7 +31,7 @@
   <text x="92" y="305"
         font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
         font-size="22" fill="#6a7280">
-    Zero deps · ~2,000 lines of C · WASM demos in your browser
+    Zero deps | ~2,000 lines of C | WASM demos in your browser
   </text>
 
   <!-- Q monogram on the right, vertically centered -->
