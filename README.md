@@ -29,24 +29,24 @@ Everything (the math engine, the learning algorithms, and the trading logic) is 
 
 ## Demo
 
-> **Try it live in your browser:** [qforge-neural.vercel.app](https://qforge-neural.vercel.app) — every demo below runs as WebAssembly with no install. The GIFs are recorded asciinema sessions of the native binaries.
+> **Try it live in your browser:** [qforge-neural.vercel.app](https://qforge-neural.vercel.app) (every demo below runs directly as WebAssembly with zero installation).
 
-### `$ make dqn` — Reinforcement-learning trading agent
+### `$ make dqn`: Reinforcement-learning trading agent
 
 ![DQN trader demo: 300-episode training run beating buy-and-hold](docs/demos/dqn.gif)
 
-### `$ make market_gen` — Synthetic market data generator
+### `$ make market_gen`: Synthetic market data generator
 
 ![Market generator demo: trains on GARCH-simulated returns and reproduces stylized facts](docs/demos/market_gen.gif)
 
 <details>
-<summary><strong>More demos</strong> — XOR convergence and matmul benchmarks</summary>
+<summary><strong>More demos:</strong> XOR learning and matrix math benchmarks</summary>
 
-### `$ make examples` — XOR (the classic hello-world of neural networks)
+### `$ make examples`: XOR classification (foundational test of neural networks)
 
 ![XOR training demo: 2→4→1 MLP converges in under a second](docs/demos/xor.gif)
 
-### `$ make bench` — Matmul + training-step throughput
+### `$ make bench`: Matrix computation throughput
 
 ![Benchmark demo: matmul up to 512×512 and full forward+backward+SGD timings](docs/demos/benchmark.gif)
 
