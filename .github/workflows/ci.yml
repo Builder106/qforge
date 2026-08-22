@@ -122,8 +122,9 @@ jobs:
       - name: Confirm built artifacts match committed
         run: |
           if ! git diff --quiet -- web/wasm; then
-            echo "::warning::web/wasm differs from committed artifacts — run 'make wasm' locally and commit the result"
+            echo "::error::web/wasm differs from committed artifacts — run 'make wasm' locally and commit the result"
             git --no-pager diff --stat -- web/wasm
+            exit 1
           else
             echo "WASM artifacts in repo match a fresh build"
           fi
