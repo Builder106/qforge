@@ -30,6 +30,7 @@ extern void test_tensor_transpose_1x1(void);
 extern void test_tensor_add_row_vector(void);
 extern void test_tensor_sum_cols(void);
 extern void test_tensor_print(void);
+extern void test_tensor_free_null(void);
 
 /* --- Activation tests --- */
 extern void test_relu_positive(void);
@@ -62,6 +63,7 @@ extern void test_layer_forward_relu(void);
 extern void test_layer_backward_gradient_shape(void);
 extern void test_layer_activation_tanh(void);
 extern void test_layer_activation_default(void);
+extern void test_layer_free_null(void);
 
 /* --- Network tests --- */
 extern void test_network_create(void);
@@ -70,6 +72,7 @@ extern void test_network_forward_shape(void);
 extern void test_network_backward(void);
 extern void test_network_predict(void);
 extern void test_network_capacity_realloc(void);
+extern void test_network_free_null(void);
 
 /* --- Optimizer tests --- */
 extern void test_optimizer_create_sgd(void);
@@ -78,6 +81,8 @@ extern void test_optimizer_momentum_accumulates(void);
 extern void test_optimizer_velocity_initial_zero(void);
 extern void test_optimizer_create_adam(void);
 extern void test_optimizer_adam_step(void);
+extern void test_optimizer_free_null(void);
+
 
 /* --- Scenario tests (multi-module integration) --- */
 extern void test_layer_caches_after_forward(void);
@@ -121,6 +126,7 @@ int main(void) {
     RUN_TEST(test_tensor_add_row_vector);
     RUN_TEST(test_tensor_sum_cols);
     RUN_TEST(test_tensor_print);
+    RUN_TEST(test_tensor_free_null);
 
     /* ── Activation Module ── */
     RUN_SUITE("Activation: ReLU");
@@ -162,6 +168,7 @@ int main(void) {
     RUN_TEST(test_layer_backward_gradient_shape);
     RUN_TEST(test_layer_activation_tanh);
     RUN_TEST(test_layer_activation_default);
+    RUN_TEST(test_layer_free_null);
 
     /* ── Network Module ── */
     RUN_SUITE("Network");
@@ -171,6 +178,7 @@ int main(void) {
     RUN_TEST(test_network_backward);
     RUN_TEST(test_network_predict);
     RUN_TEST(test_network_capacity_realloc);
+    RUN_TEST(test_network_free_null);
 
     /* ── Optimizer Module ── */
     RUN_SUITE("Optimizer: SGD & Adam");
@@ -180,6 +188,7 @@ int main(void) {
     RUN_TEST(test_optimizer_velocity_initial_zero);
     RUN_TEST(test_optimizer_create_adam);
     RUN_TEST(test_optimizer_adam_step);
+    RUN_TEST(test_optimizer_free_null);
 
     /* ── Scenario / cross-module ── */
     RUN_SUITE("Scenarios: multi-module integration");

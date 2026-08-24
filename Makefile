@@ -44,7 +44,7 @@ DQN_BIN       = dqn_trader_bin
 # Targets
 # ============================================================================
 
-.PHONY: all test clean memcheck examples bench gradcheck market_gen dqn wasm wasm-clean integration e2e e2e-install
+.PHONY: all test coverage clean memcheck examples bench gradcheck market_gen dqn wasm wasm-clean integration e2e e2e-install
 
 all: $(OBJS)
 
@@ -58,6 +58,22 @@ test: $(TEST_BIN)
 
 $(TEST_BIN): $(SRCS) $(TEST_SRCS)
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -lm -o $@
+
+# ---- Code Coverage ----
+coverage: clean
+	$(CC) $(CFLAGS) $(INCLUDES) -fprofile-arcs -ftest-coverage $(SRCS) $(TEST_SRCS) -lm -o $(TEST_BIN)_cov
+	./$(TEST_BIN)_cov
+	@if command -v lcov > /dev/null 2>&1; then \
+		lcov --capture --directory . --output-file coverage.info --rc branch_coverage=1 --rc derive_function_end_line=0 2>/dev/null || lcov --capture --directory . --output-file coverage.info; \
+		lcov --extract coverage.info "*/src/*" --output-file coverage_src.info; \
+		genhtml coverage_src.info --output-directory coverage_html 2>/dev/null || true; \
+		echo "--- Line coverage report (lcov) ---"; \
+		lcov --list coverage_src.info; \
+	fi
+	@echo "--- Gcov report for source files ---"
+	@gcov -n $(TEST_BIN)_cov-tensor.gcno $(TEST_BIN)_cov-activation.gcno $(TEST_BIN)_cov-loss.gcno $(TEST_BIN)_cov-layer.gcno $(TEST_BIN)_cov-network.gcno $(TEST_BIN)_cov-optimizer.gcno
+
+
 
 # ---- Examples ----
 examples: $(XOR_BIN)
@@ -170,4 +186,5 @@ e2e:
 
 # ---- Clean ----
 clean:
-	rm -f $(SRC_DIR)/*.o $(TEST_BIN) $(TEST_BIN)_asan $(XOR_BIN) $(BENCH_BIN) $(GRADCHECK_BIN) $(MKTGEN_BIN) $(DQN_BIN)
+	rm -rf $(SRC_DIR)/*.o $(TEST_BIN) $(TEST_BIN)_asan $(TEST_BIN)_cov $(XOR_BIN) $(BENCH_BIN) $(GRADCHECK_BIN) $(MKTGEN_BIN) $(DQN_BIN) *.gcda *.gcno *.gcov $(SRC_DIR)/*.gcda $(SRC_DIR)/*.gcno $(TEST_DIR)/*.gcda $(TEST_DIR)/*.gcno coverage*.info coverage_html *.dSYM $(TEST_BIN)*.dSYM
+

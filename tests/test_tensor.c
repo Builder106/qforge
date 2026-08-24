@@ -330,3 +330,10 @@ void test_tensor_print(void) {
     
     tensor_free(a);
 }
+
+void test_tensor_free_null(void) {
+    /* tensor_free(NULL) should safely do nothing without crashing */
+    tensor_free(NULL);
+    ASSERT_TRUE(1);
+}
+

@@ -56,11 +56,11 @@ jobs:
           msystem: UCRT64
           update: false
           install: mingw-w64-ucrt-x86_64-gcc make
-      - name: Run unit tests (56 — engine + scenarios)
+      - name: Run unit tests (engine + scenarios)
         if: runner.os != 'Windows'
         run: make test
 
-      - name: Run unit tests (56 — engine + scenarios, Windows)
+      - name: Run unit tests (engine + scenarios, Windows)
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: make test
@@ -71,6 +71,33 @@ jobs:
       - name: Run ASan + UBSan checks (GCC)
         if: runner.os != 'Windows'
         run: make clean && make test CFLAGS="-fsanitize=address,undefined -g"
+
+  coverage:
+    name: Code coverage (100% target)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
+      - name: Run test coverage
+        run: make coverage
+      - name: Verify 100% line coverage on source files
+        run: |
+          # Verify every src/*.c file achieves 100% line coverage in gcov
+          FAILED=0
+          for f in tensor activation loss layer network optimizer; do
+            LINES=$(gcov -n test_runner_cov-${f}.gcno | grep -A 1 "File 'src/${f}.c'" | grep "Lines executed:100.00%")
+            if [ -z "$LINES" ]; then
+              echo "::error::src/${f}.c does not have 100.00% coverage!"
+              gcov -n test_runner_cov-${f}.gcno
+              FAILED=1
+            else
+              echo "src/${f}.c: 100.00% line coverage verified"
+            fi
+          done
+          if [ "$FAILED" -ne 0 ]; then
+            exit 1
+          fi
 
   sanitizers:
     name: Clang Sanitizers (${{ matrix.sanitizer }})
@@ -103,6 +130,7 @@ jobs:
           make clean
           make test
           make integration
+
 
   wasm-build:
     name: WASM build drift check

@@ -175,3 +175,10 @@ void test_optimizer_adam_step(void) {
     optimizer_free(opt);
     network_free(net);
 }
+
+void test_optimizer_free_null(void) {
+    /* optimizer_free(NULL) should safely do nothing without crashing */
+    optimizer_free(NULL);
+    ASSERT_TRUE(1);
+}
+

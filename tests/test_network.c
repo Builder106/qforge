@@ -119,3 +119,10 @@ void test_network_capacity_realloc(void) {
     
     network_free(net);
 }
+
+void test_network_free_null(void) {
+    /* network_free(NULL) should safely do nothing without crashing */
+    network_free(NULL);
+    ASSERT_TRUE(1);
+}
+

@@ -193,3 +193,10 @@ void test_layer_activation_default(void) {
     layer_free(l);
 }
 
+void test_layer_free_null(void) {
+    /* layer_free(NULL) should safely do nothing without crashing */
+    layer_free(NULL);
+    ASSERT_TRUE(1);
+}
+
+
