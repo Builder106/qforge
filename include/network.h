@@ -1,6 +1,6 @@
 /* ============================================================================
  * network.h — Sequential neural network model
- * 
+ *
  * qforge: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
@@ -19,12 +19,11 @@ typedef struct {
 
 /* --- API --- */
 
-Network* network_create(void);
-void     network_free(Network *net);
-void     network_add_layer(Network *net, int input_size, int output_size,
-                           ActivationType act);
-Tensor*  network_forward(Network *net, const Tensor *input);
-void     network_backward(Network *net, const Tensor *d_output);
-Tensor*  network_predict(Network *net, const Tensor *input);
+Network *network_create(void);
+void network_free(Network *net);
+void network_add_layer(Network *net, int input_size, int output_size, ActivationType act);
+Tensor *network_forward(Network *net, const Tensor *input);
+void network_backward(Network *net, const Tensor *d_output);
+Tensor *network_predict(Network *net, const Tensor *input);
 
 #endif /* NETWORK_H */

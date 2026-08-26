@@ -3,10 +3,10 @@
  * 🔴 RED: Tests written before implementation
  * ============================================================================ */
 
-#include "test_harness.h"
-#include "tensor.h"
 #include "layer.h"
 #include "network.h"
+#include "tensor.h"
+#include "test_harness.h"
 
 /* --- Creation --- */
 
@@ -108,15 +108,15 @@ void test_network_predict(void) {
 
 void test_network_capacity_realloc(void) {
     Network *net = network_create();
-    
+
     /* INITIAL_CAPACITY is typically 16. Adding 20 layers should trigger realloc */
     for (int i = 0; i < 20; i++) {
         network_add_layer(net, 2, 2, ACT_NONE);
     }
-    
+
     ASSERT_EQ(net->num_layers, 20);
     ASSERT_TRUE(net->capacity >= 20);
-    
+
     network_free(net);
 }
 
@@ -125,4 +125,3 @@ void test_network_free_null(void) {
     network_free(NULL);
     ASSERT_TRUE(1);
 }
-

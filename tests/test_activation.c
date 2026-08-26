@@ -3,9 +3,9 @@
  * 🔴 RED: Tests written before implementation
  * ============================================================================ */
 
-#include "test_harness.h"
-#include "tensor.h"
 #include "activation.h"
+#include "tensor.h"
+#include "test_harness.h"
 
 /* --- ReLU --- */
 
@@ -20,7 +20,8 @@ void test_relu_positive(void) {
     ASSERT_NEAR(tensor_get(r, 0, 1), 5.0, 1e-9);
     ASSERT_NEAR(tensor_get(r, 0, 2), 0.5, 1e-9);
 
-    tensor_free(t); tensor_free(r);
+    tensor_free(t);
+    tensor_free(r);
 }
 
 void test_relu_negative(void) {
@@ -34,7 +35,8 @@ void test_relu_negative(void) {
     ASSERT_NEAR(tensor_get(r, 0, 1), 0.0, 1e-9);
     ASSERT_NEAR(tensor_get(r, 0, 2), 0.0, 1e-9);
 
-    tensor_free(t); tensor_free(r);
+    tensor_free(t);
+    tensor_free(r);
 }
 
 void test_relu_deriv(void) {
@@ -50,7 +52,8 @@ void test_relu_deriv(void) {
     ASSERT_NEAR(tensor_get(d, 0, 2), 1.0, 1e-9);
     ASSERT_NEAR(tensor_get(d, 0, 3), 1.0, 1e-9);
 
-    tensor_free(t); tensor_free(d);
+    tensor_free(t);
+    tensor_free(d);
 }
 
 /* --- Sigmoid --- */
@@ -62,7 +65,8 @@ void test_sigmoid_zero(void) {
     Tensor *s = activation_sigmoid(t);
     ASSERT_NEAR(tensor_get(s, 0, 0), 0.5, 1e-6);
 
-    tensor_free(t); tensor_free(s);
+    tensor_free(t);
+    tensor_free(s);
 }
 
 void test_sigmoid_large_positive(void) {
@@ -72,7 +76,8 @@ void test_sigmoid_large_positive(void) {
     Tensor *s = activation_sigmoid(t);
     ASSERT_NEAR(tensor_get(s, 0, 0), 1.0, 1e-6);
 
-    tensor_free(t); tensor_free(s);
+    tensor_free(t);
+    tensor_free(s);
 }
 
 void test_sigmoid_large_negative(void) {
@@ -82,7 +87,8 @@ void test_sigmoid_large_negative(void) {
     Tensor *s = activation_sigmoid(t);
     ASSERT_NEAR(tensor_get(s, 0, 0), 0.0, 1e-6);
 
-    tensor_free(t); tensor_free(s);
+    tensor_free(t);
+    tensor_free(s);
 }
 
 void test_sigmoid_deriv(void) {
@@ -94,7 +100,8 @@ void test_sigmoid_deriv(void) {
     Tensor *d = activation_sigmoid_deriv(t);
     ASSERT_NEAR(tensor_get(d, 0, 0), 0.25, 1e-6);
 
-    tensor_free(t); tensor_free(d);
+    tensor_free(t);
+    tensor_free(d);
 }
 
 /* --- Tanh --- */
@@ -106,7 +113,8 @@ void test_tanh_zero(void) {
     Tensor *r = activation_tanh_forward(t);
     ASSERT_NEAR(tensor_get(r, 0, 0), 0.0, 1e-6);
 
-    tensor_free(t); tensor_free(r);
+    tensor_free(t);
+    tensor_free(r);
 }
 
 void test_tanh_deriv_zero(void) {
@@ -117,7 +125,8 @@ void test_tanh_deriv_zero(void) {
     Tensor *d = activation_tanh_deriv(t);
     ASSERT_NEAR(tensor_get(d, 0, 0), 1.0, 1e-6);
 
-    tensor_free(t); tensor_free(d);
+    tensor_free(t);
+    tensor_free(d);
 }
 
 /* --- Softmax --- */
@@ -132,7 +141,8 @@ void test_softmax_uniform(void) {
     ASSERT_NEAR(tensor_get(s, 0, 1), 1.0 / 3.0, 1e-6);
     ASSERT_NEAR(tensor_get(s, 0, 2), 1.0 / 3.0, 1e-6);
 
-    tensor_free(t); tensor_free(s);
+    tensor_free(t);
+    tensor_free(s);
 }
 
 void test_softmax_sums_to_one(void) {
@@ -149,7 +159,8 @@ void test_softmax_sums_to_one(void) {
     }
     ASSERT_NEAR(sum, 1.0, 1e-6);
 
-    tensor_free(t); tensor_free(s);
+    tensor_free(t);
+    tensor_free(s);
 }
 
 void test_softmax_numerical_stability(void) {
@@ -164,5 +175,6 @@ void test_softmax_numerical_stability(void) {
     ASSERT_NEAR(tensor_get(s, 0, 0), 1.0 / 3.0, 1e-6);
     ASSERT_NEAR(tensor_get(s, 0, 1), 1.0 / 3.0, 1e-6);
 
-    tensor_free(t); tensor_free(s);
+    tensor_free(t);
+    tensor_free(s);
 }

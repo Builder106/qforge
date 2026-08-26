@@ -3,11 +3,11 @@
  * 🔴 RED: Tests written before implementation
  * ============================================================================ */
 
-#include "test_harness.h"
-#include "tensor.h"
 #include "layer.h"
 #include "network.h"
 #include "optimizer.h"
+#include "tensor.h"
+#include "test_harness.h"
 #include <math.h>
 
 /* --- SGD Creation --- */
@@ -101,8 +101,10 @@ void test_optimizer_momentum_accumulates(void) {
     /* With momentum=0.9, step 2 should have a larger update than step 1 */
     ASSERT_TRUE(delta2 > delta1);
 
-    tensor_free(output1); tensor_free(d_out1);
-    tensor_free(output2); tensor_free(d_out2);
+    tensor_free(output1);
+    tensor_free(d_out1);
+    tensor_free(output2);
+    tensor_free(d_out2);
     tensor_free(input);
     optimizer_free(opt);
     network_free(net);
@@ -181,4 +183,3 @@ void test_optimizer_free_null(void) {
     optimizer_free(NULL);
     ASSERT_TRUE(1);
 }
-

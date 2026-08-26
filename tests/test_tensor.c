@@ -3,8 +3,8 @@
  * 🔴 RED: These tests are written BEFORE the implementation.
  * ============================================================================ */
 
-#include "test_harness.h"
 #include "tensor.h"
+#include "test_harness.h"
 #include <stdlib.h>
 
 /* --- Creation & Memory --- */
@@ -114,10 +114,14 @@ void test_tensor_rand(void) {
 void test_tensor_add(void) {
     Tensor *a = tensor_create(2, 2);
     Tensor *b = tensor_create(2, 2);
-    tensor_set(a, 0, 0, 1.0); tensor_set(a, 0, 1, 2.0);
-    tensor_set(a, 1, 0, 3.0); tensor_set(a, 1, 1, 4.0);
-    tensor_set(b, 0, 0, 10.0); tensor_set(b, 0, 1, 20.0);
-    tensor_set(b, 1, 0, 30.0); tensor_set(b, 1, 1, 40.0);
+    tensor_set(a, 0, 0, 1.0);
+    tensor_set(a, 0, 1, 2.0);
+    tensor_set(a, 1, 0, 3.0);
+    tensor_set(a, 1, 1, 4.0);
+    tensor_set(b, 0, 0, 10.0);
+    tensor_set(b, 0, 1, 20.0);
+    tensor_set(b, 1, 0, 30.0);
+    tensor_set(b, 1, 1, 40.0);
 
     Tensor *c = tensor_add(a, b);
     ASSERT_NOT_NULL(c);
@@ -126,7 +130,9 @@ void test_tensor_add(void) {
     ASSERT_NEAR(tensor_get(c, 1, 0), 33.0, 1e-9);
     ASSERT_NEAR(tensor_get(c, 1, 1), 44.0, 1e-9);
 
-    tensor_free(a); tensor_free(b); tensor_free(c);
+    tensor_free(a);
+    tensor_free(b);
+    tensor_free(c);
 }
 
 /* --- Element-wise Subtraction --- */
@@ -142,21 +148,28 @@ void test_tensor_sub(void) {
         ASSERT_NEAR(c->data[i], 7.0, 1e-9);
     }
 
-    tensor_free(a); tensor_free(b); tensor_free(c);
+    tensor_free(a);
+    tensor_free(b);
+    tensor_free(c);
 }
 
 /* --- Scalar Multiply --- */
 
 void test_tensor_mul_scalar(void) {
     Tensor *a = tensor_create(2, 3);
-    tensor_set(a, 0, 0, 1.0); tensor_set(a, 0, 1, 2.0); tensor_set(a, 0, 2, 3.0);
-    tensor_set(a, 1, 0, 4.0); tensor_set(a, 1, 1, 5.0); tensor_set(a, 1, 2, 6.0);
+    tensor_set(a, 0, 0, 1.0);
+    tensor_set(a, 0, 1, 2.0);
+    tensor_set(a, 0, 2, 3.0);
+    tensor_set(a, 1, 0, 4.0);
+    tensor_set(a, 1, 1, 5.0);
+    tensor_set(a, 1, 2, 6.0);
 
     Tensor *b = tensor_mul_scalar(a, 0.5);
     ASSERT_NEAR(tensor_get(b, 0, 0), 0.5, 1e-9);
     ASSERT_NEAR(tensor_get(b, 1, 2), 3.0, 1e-9);
 
-    tensor_free(a); tensor_free(b);
+    tensor_free(a);
+    tensor_free(b);
 }
 
 /* --- Hadamard (element-wise) Product --- */
@@ -164,10 +177,14 @@ void test_tensor_mul_scalar(void) {
 void test_tensor_hadamard(void) {
     Tensor *a = tensor_create(2, 2);
     Tensor *b = tensor_create(2, 2);
-    tensor_set(a, 0, 0, 2.0); tensor_set(a, 0, 1, 3.0);
-    tensor_set(a, 1, 0, 4.0); tensor_set(a, 1, 1, 5.0);
-    tensor_set(b, 0, 0, 10.0); tensor_set(b, 0, 1, 10.0);
-    tensor_set(b, 1, 0, 10.0); tensor_set(b, 1, 1, 10.0);
+    tensor_set(a, 0, 0, 2.0);
+    tensor_set(a, 0, 1, 3.0);
+    tensor_set(a, 1, 0, 4.0);
+    tensor_set(a, 1, 1, 5.0);
+    tensor_set(b, 0, 0, 10.0);
+    tensor_set(b, 0, 1, 10.0);
+    tensor_set(b, 1, 0, 10.0);
+    tensor_set(b, 1, 1, 10.0);
 
     Tensor *c = tensor_hadamard(a, b);
     ASSERT_NEAR(tensor_get(c, 0, 0), 20.0, 1e-9);
@@ -175,7 +192,9 @@ void test_tensor_hadamard(void) {
     ASSERT_NEAR(tensor_get(c, 1, 0), 40.0, 1e-9);
     ASSERT_NEAR(tensor_get(c, 1, 1), 50.0, 1e-9);
 
-    tensor_free(a); tensor_free(b); tensor_free(c);
+    tensor_free(a);
+    tensor_free(b);
+    tensor_free(c);
 }
 
 /* --- Matrix Multiplication --- */
@@ -188,12 +207,19 @@ void test_tensor_matmul_2x3_3x2(void) {
     Tensor *a = tensor_create(2, 3);
     Tensor *b = tensor_create(3, 2);
 
-    tensor_set(a, 0, 0, 1); tensor_set(a, 0, 1, 2); tensor_set(a, 0, 2, 3);
-    tensor_set(a, 1, 0, 4); tensor_set(a, 1, 1, 5); tensor_set(a, 1, 2, 6);
+    tensor_set(a, 0, 0, 1);
+    tensor_set(a, 0, 1, 2);
+    tensor_set(a, 0, 2, 3);
+    tensor_set(a, 1, 0, 4);
+    tensor_set(a, 1, 1, 5);
+    tensor_set(a, 1, 2, 6);
 
-    tensor_set(b, 0, 0, 7);  tensor_set(b, 0, 1, 8);
-    tensor_set(b, 1, 0, 9);  tensor_set(b, 1, 1, 10);
-    tensor_set(b, 2, 0, 11); tensor_set(b, 2, 1, 12);
+    tensor_set(b, 0, 0, 7);
+    tensor_set(b, 0, 1, 8);
+    tensor_set(b, 1, 0, 9);
+    tensor_set(b, 1, 1, 10);
+    tensor_set(b, 2, 0, 11);
+    tensor_set(b, 2, 1, 12);
 
     Tensor *c = tensor_matmul(a, b);
     ASSERT_NOT_NULL(c);
@@ -204,7 +230,9 @@ void test_tensor_matmul_2x3_3x2(void) {
     ASSERT_NEAR(tensor_get(c, 1, 0), 139.0, 1e-9);
     ASSERT_NEAR(tensor_get(c, 1, 1), 154.0, 1e-9);
 
-    tensor_free(a); tensor_free(b); tensor_free(c);
+    tensor_free(a);
+    tensor_free(b);
+    tensor_free(c);
 }
 
 void test_tensor_matmul_1x1(void) {
@@ -216,17 +244,22 @@ void test_tensor_matmul_1x1(void) {
     Tensor *c = tensor_matmul(a, b);
     ASSERT_NEAR(tensor_get(c, 0, 0), 21.0, 1e-9);
 
-    tensor_free(a); tensor_free(b); tensor_free(c);
+    tensor_free(a);
+    tensor_free(b);
+    tensor_free(c);
 }
 
 void test_tensor_matmul_identity(void) {
     /* A * I = A */
     Tensor *a = tensor_create(2, 2);
-    tensor_set(a, 0, 0, 5.0); tensor_set(a, 0, 1, 6.0);
-    tensor_set(a, 1, 0, 7.0); tensor_set(a, 1, 1, 8.0);
+    tensor_set(a, 0, 0, 5.0);
+    tensor_set(a, 0, 1, 6.0);
+    tensor_set(a, 1, 0, 7.0);
+    tensor_set(a, 1, 1, 8.0);
 
     Tensor *eye = tensor_create(2, 2);
-    tensor_set(eye, 0, 0, 1.0); tensor_set(eye, 1, 1, 1.0);
+    tensor_set(eye, 0, 0, 1.0);
+    tensor_set(eye, 1, 1, 1.0);
 
     Tensor *c = tensor_matmul(a, eye);
     ASSERT_NEAR(tensor_get(c, 0, 0), 5.0, 1e-9);
@@ -234,7 +267,9 @@ void test_tensor_matmul_identity(void) {
     ASSERT_NEAR(tensor_get(c, 1, 0), 7.0, 1e-9);
     ASSERT_NEAR(tensor_get(c, 1, 1), 8.0, 1e-9);
 
-    tensor_free(a); tensor_free(eye); tensor_free(c);
+    tensor_free(a);
+    tensor_free(eye);
+    tensor_free(c);
 }
 
 /* --- Transpose --- */
@@ -245,8 +280,12 @@ void test_tensor_transpose(void) {
      *                        | 3 6 |
      */
     Tensor *a = tensor_create(2, 3);
-    tensor_set(a, 0, 0, 1); tensor_set(a, 0, 1, 2); tensor_set(a, 0, 2, 3);
-    tensor_set(a, 1, 0, 4); tensor_set(a, 1, 1, 5); tensor_set(a, 1, 2, 6);
+    tensor_set(a, 0, 0, 1);
+    tensor_set(a, 0, 1, 2);
+    tensor_set(a, 0, 2, 3);
+    tensor_set(a, 1, 0, 4);
+    tensor_set(a, 1, 1, 5);
+    tensor_set(a, 1, 2, 6);
 
     Tensor *at = tensor_transpose(a);
     ASSERT_NOT_NULL(at);
@@ -259,7 +298,8 @@ void test_tensor_transpose(void) {
     ASSERT_NEAR(tensor_get(at, 2, 0), 3.0, 1e-9);
     ASSERT_NEAR(tensor_get(at, 2, 1), 6.0, 1e-9);
 
-    tensor_free(a); tensor_free(at);
+    tensor_free(a);
+    tensor_free(at);
 }
 
 void test_tensor_transpose_1x1(void) {
@@ -269,7 +309,8 @@ void test_tensor_transpose_1x1(void) {
     ASSERT_EQ(at->rows, 1);
     ASSERT_EQ(at->cols, 1);
     ASSERT_NEAR(tensor_get(at, 0, 0), 42.0, 1e-9);
-    tensor_free(a); tensor_free(at);
+    tensor_free(a);
+    tensor_free(at);
 }
 
 /* --- Add row vector (broadcast bias) --- */
@@ -281,11 +322,17 @@ void test_tensor_add_row_vector(void) {
      *          | 14 25 36 |
      */
     Tensor *a = tensor_create(2, 3);
-    tensor_set(a, 0, 0, 1); tensor_set(a, 0, 1, 2); tensor_set(a, 0, 2, 3);
-    tensor_set(a, 1, 0, 4); tensor_set(a, 1, 1, 5); tensor_set(a, 1, 2, 6);
+    tensor_set(a, 0, 0, 1);
+    tensor_set(a, 0, 1, 2);
+    tensor_set(a, 0, 2, 3);
+    tensor_set(a, 1, 0, 4);
+    tensor_set(a, 1, 1, 5);
+    tensor_set(a, 1, 2, 6);
 
     Tensor *bias = tensor_create(1, 3);
-    tensor_set(bias, 0, 0, 10); tensor_set(bias, 0, 1, 20); tensor_set(bias, 0, 2, 30);
+    tensor_set(bias, 0, 0, 10);
+    tensor_set(bias, 0, 1, 20);
+    tensor_set(bias, 0, 2, 30);
 
     Tensor *result = tensor_add_row_vector(a, bias);
     ASSERT_NOT_NULL(result);
@@ -296,7 +343,9 @@ void test_tensor_add_row_vector(void) {
     ASSERT_NEAR(tensor_get(result, 1, 1), 25.0, 1e-9);
     ASSERT_NEAR(tensor_get(result, 1, 2), 36.0, 1e-9);
 
-    tensor_free(a); tensor_free(bias); tensor_free(result);
+    tensor_free(a);
+    tensor_free(bias);
+    tensor_free(result);
 }
 
 /* --- Sum columns (for bias gradient) --- */
@@ -306,8 +355,10 @@ void test_tensor_sum_cols(void) {
      *     | 5 6 |   Actually sum down columns => | 6 8 | (1x2 vector)
      */
     Tensor *a = tensor_create(2, 2);
-    tensor_set(a, 0, 0, 1); tensor_set(a, 0, 1, 2);
-    tensor_set(a, 1, 0, 5); tensor_set(a, 1, 1, 6);
+    tensor_set(a, 0, 0, 1);
+    tensor_set(a, 0, 1, 2);
+    tensor_set(a, 1, 0, 5);
+    tensor_set(a, 1, 1, 6);
 
     Tensor *s = tensor_sum_cols(a);
     ASSERT_NOT_NULL(s);
@@ -316,18 +367,19 @@ void test_tensor_sum_cols(void) {
     ASSERT_NEAR(tensor_get(s, 0, 0), 6.0, 1e-9);
     ASSERT_NEAR(tensor_get(s, 0, 1), 8.0, 1e-9);
 
-    tensor_free(a); tensor_free(s);
+    tensor_free(a);
+    tensor_free(s);
 }
 
 void test_tensor_print(void) {
     /* Test tensor_print to cover the print lines */
     Tensor *a = tensor_create(2, 2);
     tensor_fill(a, 3.14);
-    
+
     /* Just call it. We assume it prints to stdout successfully. */
     tensor_print(a, "Test Tensor");
     tensor_print(a, NULL);
-    
+
     tensor_free(a);
 }
 
@@ -336,4 +388,3 @@ void test_tensor_free_null(void) {
     tensor_free(NULL);
     ASSERT_TRUE(1);
 }
-

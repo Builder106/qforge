@@ -9,14 +9,14 @@
  * this file covers the same engine path *without* the example wrappers.
  * ============================================================================ */
 
-#include "test_harness.h"
-#include "tensor.h"
 #include "layer.h"
-#include "network.h"
 #include "loss.h"
+#include "network.h"
 #include "optimizer.h"
-#include <stdlib.h>
+#include "tensor.h"
+#include "test_harness.h"
 #include <math.h>
+#include <stdlib.h>
 
 /* ---- Layer caching invariants ---- */
 
@@ -65,17 +65,19 @@ void test_optimizer_reduces_loss_on_linear_regression(void) {
     network_add_layer(net, 1, 1, ACT_NONE);
     Optimizer *opt = optimizer_create_sgd(0.05, 0.0, net);
 
-    double xs[4] = { 0.0, 1.0, 2.0, 3.0 };
-    double ys[4] = { 0.0, 2.0, 4.0, 6.0 };
+    double xs[4] = {0.0, 1.0, 2.0, 3.0};
+    double ys[4] = {0.0, 2.0, 4.0, 6.0};
 
     double initial_loss = 0.0;
-    double final_loss   = 0.0;
+    double final_loss = 0.0;
 
     for (int epoch = 0; epoch < 500; epoch++) {
         double epoch_loss = 0.0;
         for (int s = 0; s < 4; s++) {
-            Tensor *in  = tensor_create(1, 1); tensor_set(in,  0, 0, xs[s]);
-            Tensor *tgt = tensor_create(1, 1); tensor_set(tgt, 0, 0, ys[s]);
+            Tensor *in = tensor_create(1, 1);
+            tensor_set(in, 0, 0, xs[s]);
+            Tensor *tgt = tensor_create(1, 1);
+            tensor_set(tgt, 0, 0, ys[s]);
 
             Tensor *pred = network_forward(net, in);
             epoch_loss += loss_mse(pred, tgt);
@@ -83,14 +85,19 @@ void test_optimizer_reduces_loss_on_linear_regression(void) {
             network_backward(net, grad);
             optimizer_step(opt, net);
 
-            tensor_free(in); tensor_free(tgt); tensor_free(pred); tensor_free(grad);
+            tensor_free(in);
+            tensor_free(tgt);
+            tensor_free(pred);
+            tensor_free(grad);
         }
-        if (epoch == 0)   initial_loss = epoch_loss / 4.0;
-        if (epoch == 499) final_loss   = epoch_loss / 4.0;
+        if (epoch == 0)
+            initial_loss = epoch_loss / 4.0;
+        if (epoch == 499)
+            final_loss = epoch_loss / 4.0;
     }
 
     ASSERT_TRUE(initial_loss > 0.0);
-    ASSERT_TRUE(final_loss < initial_loss * 0.001);  /* >1000× reduction */
+    ASSERT_TRUE(final_loss < initial_loss * 0.001); /* >1000× reduction */
     ASSERT_TRUE(final_loss < 1e-3);
 
     optimizer_free(opt);
@@ -111,21 +118,26 @@ void test_xor_converges(void) {
     network_add_layer(net, 4, 1, ACT_SIGMOID);
     Optimizer *opt = optimizer_create_sgd(1.0, 0.9, net);
 
-    double inputs[4][2] = {{0,0},{0,1},{1,0},{1,1}};
-    double targets[4]   = { 0,   1,   1,   0   };
+    double inputs[4][2] = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    double targets[4] = {0, 1, 1, 0};
 
     for (int epoch = 0; epoch < 5000; epoch++) {
         for (int s = 0; s < 4; s++) {
-            Tensor *in  = tensor_create(1, 2);
-            tensor_set(in, 0, 0, inputs[s][0]); tensor_set(in, 0, 1, inputs[s][1]);
-            Tensor *tgt = tensor_create(1, 1); tensor_set(tgt, 0, 0, targets[s]);
+            Tensor *in = tensor_create(1, 2);
+            tensor_set(in, 0, 0, inputs[s][0]);
+            tensor_set(in, 0, 1, inputs[s][1]);
+            Tensor *tgt = tensor_create(1, 1);
+            tensor_set(tgt, 0, 0, targets[s]);
 
             Tensor *pred = network_forward(net, in);
             Tensor *grad = loss_mse_deriv(pred, tgt);
             network_backward(net, grad);
             optimizer_step(opt, net);
 
-            tensor_free(in); tensor_free(tgt); tensor_free(pred); tensor_free(grad);
+            tensor_free(in);
+            tensor_free(tgt);
+            tensor_free(pred);
+            tensor_free(grad);
         }
     }
 
@@ -133,11 +145,14 @@ void test_xor_converges(void) {
     int correct = 0;
     for (int s = 0; s < 4; s++) {
         Tensor *in = tensor_create(1, 2);
-        tensor_set(in, 0, 0, inputs[s][0]); tensor_set(in, 0, 1, inputs[s][1]);
+        tensor_set(in, 0, 0, inputs[s][0]);
+        tensor_set(in, 0, 1, inputs[s][1]);
         Tensor *out = network_predict(net, in);
         double p = tensor_get(out, 0, 0);
-        if ((p > 0.5) == (targets[s] > 0.5)) correct++;
-        tensor_free(in); tensor_free(out);
+        if ((p > 0.5) == (targets[s] > 0.5))
+            correct++;
+        tensor_free(in);
+        tensor_free(out);
     }
     ASSERT_EQ(correct, 4);
 
@@ -188,8 +203,12 @@ void test_tensor_matmul_4x2_2x3(void) {
             tensor_set(a, i, j, (double)(i * 2 + j + 1));
 
     /* b = [[1,0,2],[0,1,3]] */
-    tensor_set(b, 0, 0, 1); tensor_set(b, 0, 1, 0); tensor_set(b, 0, 2, 2);
-    tensor_set(b, 1, 0, 0); tensor_set(b, 1, 1, 1); tensor_set(b, 1, 2, 3);
+    tensor_set(b, 0, 0, 1);
+    tensor_set(b, 0, 1, 0);
+    tensor_set(b, 0, 2, 2);
+    tensor_set(b, 1, 0, 0);
+    tensor_set(b, 1, 1, 1);
+    tensor_set(b, 1, 2, 3);
 
     Tensor *c = tensor_matmul(a, b);
     ASSERT_EQ(c->rows, 4);
@@ -198,9 +217,11 @@ void test_tensor_matmul_4x2_2x3(void) {
     /* Hand-computed: row i = [a_{i,0}, a_{i,1} | a_{i,0}*2 + a_{i,1}*3 ] */
     ASSERT_NEAR(tensor_get(c, 0, 0), 1.0, 1e-12);
     ASSERT_NEAR(tensor_get(c, 0, 1), 2.0, 1e-12);
-    ASSERT_NEAR(tensor_get(c, 0, 2), 1*2 + 2*3, 1e-12);
+    ASSERT_NEAR(tensor_get(c, 0, 2), 1 * 2 + 2 * 3, 1e-12);
     ASSERT_NEAR(tensor_get(c, 3, 0), 7.0, 1e-12);
-    ASSERT_NEAR(tensor_get(c, 3, 2), 7*2 + 8*3, 1e-12);
+    ASSERT_NEAR(tensor_get(c, 3, 2), 7 * 2 + 8 * 3, 1e-12);
 
-    tensor_free(a); tensor_free(b); tensor_free(c);
+    tensor_free(a);
+    tensor_free(b);
+    tensor_free(c);
 }

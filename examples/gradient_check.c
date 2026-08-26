@@ -15,23 +15,22 @@
  * C-Neural-Engine: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <time.h>
 
-#include "tensor.h"
 #include "layer.h"
-#include "network.h"
 #include "loss.h"
+#include "network.h"
+#include "tensor.h"
 
 #define EPSILON 1e-5
 #define TOLERANCE 1e-4
 
 /* ---- Compute loss for a given network state ---- */
 
-static double compute_loss(Network *net, const Tensor *input,
-                           const Tensor *target) {
+static double compute_loss(Network *net, const Tensor *input, const Tensor *target) {
     Tensor *output = network_forward(net, input);
     double loss = loss_mse(output, target);
     tensor_free(output);
@@ -40,8 +39,8 @@ static double compute_loss(Network *net, const Tensor *input,
 
 /* ---- Gradient check for a single layer's weights ---- */
 
-static int check_layer_weights(Network *net, int layer_idx,
-                                const Tensor *input, const Tensor *target) {
+static int check_layer_weights(Network *net, int layer_idx, const Tensor *input,
+                               const Tensor *target) {
     Layer *l = net->layers[layer_idx];
     int total_params = l->weights->rows * l->weights->cols;
     int passed = 0;
@@ -79,7 +78,7 @@ static int check_layer_weights(Network *net, int layer_idx,
         double denominator = fmax(fabs(analytical), fabs(numerical));
         double rel_error;
         if (denominator < 1e-12) {
-            rel_error = 0.0;  /* Both near zero — gradient is correct */
+            rel_error = 0.0; /* Both near zero — gradient is correct */
         } else {
             rel_error = fabs(analytical - numerical) / denominator;
         }
@@ -92,23 +91,24 @@ static int check_layer_weights(Network *net, int layer_idx,
             passed++;
         } else {
             failed++;
-            if (failed <= 5) {  /* Print first 5 failures */
+            if (failed <= 5) { /* Print first 5 failures */
                 printf("    ✗ w[%d]: analytical=%.8f  numerical=%.8f  "
-                       "rel_err=%.2e\n", i, analytical, numerical, rel_error);
+                       "rel_err=%.2e\n",
+                       i, analytical, numerical, rel_error);
             }
         }
     }
 
-    printf("    Layer %d weights: %d/%d passed  (max rel error: %.2e)\n",
-           layer_idx, passed, total_params, max_rel_error);
+    printf("    Layer %d weights: %d/%d passed  (max rel error: %.2e)\n", layer_idx, passed,
+           total_params, max_rel_error);
 
     return failed;
 }
 
 /* ---- Gradient check for a single layer's biases ---- */
 
-static int check_layer_biases(Network *net, int layer_idx,
-                               const Tensor *input, const Tensor *target) {
+static int check_layer_biases(Network *net, int layer_idx, const Tensor *input,
+                              const Tensor *target) {
     Layer *l = net->layers[layer_idx];
     int total_params = l->biases->rows * l->biases->cols;
     int passed = 0;
@@ -144,7 +144,8 @@ static int check_layer_biases(Network *net, int layer_idx,
             rel_error = fabs(analytical - numerical) / denominator;
         }
 
-        if (rel_error > max_rel_error) max_rel_error = rel_error;
+        if (rel_error > max_rel_error)
+            max_rel_error = rel_error;
 
         if (rel_error < TOLERANCE) {
             passed++;
@@ -152,13 +153,14 @@ static int check_layer_biases(Network *net, int layer_idx,
             failed++;
             if (failed <= 3) {
                 printf("    ✗ b[%d]: analytical=%.8f  numerical=%.8f  "
-                       "rel_err=%.2e\n", i, analytical, numerical, rel_error);
+                       "rel_err=%.2e\n",
+                       i, analytical, numerical, rel_error);
             }
         }
     }
 
-    printf("    Layer %d biases:  %d/%d passed  (max rel error: %.2e)\n",
-           layer_idx, passed, total_params, max_rel_error);
+    printf("    Layer %d biases:  %d/%d passed  (max rel error: %.2e)\n", layer_idx, passed,
+           total_params, max_rel_error);
 
     return failed;
 }
@@ -174,8 +176,7 @@ int main(void) {
     printf("║                                                              ║\n");
     printf("║   Method: Central Finite Differences                         ║\n");
     printf("║   Formula: dL/dw ≈ [L(w+ε) - L(w-ε)] / 2ε                  ║\n");
-    printf("║   Epsilon: %.1e    Tolerance: %.1e                     ║\n",
-           EPSILON, TOLERANCE);
+    printf("║   Epsilon: %.1e    Tolerance: %.1e                     ║\n", EPSILON, TOLERANCE);
     printf("╚══════════════════════════════════════════════════════════════╝\n\n");
 
     int total_failures = 0;

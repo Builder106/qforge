@@ -1,6 +1,6 @@
 /* ============================================================================
  * layer.c — Dense layer implementation (forward + backward)
- * 
+ *
  * qforge: zero-dependency deep learning framework in C99
  *
  * Forward:  z = input * weights + bias
@@ -14,9 +14,9 @@
 
 #include "layer.h"
 #include "activation.h"
-#include <stdlib.h>
-#include <math.h>
 #include <assert.h>
+#include <math.h>
+#include <stdlib.h>
 
 /* ---- Xavier / He weight initialization ---- */
 
@@ -34,26 +34,26 @@ static void init_weights(Tensor *w, ActivationType act, int fan_in) {
 
 /* ---- Create ---- */
 
-Layer* layer_create(int input_size, int output_size, ActivationType act) {
+Layer *layer_create(int input_size, int output_size, ActivationType act) {
     assert(input_size > 0 && output_size > 0);
 
     Layer *l = (Layer *)malloc(sizeof(Layer));
     assert(l != NULL);
 
-    l->input_size  = input_size;
+    l->input_size = input_size;
     l->output_size = output_size;
-    l->activation  = act;
+    l->activation = act;
 
     l->weights = tensor_create(input_size, output_size);
-    l->biases  = tensor_create(1, output_size);
+    l->biases = tensor_create(1, output_size);
 
     init_weights(l->weights, act, input_size);
     /* Biases start at zero */
 
     l->input_cache = NULL;
-    l->z_cache     = NULL;
-    l->d_weights   = NULL;
-    l->d_biases    = NULL;
+    l->z_cache = NULL;
+    l->d_weights = NULL;
+    l->d_biases = NULL;
 
     return l;
 }
@@ -61,7 +61,8 @@ Layer* layer_create(int input_size, int output_size, ActivationType act) {
 /* ---- Free ---- */
 
 void layer_free(Layer *l) {
-    if (l == NULL) return;
+    if (l == NULL)
+        return;
     tensor_free(l->weights);
     tensor_free(l->biases);
     tensor_free(l->input_cache);
@@ -73,23 +74,31 @@ void layer_free(Layer *l) {
 
 /* ---- Apply activation (returns new tensor) ---- */
 
-static Tensor* apply_activation(const Tensor *z, ActivationType act) {
+static Tensor *apply_activation(const Tensor *z, ActivationType act) {
     switch (act) {
-        case ACT_RELU:    return activation_relu(z);
-        case ACT_SIGMOID: return activation_sigmoid(z);
-        case ACT_TANH:    return activation_tanh_forward(z);
-        case ACT_NONE:    return tensor_copy(z);
-        default:          return tensor_copy(z);
+        case ACT_RELU:
+            return activation_relu(z);
+        case ACT_SIGMOID:
+            return activation_sigmoid(z);
+        case ACT_TANH:
+            return activation_tanh_forward(z);
+        case ACT_NONE:
+            return tensor_copy(z);
+        default:
+            return tensor_copy(z);
     }
 }
 
 /* ---- Apply activation derivative (returns new tensor) ---- */
 
-static Tensor* apply_activation_deriv(const Tensor *z, ActivationType act) {
+static Tensor *apply_activation_deriv(const Tensor *z, ActivationType act) {
     switch (act) {
-        case ACT_RELU:    return activation_relu_deriv(z);
-        case ACT_SIGMOID: return activation_sigmoid_deriv(z);
-        case ACT_TANH:    return activation_tanh_deriv(z);
+        case ACT_RELU:
+            return activation_relu_deriv(z);
+        case ACT_SIGMOID:
+            return activation_sigmoid_deriv(z);
+        case ACT_TANH:
+            return activation_tanh_deriv(z);
         case ACT_NONE: {
             /* Derivative of identity is 1 everywhere */
             Tensor *ones = tensor_create(z->rows, z->cols);
@@ -106,7 +115,7 @@ static Tensor* apply_activation_deriv(const Tensor *z, ActivationType act) {
 
 /* ---- Forward Pass ---- */
 
-Tensor* layer_forward(Layer *l, const Tensor *input) {
+Tensor *layer_forward(Layer *l, const Tensor *input) {
     assert(l != NULL && input != NULL);
     assert(input->cols == l->input_size);
 
@@ -132,7 +141,7 @@ Tensor* layer_forward(Layer *l, const Tensor *input) {
 
 /* ---- Backward Pass ---- */
 
-Tensor* layer_backward(Layer *l, const Tensor *d_output) {
+Tensor *layer_backward(Layer *l, const Tensor *d_output) {
     assert(l != NULL && d_output != NULL);
     assert(l->z_cache != NULL && l->input_cache != NULL);
 

@@ -1,27 +1,28 @@
 /* ============================================================================
  * network.c — Sequential neural network implementation
- * 
+ *
  * qforge: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
 #include "network.h"
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
-Network* network_create(void) {
+Network *network_create(void) {
     Network *net = (Network *)malloc(sizeof(Network));
     assert(net != NULL);
 
     net->num_layers = 0;
-    net->capacity   = NETWORK_INIT_CAPACITY;
-    net->layers     = (Layer **)malloc((size_t)net->capacity * sizeof(Layer *));
+    net->capacity = NETWORK_INIT_CAPACITY;
+    net->layers = (Layer **)malloc((size_t)net->capacity * sizeof(Layer *));
     assert(net->layers != NULL);
 
     return net;
 }
 
 void network_free(Network *net) {
-    if (net == NULL) return;
+    if (net == NULL)
+        return;
     for (int i = 0; i < net->num_layers; i++) {
         layer_free(net->layers[i]);
     }
@@ -31,15 +32,13 @@ void network_free(Network *net) {
 
 /* ---- Add Layer ---- */
 
-void network_add_layer(Network *net, int input_size, int output_size,
-                       ActivationType act) {
+void network_add_layer(Network *net, int input_size, int output_size, ActivationType act) {
     assert(net != NULL);
 
     /* Grow array if needed */
     if (net->num_layers >= net->capacity) {
         net->capacity *= 2;
-        net->layers = (Layer **)realloc(net->layers,
-                                        (size_t)net->capacity * sizeof(Layer *));
+        net->layers = (Layer **)realloc(net->layers, (size_t)net->capacity * sizeof(Layer *));
         assert(net->layers != NULL);
     }
 
@@ -50,7 +49,7 @@ void network_add_layer(Network *net, int input_size, int output_size,
 
 /* ---- Forward Pass ---- */
 
-Tensor* network_forward(Network *net, const Tensor *input) {
+Tensor *network_forward(Network *net, const Tensor *input) {
     assert(net != NULL && input != NULL);
     assert(net->num_layers > 0);
 
@@ -87,6 +86,6 @@ void network_backward(Network *net, const Tensor *d_output) {
 
 /* ---- Predict (convenience wrapper around forward) ---- */
 
-Tensor* network_predict(Network *net, const Tensor *input) {
+Tensor *network_predict(Network *net, const Tensor *input) {
     return network_forward(net, input);
 }

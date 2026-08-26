@@ -3,9 +3,9 @@
  * 🔴 RED: Tests written before implementation
  * ============================================================================ */
 
-#include "test_harness.h"
-#include "tensor.h"
 #include "layer.h"
+#include "tensor.h"
+#include "test_harness.h"
 
 /* --- Creation --- */
 
@@ -79,9 +79,12 @@ void test_layer_forward_no_activation(void) {
 void test_layer_forward_relu(void) {
     Layer *l = layer_create(2, 2, ACT_RELU);
     /* Set weights that produce one positive, one negative pre-activation */
-    tensor_set(l->weights, 0, 0, 1.0);  tensor_set(l->weights, 0, 1, -1.0);
-    tensor_set(l->weights, 1, 0, 0.0);  tensor_set(l->weights, 1, 1, 0.0);
-    tensor_set(l->biases, 0, 0, 0.0);   tensor_set(l->biases, 0, 1, 0.0);
+    tensor_set(l->weights, 0, 0, 1.0);
+    tensor_set(l->weights, 0, 1, -1.0);
+    tensor_set(l->weights, 1, 0, 0.0);
+    tensor_set(l->weights, 1, 1, 0.0);
+    tensor_set(l->biases, 0, 0, 0.0);
+    tensor_set(l->biases, 0, 1, 0.0);
 
     Tensor *input = tensor_create(1, 2);
     tensor_set(input, 0, 0, 5.0);
@@ -134,10 +137,13 @@ void test_layer_backward_gradient_shape(void) {
 
 void test_layer_activation_tanh(void) {
     Layer *l = layer_create(2, 2, ACT_TANH);
-    
-    tensor_set(l->weights, 0, 0, 1.0);  tensor_set(l->weights, 0, 1, -1.0);
-    tensor_set(l->weights, 1, 0, 0.0);  tensor_set(l->weights, 1, 1, 0.0);
-    tensor_set(l->biases, 0, 0, 0.0);   tensor_set(l->biases, 0, 1, 0.0);
+
+    tensor_set(l->weights, 0, 0, 1.0);
+    tensor_set(l->weights, 0, 1, -1.0);
+    tensor_set(l->weights, 1, 0, 0.0);
+    tensor_set(l->weights, 1, 1, 0.0);
+    tensor_set(l->biases, 0, 0, 0.0);
+    tensor_set(l->biases, 0, 1, 0.0);
 
     Tensor *input = tensor_create(1, 2);
     tensor_set(input, 0, 0, 5.0);
@@ -152,9 +158,9 @@ void test_layer_activation_tanh(void) {
     Tensor *d_output = tensor_create(1, 2);
     tensor_fill(d_output, 1.0);
     Tensor *d_input = layer_backward(l, d_output);
-    
+
     ASSERT_NOT_NULL(d_input);
-    
+
     tensor_free(d_input);
     tensor_free(d_output);
     tensor_free(output);
@@ -165,10 +171,13 @@ void test_layer_activation_tanh(void) {
 void test_layer_activation_default(void) {
     /* ACT_NONE or an invalid enum will trigger the default case */
     Layer *l = layer_create(2, 2, 999);
-    
-    tensor_set(l->weights, 0, 0, 1.0);  tensor_set(l->weights, 0, 1, -1.0);
-    tensor_set(l->weights, 1, 0, 0.0);  tensor_set(l->weights, 1, 1, 0.0);
-    tensor_set(l->biases, 0, 0, 0.0);   tensor_set(l->biases, 0, 1, 0.0);
+
+    tensor_set(l->weights, 0, 0, 1.0);
+    tensor_set(l->weights, 0, 1, -1.0);
+    tensor_set(l->weights, 1, 0, 0.0);
+    tensor_set(l->weights, 1, 1, 0.0);
+    tensor_set(l->biases, 0, 0, 0.0);
+    tensor_set(l->biases, 0, 1, 0.0);
 
     Tensor *input = tensor_create(1, 2);
     tensor_set(input, 0, 0, 5.0);
@@ -183,9 +192,9 @@ void test_layer_activation_default(void) {
     Tensor *d_output = tensor_create(1, 2);
     tensor_fill(d_output, 1.0);
     Tensor *d_input = layer_backward(l, d_output);
-    
+
     ASSERT_NOT_NULL(d_input);
-    
+
     tensor_free(d_input);
     tensor_free(d_output);
     tensor_free(output);
@@ -198,5 +207,3 @@ void test_layer_free_null(void) {
     layer_free(NULL);
     ASSERT_TRUE(1);
 }
-
-

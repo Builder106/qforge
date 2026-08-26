@@ -1,16 +1,16 @@
 /* ============================================================================
  * activation.c — Implementation of activation functions
- * 
+ *
  * qforge: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
 #include "activation.h"
-#include <math.h>
 #include <assert.h>
+#include <math.h>
 
 /* ---- ReLU ---- */
 
-Tensor* activation_relu(const Tensor *t) {
+Tensor *activation_relu(const Tensor *t) {
     assert(t != NULL);
     Tensor *result = tensor_create(t->rows, t->cols);
     int size = t->rows * t->cols;
@@ -20,7 +20,7 @@ Tensor* activation_relu(const Tensor *t) {
     return result;
 }
 
-Tensor* activation_relu_deriv(const Tensor *t) {
+Tensor *activation_relu_deriv(const Tensor *t) {
     assert(t != NULL);
     Tensor *result = tensor_create(t->rows, t->cols);
     int size = t->rows * t->cols;
@@ -42,7 +42,7 @@ static double sigmoid_scalar(double x) {
     }
 }
 
-Tensor* activation_sigmoid(const Tensor *t) {
+Tensor *activation_sigmoid(const Tensor *t) {
     assert(t != NULL);
     Tensor *result = tensor_create(t->rows, t->cols);
     int size = t->rows * t->cols;
@@ -52,7 +52,7 @@ Tensor* activation_sigmoid(const Tensor *t) {
     return result;
 }
 
-Tensor* activation_sigmoid_deriv(const Tensor *t) {
+Tensor *activation_sigmoid_deriv(const Tensor *t) {
     assert(t != NULL);
     Tensor *result = tensor_create(t->rows, t->cols);
     int size = t->rows * t->cols;
@@ -65,7 +65,7 @@ Tensor* activation_sigmoid_deriv(const Tensor *t) {
 
 /* ---- Tanh ---- */
 
-Tensor* activation_tanh_forward(const Tensor *t) {
+Tensor *activation_tanh_forward(const Tensor *t) {
     assert(t != NULL);
     Tensor *result = tensor_create(t->rows, t->cols);
     int size = t->rows * t->cols;
@@ -75,7 +75,7 @@ Tensor* activation_tanh_forward(const Tensor *t) {
     return result;
 }
 
-Tensor* activation_tanh_deriv(const Tensor *t) {
+Tensor *activation_tanh_deriv(const Tensor *t) {
     assert(t != NULL);
     Tensor *result = tensor_create(t->rows, t->cols);
     int size = t->rows * t->cols;
@@ -88,7 +88,7 @@ Tensor* activation_tanh_deriv(const Tensor *t) {
 
 /* ---- Softmax (row-wise, numerically stable) ---- */
 
-Tensor* activation_softmax(const Tensor *t) {
+Tensor *activation_softmax(const Tensor *t) {
     assert(t != NULL);
     Tensor *result = tensor_create(t->rows, t->cols);
 
@@ -97,7 +97,8 @@ Tensor* activation_softmax(const Tensor *t) {
         double row_max = t->data[i * t->cols];
         for (int j = 1; j < t->cols; j++) {
             double val = t->data[i * t->cols + j];
-            if (val > row_max) row_max = val;
+            if (val > row_max)
+                row_max = val;
         }
 
         /* Compute exp(x - max) and sum */

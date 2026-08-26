@@ -16,9 +16,9 @@
  * C-Neural-Engine: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <time.h>
 
 /* M_PI is a POSIX extension — glibc only defines it under _GNU_SOURCE,
@@ -28,10 +28,10 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#include "tensor.h"
+#include "loss.h"
 #include "network.h"
 #include "optimizer.h"
-#include "loss.h"
+#include "tensor.h"
 
 /* ============================================================================
  * Embedded S&P 500 Daily Log-Returns (2020-01 through 2026-04)
@@ -42,7 +42,7 @@
  * ============================================================================ */
 
 #define NUM_RETURNS 1000
-#define LAG 5          /* Number of lagged returns as input features */
+#define LAG 5 /* Number of lagged returns as input features */
 #define TRAIN_SIZE (NUM_RETURNS - LAG)
 
 /* Realistic S&P 500 daily log-returns with proper statistical properties:
@@ -51,10 +51,10 @@
 static double generate_garch_return(double *h_prev, double prev_return) {
     /* GARCH(1,1): h_t = omega + alpha * r_{t-1}^2 + beta * h_{t-1}
      * Parameters calibrated to S&P 500 daily data (typical estimates) */
-    double omega = 0.0000015;   /* long-run variance contribution */
-    double alpha = 0.09;        /* ARCH term (shock persistence) */
-    double beta  = 0.88;        /* GARCH term (variance persistence) */
-    double mu    = 0.0004;      /* mean daily return ~0.04% */
+    double omega = 0.0000015; /* long-run variance contribution */
+    double alpha = 0.09;      /* ARCH term (shock persistence) */
+    double beta = 0.88;       /* GARCH term (variance persistence) */
+    double mu = 0.0004;       /* mean daily return ~0.04% */
 
     double h = omega + alpha * prev_return * prev_return + beta * (*h_prev);
     *h_prev = h;
@@ -71,14 +71,15 @@ static double generate_garch_return(double *h_prev, double prev_return) {
         /* 5% chance of ~2x sized move (captures crash/rally dynamics) */
         shock *= 2.0;
         /* Bias toward negative shocks (negative skewness) */
-        if (u3 < 0.03) shock = -fabs(shock);
+        if (u3 < 0.03)
+            shock = -fabs(shock);
     }
 
     return mu + sqrt(h) * shock;
 }
 
 static void generate_returns(double *returns, int n) {
-    double h = 0.0001;   /* initial variance (≈1% daily vol) */
+    double h = 0.0001; /* initial variance (≈1% daily vol) */
     double prev_r = 0.0;
     for (int i = 0; i < n; i++) {
         returns[i] = generate_garch_return(&h, prev_r);
@@ -90,7 +91,8 @@ static void generate_returns(double *returns, int n) {
 
 static double stat_mean(const double *data, int n) {
     double sum = 0.0;
-    for (int i = 0; i < n; i++) sum += data[i];
+    for (int i = 0; i < n; i++)
+        sum += data[i];
     return sum / n;
 }
 
@@ -107,7 +109,8 @@ static double stat_std(const double *data, int n) {
 static double stat_skewness(const double *data, int n) {
     double mu = stat_mean(data, n);
     double sigma = stat_std(data, n);
-    if (sigma < 1e-15) return 0.0;
+    if (sigma < 1e-15)
+        return 0.0;
     double sum = 0.0;
     for (int i = 0; i < n; i++) {
         double d = (data[i] - mu) / sigma;
@@ -119,19 +122,21 @@ static double stat_skewness(const double *data, int n) {
 static double stat_kurtosis(const double *data, int n) {
     double mu = stat_mean(data, n);
     double sigma = stat_std(data, n);
-    if (sigma < 1e-15) return 0.0;
+    if (sigma < 1e-15)
+        return 0.0;
     double sum = 0.0;
     for (int i = 0; i < n; i++) {
         double d = (data[i] - mu) / sigma;
         sum += d * d * d * d;
     }
-    return (sum / n) - 3.0;  /* excess kurtosis */
+    return (sum / n) - 3.0; /* excess kurtosis */
 }
 
 static double stat_autocorr_sq(const double *data, int n, int lag_k) {
     /* Autocorrelation of squared returns at lag k */
     double *sq = (double *)malloc((size_t)n * sizeof(double));
-    for (int i = 0; i < n; i++) sq[i] = data[i] * data[i];
+    for (int i = 0; i < n; i++)
+        sq[i] = data[i] * data[i];
 
     double mu = stat_mean(sq, n);
     double var = 0.0;
@@ -176,7 +181,7 @@ int main(void) {
     Network *net = network_create();
     network_add_layer(net, LAG, 32, ACT_RELU);
     network_add_layer(net, 32, 16, ACT_RELU);
-    network_add_layer(net, 16, 1, ACT_NONE);  /* Linear output for regression */
+    network_add_layer(net, 16, 1, ACT_NONE); /* Linear output for regression */
 
     double lr = 0.001;
     double mom = 0.9;
@@ -256,17 +261,17 @@ int main(void) {
     }
 
     /* ── Compare Stylized Facts ── */
-    double real_mean   = stat_mean(returns, NUM_RETURNS) * 100.0;
-    double real_std    = stat_std(returns, NUM_RETURNS) * 100.0;
-    double real_skew   = stat_skewness(returns, NUM_RETURNS);
-    double real_kurt   = stat_kurtosis(returns, NUM_RETURNS);
-    double real_acorr  = stat_autocorr_sq(returns, NUM_RETURNS, 1);
+    double real_mean = stat_mean(returns, NUM_RETURNS) * 100.0;
+    double real_std = stat_std(returns, NUM_RETURNS) * 100.0;
+    double real_skew = stat_skewness(returns, NUM_RETURNS);
+    double real_kurt = stat_kurtosis(returns, NUM_RETURNS);
+    double real_acorr = stat_autocorr_sq(returns, NUM_RETURNS, 1);
 
-    double syn_mean    = stat_mean(synthetic, NUM_RETURNS) * 100.0;
-    double syn_std     = stat_std(synthetic, NUM_RETURNS) * 100.0;
-    double syn_skew    = stat_skewness(synthetic, NUM_RETURNS);
-    double syn_kurt    = stat_kurtosis(synthetic, NUM_RETURNS);
-    double syn_acorr   = stat_autocorr_sq(synthetic, NUM_RETURNS, 1);
+    double syn_mean = stat_mean(synthetic, NUM_RETURNS) * 100.0;
+    double syn_std = stat_std(synthetic, NUM_RETURNS) * 100.0;
+    double syn_skew = stat_skewness(synthetic, NUM_RETURNS);
+    double syn_kurt = stat_kurtosis(synthetic, NUM_RETURNS);
+    double syn_acorr = stat_autocorr_sq(synthetic, NUM_RETURNS, 1);
 
     printf("  ┌───────────────────────┬────────────┬────────────┐\n");
     printf("  │ Stylized Fact         │ Real Data  │ Synthetic  │\n");
@@ -280,12 +285,12 @@ int main(void) {
 
     /* ── Interpretation ── */
     printf("  Stylized facts check:\n");
-    printf("    • Fat tails (kurtosis > 0):    real=%.2f  syn=%.2f  %s\n",
-           real_kurt, syn_kurt, syn_kurt > 0 ? "✓" : "✗");
-    printf("    • Negative skewness:           real=%.2f  syn=%.2f  %s\n",
-           real_skew, syn_skew, syn_skew < 0 ? "✓" : "~");
-    printf("    • Volatility clustering:       real=%.2f  syn=%.2f  %s\n",
-           real_acorr, syn_acorr, syn_acorr > 0.05 ? "✓" : "~");
+    printf("    • Fat tails (kurtosis > 0):    real=%.2f  syn=%.2f  %s\n", real_kurt, syn_kurt,
+           syn_kurt > 0 ? "✓" : "✗");
+    printf("    • Negative skewness:           real=%.2f  syn=%.2f  %s\n", real_skew, syn_skew,
+           syn_skew < 0 ? "✓" : "~");
+    printf("    • Volatility clustering:       real=%.2f  syn=%.2f  %s\n", real_acorr, syn_acorr,
+           syn_acorr > 0.05 ? "✓" : "~");
     printf("\n");
 
     /* ── Cleanup ── */

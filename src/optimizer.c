@@ -3,14 +3,13 @@
  * ============================================================================ */
 
 #include "optimizer.h"
-#include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 
 /* ---- Create SGD ---- */
 
-Optimizer* optimizer_create_sgd(double learning_rate, double momentum,
-                                const Network *net) {
+Optimizer *optimizer_create_sgd(double learning_rate, double momentum, const Network *net) {
     assert(net != NULL);
     assert(learning_rate > 0.0);
     assert(momentum >= 0.0 && momentum < 1.0);
@@ -18,16 +17,16 @@ Optimizer* optimizer_create_sgd(double learning_rate, double momentum,
     Optimizer *opt = (Optimizer *)malloc(sizeof(Optimizer));
     assert(opt != NULL);
 
-    opt->type          = OPT_SGD;
+    opt->type = OPT_SGD;
     opt->learning_rate = learning_rate;
-    opt->momentum      = momentum;
-    opt->beta2         = 0.0;
-    opt->epsilon       = 1e-8;
-    opt->t             = 0;
-    opt->num_layers    = net->num_layers;
+    opt->momentum = momentum;
+    opt->beta2 = 0.0;
+    opt->epsilon = 1e-8;
+    opt->t = 0;
+    opt->num_layers = net->num_layers;
 
-    opt->velocity_w    = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
-    opt->velocity_b    = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
+    opt->velocity_w = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
+    opt->velocity_b = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
     opt->sq_velocity_w = NULL;
     opt->sq_velocity_b = NULL;
     assert(opt->velocity_w != NULL && opt->velocity_b != NULL);
@@ -43,8 +42,8 @@ Optimizer* optimizer_create_sgd(double learning_rate, double momentum,
 
 /* ---- Create Adam ---- */
 
-Optimizer* optimizer_create_adam(double learning_rate, double beta1, double beta2,
-                                 double epsilon, const Network *net) {
+Optimizer *optimizer_create_adam(double learning_rate, double beta1, double beta2, double epsilon,
+                                 const Network *net) {
     assert(net != NULL);
     assert(learning_rate > 0.0);
     assert(beta1 >= 0.0 && beta1 < 1.0);
@@ -54,24 +53,24 @@ Optimizer* optimizer_create_adam(double learning_rate, double beta1, double beta
     Optimizer *opt = (Optimizer *)malloc(sizeof(Optimizer));
     assert(opt != NULL);
 
-    opt->type          = OPT_ADAM;
+    opt->type = OPT_ADAM;
     opt->learning_rate = learning_rate;
-    opt->momentum      = beta1;
-    opt->beta2         = beta2;
-    opt->epsilon       = epsilon;
-    opt->t             = 0;
-    opt->num_layers    = net->num_layers;
+    opt->momentum = beta1;
+    opt->beta2 = beta2;
+    opt->epsilon = epsilon;
+    opt->t = 0;
+    opt->num_layers = net->num_layers;
 
-    opt->velocity_w    = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
-    opt->velocity_b    = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
+    opt->velocity_w = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
+    opt->velocity_b = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
     opt->sq_velocity_w = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
     opt->sq_velocity_b = (Tensor **)malloc((size_t)net->num_layers * sizeof(Tensor *));
     assert(opt->velocity_w && opt->velocity_b && opt->sq_velocity_w && opt->sq_velocity_b);
 
     for (int i = 0; i < net->num_layers; i++) {
         Layer *l = net->layers[i];
-        opt->velocity_w[i]    = tensor_create(l->weights->rows, l->weights->cols);
-        opt->velocity_b[i]    = tensor_create(l->biases->rows, l->biases->cols);
+        opt->velocity_w[i] = tensor_create(l->weights->rows, l->weights->cols);
+        opt->velocity_b[i] = tensor_create(l->biases->rows, l->biases->cols);
         opt->sq_velocity_w[i] = tensor_create(l->weights->rows, l->weights->cols);
         opt->sq_velocity_b[i] = tensor_create(l->biases->rows, l->biases->cols);
     }
@@ -97,20 +96,16 @@ void optimizer_step(Optimizer *opt, Network *net) {
 
             for (int j = 0; j < w_size; j++) {
                 opt->velocity_w[i]->data[j] =
-                    opt->momentum * opt->velocity_w[i]->data[j] +
-                    l->d_weights->data[j];
+                    opt->momentum * opt->velocity_w[i]->data[j] + l->d_weights->data[j];
 
-                l->weights->data[j] -=
-                    opt->learning_rate * opt->velocity_w[i]->data[j];
+                l->weights->data[j] -= opt->learning_rate * opt->velocity_w[i]->data[j];
             }
 
             for (int j = 0; j < b_size; j++) {
                 opt->velocity_b[i]->data[j] =
-                    opt->momentum * opt->velocity_b[i]->data[j] +
-                    l->d_biases->data[j];
+                    opt->momentum * opt->velocity_b[i]->data[j] + l->d_biases->data[j];
 
-                l->biases->data[j] -=
-                    opt->learning_rate * opt->velocity_b[i]->data[j];
+                l->biases->data[j] -= opt->learning_rate * opt->velocity_b[i]->data[j];
             }
         }
     } else if (opt->type == OPT_ADAM) {
@@ -129,8 +124,10 @@ void optimizer_step(Optimizer *opt, Network *net) {
             /* Weights */
             for (int j = 0; j < w_size; j++) {
                 double g = l->d_weights->data[j];
-                opt->velocity_w[i]->data[j] = beta1 * opt->velocity_w[i]->data[j] + (1.0 - beta1) * g;
-                opt->sq_velocity_w[i]->data[j] = beta2 * opt->sq_velocity_w[i]->data[j] + (1.0 - beta2) * g * g;
+                opt->velocity_w[i]->data[j] =
+                    beta1 * opt->velocity_w[i]->data[j] + (1.0 - beta1) * g;
+                opt->sq_velocity_w[i]->data[j] =
+                    beta2 * opt->sq_velocity_w[i]->data[j] + (1.0 - beta2) * g * g;
 
                 double m_hat = opt->velocity_w[i]->data[j] / bias_corr1;
                 double v_hat = opt->sq_velocity_w[i]->data[j] / bias_corr2;
@@ -141,8 +138,10 @@ void optimizer_step(Optimizer *opt, Network *net) {
             /* Biases */
             for (int j = 0; j < b_size; j++) {
                 double g = l->d_biases->data[j];
-                opt->velocity_b[i]->data[j] = beta1 * opt->velocity_b[i]->data[j] + (1.0 - beta1) * g;
-                opt->sq_velocity_b[i]->data[j] = beta2 * opt->sq_velocity_b[i]->data[j] + (1.0 - beta2) * g * g;
+                opt->velocity_b[i]->data[j] =
+                    beta1 * opt->velocity_b[i]->data[j] + (1.0 - beta1) * g;
+                opt->sq_velocity_b[i]->data[j] =
+                    beta2 * opt->sq_velocity_b[i]->data[j] + (1.0 - beta2) * g * g;
 
                 double m_hat = opt->velocity_b[i]->data[j] / bias_corr1;
                 double v_hat = opt->sq_velocity_b[i]->data[j] / bias_corr2;
@@ -156,16 +155,21 @@ void optimizer_step(Optimizer *opt, Network *net) {
 /* ---- Free ---- */
 
 void optimizer_free(Optimizer *opt) {
-    if (opt == NULL) return;
+    if (opt == NULL)
+        return;
     for (int i = 0; i < opt->num_layers; i++) {
         tensor_free(opt->velocity_w[i]);
         tensor_free(opt->velocity_b[i]);
-        if (opt->sq_velocity_w) tensor_free(opt->sq_velocity_w[i]);
-        if (opt->sq_velocity_b) tensor_free(opt->sq_velocity_b[i]);
+        if (opt->sq_velocity_w)
+            tensor_free(opt->sq_velocity_w[i]);
+        if (opt->sq_velocity_b)
+            tensor_free(opt->sq_velocity_b[i]);
     }
     free(opt->velocity_w);
     free(opt->velocity_b);
-    if (opt->sq_velocity_w) free(opt->sq_velocity_w);
-    if (opt->sq_velocity_b) free(opt->sq_velocity_b);
+    if (opt->sq_velocity_w)
+        free(opt->sq_velocity_w);
+    if (opt->sq_velocity_b)
+        free(opt->sq_velocity_b);
     free(opt);
 }

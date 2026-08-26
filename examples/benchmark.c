@@ -22,10 +22,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "tensor.h"
+#include "loss.h"
 #include "network.h"
 #include "optimizer.h"
-#include "loss.h"
+#include "tensor.h"
 
 /* ---- High-resolution timer ---- */
 
@@ -57,8 +57,8 @@ static void bench_matmul(int n, int trials) {
     double flops = 2.0 * (double)n * (double)n * (double)n;
     double mflops = (flops / (avg_ms / 1000.0)) / 1e6;
 
-    printf("  matmul  %4d×%-4d │ %8.3f ms │ %8.1f MFLOP/s │ %d trials\n",
-           n, n, avg_ms, mflops, trials);
+    printf("  matmul  %4d×%-4d │ %8.3f ms │ %8.1f MFLOP/s │ %d trials\n", n, n, avg_ms, mflops,
+           trials);
 
     tensor_free(a);
     tensor_free(b);
@@ -79,8 +79,8 @@ static void bench_transpose(int n, int trials) {
         tensor_free(at);
     }
 
-    printf("  transp  %4d×%-4d │ %8.3f ms │                  │ %d trials\n",
-           n, n, total_ms / trials, trials);
+    printf("  transp  %4d×%-4d │ %8.3f ms │                  │ %d trials\n", n, n,
+           total_ms / trials, trials);
 
     tensor_free(a);
 }
@@ -102,8 +102,8 @@ static void bench_add(int n, int trials) {
         tensor_free(c);
     }
 
-    printf("  add     %4d×%-4d │ %8.3f ms │                  │ %d trials\n",
-           n, n, total_ms / trials, trials);
+    printf("  add     %4d×%-4d │ %8.3f ms │                  │ %d trials\n", n, n,
+           total_ms / trials, trials);
 
     tensor_free(a);
     tensor_free(b);
@@ -126,8 +126,8 @@ static void bench_hadamard(int n, int trials) {
         tensor_free(c);
     }
 
-    printf("  hadam   %4d×%-4d │ %8.3f ms │                  │ %d trials\n",
-           n, n, total_ms / trials, trials);
+    printf("  hadam   %4d×%-4d │ %8.3f ms │                  │ %d trials\n", n, n,
+           total_ms / trials, trials);
 
     tensor_free(a);
     tensor_free(b);
@@ -135,8 +135,7 @@ static void bench_hadamard(int n, int trials) {
 
 /* ---- Benchmark: Full Training Step (forward + backward + SGD) ---- */
 
-static void bench_training_step(int input_dim, int hidden_dim, int output_dim,
-                                 int trials) {
+static void bench_training_step(int input_dim, int hidden_dim, int output_dim, int trials) {
     Network *net = network_create();
     network_add_layer(net, input_dim, hidden_dim, ACT_RELU);
     network_add_layer(net, hidden_dim, hidden_dim, ACT_RELU);
@@ -144,7 +143,7 @@ static void bench_training_step(int input_dim, int hidden_dim, int output_dim,
 
     Optimizer *opt = optimizer_create_sgd(0.01, 0.9, net);
 
-    Tensor *input  = tensor_create(1, input_dim);
+    Tensor *input = tensor_create(1, input_dim);
     Tensor *target = tensor_create(1, output_dim);
     tensor_rand(input, 0.0, 1.0);
     tensor_rand(target, 0.0, 1.0);
@@ -165,9 +164,8 @@ static void bench_training_step(int input_dim, int hidden_dim, int output_dim,
         tensor_free(grad);
     }
 
-    printf("  train   %d→%d→%d→%-3d│ %8.3f ms │                  │ %d trials\n",
-           input_dim, hidden_dim, hidden_dim, output_dim,
-           total_ms / trials, trials);
+    printf("  train   %d→%d→%d→%-3d│ %8.3f ms │                  │ %d trials\n", input_dim,
+           hidden_dim, hidden_dim, output_dim, total_ms / trials, trials);
 
     tensor_free(input);
     tensor_free(target);
@@ -178,7 +176,7 @@ static void bench_training_step(int input_dim, int hidden_dim, int output_dim,
 /* ---- Main ---- */
 
 int main(void) {
-    srand(42);  /* Fixed seed for reproducibility */
+    srand(42); /* Fixed seed for reproducibility */
 
     printf("\n");
     printf("╔══════════════════════════════════════════════════════════════╗\n");
@@ -190,11 +188,11 @@ int main(void) {
     printf("  │ Operation       │ Avg Time   │ Throughput       │ Trials   │\n");
     printf("  ├─────────────────┼────────────┼──────────────────┼──────────┤\n");
 
-    bench_matmul(32,   1000);
-    bench_matmul(64,   500);
-    bench_matmul(128,  100);
-    bench_matmul(256,  50);
-    bench_matmul(512,  10);
+    bench_matmul(32, 1000);
+    bench_matmul(64, 500);
+    bench_matmul(128, 100);
+    bench_matmul(256, 50);
+    bench_matmul(512, 10);
 
     printf("  ├─────────────────┼────────────┼──────────────────┼──────────┤\n");
 

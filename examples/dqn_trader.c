@@ -16,9 +16,9 @@
  * C-Neural-Engine: zero-dependency deep learning framework in C99
  * ============================================================================ */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
 #include <time.h>
 
@@ -29,35 +29,35 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#include "tensor.h"
+#include "loss.h"
 #include "network.h"
 #include "optimizer.h"
-#include "loss.h"
+#include "tensor.h"
 
 /* ============================================================================
  * Configuration
  * ============================================================================ */
 
-#define STATE_DIM      6      /* state features */
-#define NUM_ACTIONS    3      /* HOLD, BUY, SELL */
-#define REPLAY_SIZE    5000   /* experience replay buffer capacity */
-#define BATCH_SIZE     32     /* minibatch size for training */
-#define GAMMA          0.95   /* discount factor */
-#define EPS_START      1.0    /* initial exploration rate */
-#define EPS_END        0.05   /* final exploration rate */
-#define EPS_DECAY      0.995  /* per-episode decay */
-#define TARGET_UPDATE  10     /* update target network every N episodes */
-#define NUM_EPISODES   300    /* training episodes */
-#define EPISODE_LEN    200    /* steps per episode */
-#define LEARNING_RATE  0.001
-#define MOMENTUM       0.9
+#define STATE_DIM 6      /* state features */
+#define NUM_ACTIONS 3    /* HOLD, BUY, SELL */
+#define REPLAY_SIZE 5000 /* experience replay buffer capacity */
+#define BATCH_SIZE 32    /* minibatch size for training */
+#define GAMMA 0.95       /* discount factor */
+#define EPS_START 1.0    /* initial exploration rate */
+#define EPS_END 0.05     /* final exploration rate */
+#define EPS_DECAY 0.995  /* per-episode decay */
+#define TARGET_UPDATE 10 /* update target network every N episodes */
+#define NUM_EPISODES 300 /* training episodes */
+#define EPISODE_LEN 200  /* steps per episode */
+#define LEARNING_RATE 0.001
+#define MOMENTUM 0.9
 
 /* ============================================================================
  * Market Environment
  * ============================================================================ */
 
 typedef struct {
-    double *prices;     /* price series for the episode */
+    double *prices; /* price series for the episode */
     int len;
     int step;           /* current timestep */
     int position;       /* -1 = short, 0 = flat, 1 = long */
@@ -70,8 +70,8 @@ typedef struct {
  * with regime changes to make the problem non-trivial */
 static void generate_prices(double *prices, int n) {
     prices[0] = 100.0;
-    double mu = 0.0002;     /* slight upward drift */
-    double sigma = 0.015;   /* daily volatility ~1.5% */
+    double mu = 0.0002;   /* slight upward drift */
+    double sigma = 0.015; /* daily volatility ~1.5% */
 
     for (int i = 1; i < n; i++) {
         /* Regime change: every ~50 steps, randomly shift drift */
@@ -89,7 +89,7 @@ static void generate_prices(double *prices, int n) {
 
 static void env_reset(MarketEnv *env) {
     generate_prices(env->prices, env->len);
-    env->step = 5;   /* start after enough history for features */
+    env->step = 5; /* start after enough history for features */
     env->position = 0;
     env->entry_price = 0.0;
     env->total_pnl = 0.0;
@@ -101,7 +101,8 @@ static void env_get_state(const MarketEnv *env, double *state) {
 
     /* Feature 1: normalized price (relative to recent mean) */
     double price_sum = 0.0;
-    for (int i = t - 5; i <= t; i++) price_sum += env->prices[i];
+    for (int i = t - 5; i <= t; i++)
+        price_sum += env->prices[i];
     double price_mean = price_sum / 6.0;
     state[0] = (env->prices[t] - price_mean) / price_mean;
 
@@ -110,8 +111,7 @@ static void env_get_state(const MarketEnv *env, double *state) {
 
     /* Feature 3: unrealized P&L (normalized) */
     if (env->position != 0) {
-        state[2] = (env->prices[t] - env->entry_price) / env->entry_price
-                   * (double)env->position;
+        state[2] = (env->prices[t] - env->entry_price) / env->entry_price * (double)env->position;
     } else {
         state[2] = 0.0;
     }
@@ -122,7 +122,7 @@ static void env_get_state(const MarketEnv *env, double *state) {
         double ret = log(env->prices[i] / env->prices[i - 1]);
         vol_sum += ret * ret;
     }
-    state[3] = sqrt(vol_sum / 5.0) * 10.0;  /* scale for NN */
+    state[3] = sqrt(vol_sum / 5.0) * 10.0; /* scale for NN */
 
     /* Feature 5: 1-day return */
     state[4] = log(env->prices[t] / env->prices[t - 1]) * 100.0;
@@ -140,12 +140,12 @@ static double env_step(MarketEnv *env, int action) {
         /* BUY */
         env->position = 1;
         env->entry_price = price;
-        reward = -0.001;  /* small transaction cost */
+        reward = -0.001; /* small transaction cost */
     } else if (action == 2 && env->position == 1) {
         /* SELL (close long position) */
         double pnl = (price - env->entry_price) / env->entry_price;
         env->total_pnl += pnl;
-        reward = pnl * 10.0;  /* scale reward for NN */
+        reward = pnl * 10.0; /* scale reward for NN */
         env->position = 0;
         env->entry_price = 0.0;
     } else if (action == 2 && env->position == 0) {
@@ -201,7 +201,7 @@ typedef struct {
     int write_idx;
 } ReplayBuffer;
 
-static ReplayBuffer* replay_create(int capacity) {
+static ReplayBuffer *replay_create(int capacity) {
     ReplayBuffer *rb = (ReplayBuffer *)malloc(sizeof(ReplayBuffer));
     rb->buffer = (Experience *)malloc((size_t)capacity * sizeof(Experience));
     rb->capacity = capacity;
@@ -215,8 +215,8 @@ static void replay_free(ReplayBuffer *rb) {
     free(rb);
 }
 
-static void replay_push(ReplayBuffer *rb, const double *state, int action,
-                         double reward, const double *next_state, int done) {
+static void replay_push(ReplayBuffer *rb, const double *state, int action, double reward,
+                        const double *next_state, int done) {
     Experience *e = &rb->buffer[rb->write_idx];
     memcpy(e->state, state, STATE_DIM * sizeof(double));
     e->action = action;
@@ -225,10 +225,11 @@ static void replay_push(ReplayBuffer *rb, const double *state, int action,
     e->done = done;
 
     rb->write_idx = (rb->write_idx + 1) % rb->capacity;
-    if (rb->size < rb->capacity) rb->size++;
+    if (rb->size < rb->capacity)
+        rb->size++;
 }
 
-static Experience* replay_sample(const ReplayBuffer *rb) {
+static Experience *replay_sample(const ReplayBuffer *rb) {
     int idx = rand() % rb->size;
     return &rb->buffer[idx];
 }
@@ -240,7 +241,7 @@ static Experience* replay_sample(const ReplayBuffer *rb) {
 /* Select action using epsilon-greedy policy */
 static int select_action(Network *q_net, const double *state, double epsilon) {
     if ((double)rand() / RAND_MAX < epsilon) {
-        return rand() % NUM_ACTIONS;  /* random action */
+        return rand() % NUM_ACTIONS; /* random action */
     }
 
     /* Greedy action: argmax Q(s, a) */
@@ -269,16 +270,12 @@ static int select_action(Network *q_net, const double *state, double epsilon) {
 /* Copy weights from source network to target network */
 static void copy_weights(Network *target, const Network *source) {
     for (int i = 0; i < source->num_layers; i++) {
-        int w_size = source->layers[i]->weights->rows *
-                     source->layers[i]->weights->cols;
-        int b_size = source->layers[i]->biases->rows *
-                     source->layers[i]->biases->cols;
+        int w_size = source->layers[i]->weights->rows * source->layers[i]->weights->cols;
+        int b_size = source->layers[i]->biases->rows * source->layers[i]->biases->cols;
 
-        memcpy(target->layers[i]->weights->data,
-               source->layers[i]->weights->data,
+        memcpy(target->layers[i]->weights->data, source->layers[i]->weights->data,
                (size_t)w_size * sizeof(double));
-        memcpy(target->layers[i]->biases->data,
-               source->layers[i]->biases->data,
+        memcpy(target->layers[i]->biases->data, source->layers[i]->biases->data,
                (size_t)b_size * sizeof(double));
     }
 }
@@ -294,14 +291,18 @@ int main(int argc, char **argv) {
      * Defaults match the original constants; the web UI passes overrides
      * as argv so a recruiter can tweak γ, learning rate, etc. and re-run
      * without recompiling. argv[1..4] are positional. */
-    int    num_episodes  = NUM_EPISODES;
-    double gamma_d       = GAMMA;
+    int num_episodes = NUM_EPISODES;
+    double gamma_d = GAMMA;
     double learning_rate = LEARNING_RATE;
-    double eps_decay     = EPS_DECAY;
-    if (argc > 1) num_episodes  = atoi(argv[1]);
-    if (argc > 2) gamma_d       = atof(argv[2]);
-    if (argc > 3) learning_rate = atof(argv[3]);
-    if (argc > 4) eps_decay     = atof(argv[4]);
+    double eps_decay = EPS_DECAY;
+    if (argc > 1)
+        num_episodes = atoi(argv[1]);
+    if (argc > 2)
+        gamma_d = atof(argv[2]);
+    if (argc > 3)
+        learning_rate = atof(argv[3]);
+    if (argc > 4)
+        eps_decay = atof(argv[4]);
 
     printf("\n");
     printf("╔══════════════════════════════════════════════════════════════╗\n");
@@ -333,16 +334,13 @@ int main(int argc, char **argv) {
     env.len = EPISODE_LEN + 10;
     env.prices = (double *)malloc((size_t)env.len * sizeof(double));
 
-    printf("  Q-Network:     %d → 64 (relu) → 32 (relu) → %d (linear)\n",
-           STATE_DIM, NUM_ACTIONS);
+    printf("  Q-Network:     %d → 64 (relu) → 32 (relu) → %d (linear)\n", STATE_DIM, NUM_ACTIONS);
     printf("  Replay buffer: %d\n", REPLAY_SIZE);
     printf("  Batch size:    %d\n", BATCH_SIZE);
-    printf("  Gamma:         %.3f%s\n", gamma_d,
-           (gamma_d != GAMMA) ? "  (overridden)" : "");
+    printf("  Gamma:         %.3f%s\n", gamma_d, (gamma_d != GAMMA) ? "  (overridden)" : "");
     printf("  Learning rate: %.4f%s\n", learning_rate,
            (learning_rate != LEARNING_RATE) ? "  (overridden)" : "");
-    printf("  Epsilon:       %.2f → %.2f (decay=%.4f%s)\n",
-           EPS_START, EPS_END, eps_decay,
+    printf("  Epsilon:       %.2f → %.2f (decay=%.4f%s)\n", EPS_START, EPS_END, eps_decay,
            (eps_decay != EPS_DECAY) ? ", overridden" : "");
     printf("  Episodes:      %d × %d steps%s\n\n", num_episodes, EPISODE_LEN,
            (num_episodes != NUM_EPISODES) ? "  (overridden)" : "");
@@ -352,7 +350,8 @@ int main(int argc, char **argv) {
     double best_pnl = -1e9;
     /* Aim for ~12 progress lines regardless of episode count */
     int print_every = num_episodes / 12;
-    if (print_every < 1) print_every = 1;
+    if (print_every < 1)
+        print_every = 1;
 
     printf("  ┌─────────┬────────────┬────────────┬───────────┬──────────┐\n");
     printf("  │ Episode │ Total P&L  │ Avg Reward │ Epsilon   │ Trades   │\n");
@@ -375,7 +374,8 @@ int main(int argc, char **argv) {
             double reward = env_step(&env, action);
             ep_reward += reward;
 
-            if (env.position != prev_pos) trades++;
+            if (env.position != prev_pos)
+                trades++;
 
             /* Get next state */
             double next_state[STATE_DIM];
@@ -409,7 +409,8 @@ int main(int argc, char **argv) {
                         double max_q = tensor_get(target_qs, 0, 0);
                         for (int a = 1; a < NUM_ACTIONS; a++) {
                             double q = tensor_get(target_qs, 0, a);
-                            if (q > max_q) max_q = q;
+                            if (q > max_q)
+                                max_q = q;
                         }
                         target_q = exp->reward + gamma_d * max_q;
 
@@ -456,7 +457,8 @@ int main(int argc, char **argv) {
         /* Decay epsilon */
         if (epsilon > EPS_END) {
             epsilon *= eps_decay;
-            if (epsilon < EPS_END) epsilon = EPS_END;
+            if (epsilon < EPS_END)
+                epsilon = EPS_END;
         }
 
         /* Update target network periodically */
@@ -464,12 +466,12 @@ int main(int argc, char **argv) {
             copy_weights(target_net, q_net);
         }
 
-        if (env.total_pnl > best_pnl) best_pnl = env.total_pnl;
+        if (env.total_pnl > best_pnl)
+            best_pnl = env.total_pnl;
 
         if ((ep + 1) % print_every == 0 || ep == 0) {
-            printf("  │ %5d   │ %+9.4f%% │ %+9.5f  │   %.4f  │ %5d    │\n",
-                   ep + 1, env.total_pnl * 100.0,
-                   ep_reward / EPISODE_LEN, epsilon, trades);
+            printf("  │ %5d   │ %+9.4f%% │ %+9.5f  │   %.4f  │ %5d    │\n", ep + 1,
+                   env.total_pnl * 100.0, ep_reward / EPISODE_LEN, epsilon, trades);
         }
     }
 
@@ -485,12 +487,15 @@ int main(int argc, char **argv) {
     int buy_count = 0, sell_count = 0, hold_count = 0;
 
     for (int step = 0; step < EPISODE_LEN && !env_done(&env); step++) {
-        int action = select_action(q_net, state, 0.0);  /* greedy */
+        int action = select_action(q_net, state, 0.0); /* greedy */
         env_step(&env, action);
 
-        if (action == 0) hold_count++;
-        else if (action == 1) buy_count++;
-        else sell_count++;
+        if (action == 0)
+            hold_count++;
+        else if (action == 1)
+            buy_count++;
+        else
+            sell_count++;
 
         if (!env_done(&env)) {
             env_get_state(&env, state);
@@ -515,8 +520,7 @@ int main(int argc, char **argv) {
     printf("  ├──────────────────────┼──────────────┤\n");
     printf("  │ DQN Agent P&L        │ %+10.4f%%   │\n", env.total_pnl * 100.0);
     printf("  │ Buy & Hold P&L       │ %+10.4f%%   │\n", bh_return * 100.0);
-    printf("  │ Actions (H/B/S)      │ %d/%d/%d      │\n",
-           hold_count, buy_count, sell_count);
+    printf("  │ Actions (H/B/S)      │ %d/%d/%d      │\n", hold_count, buy_count, sell_count);
     printf("  │ Best training P&L    │ %+10.4f%%   │\n", best_pnl * 100.0);
     printf("  └──────────────────────┴──────────────┘\n\n");
 

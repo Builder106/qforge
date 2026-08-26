@@ -14,21 +14,23 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "tensor.h"
+#include "loss.h"
 #include "network.h"
 #include "optimizer.h"
-#include "loss.h"
+#include "tensor.h"
 
 int main(int argc, char **argv) {
     /* Seed RNG for weight initialization */
     srand((unsigned int)time(NULL));
 
     /* ── Runtime-overridable hyperparameters (argv[1]=epochs, argv[2]=lr) ── */
-    int    epochs        = 10000;
+    int epochs = 10000;
     double learning_rate = 1.0;
-    double momentum      = 0.9;
-    if (argc > 1) epochs        = atoi(argv[1]);
-    if (argc > 2) learning_rate = atof(argv[2]);
+    double momentum = 0.9;
+    if (argc > 1)
+        epochs = atoi(argv[1]);
+    if (argc > 2)
+        learning_rate = atof(argv[2]);
 
     printf("\n");
     printf("╔══════════════════════════════════════════════╗\n");
@@ -37,25 +39,21 @@ int main(int argc, char **argv) {
 
     /* ── Training Data ── */
     /* XOR inputs: 4 samples, 2 features each */
-    double xor_inputs[4][2] = {
-        {0.0, 0.0},
-        {0.0, 1.0},
-        {1.0, 0.0},
-        {1.0, 1.0}
-    };
+    double xor_inputs[4][2] = {{0.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {1.0, 1.0}};
     double xor_targets[4] = {0.0, 1.0, 1.0, 0.0};
 
     /* ── Build Network: 2 → 4 → 1 ── */
     Network *net = network_create();
-    network_add_layer(net, 2, 4, ACT_SIGMOID);   /* Hidden layer */
-    network_add_layer(net, 4, 1, ACT_SIGMOID);   /* Output layer */
+    network_add_layer(net, 2, 4, ACT_SIGMOID); /* Hidden layer */
+    network_add_layer(net, 4, 1, ACT_SIGMOID); /* Output layer */
 
     /* ── Optimizer: SGD with momentum ── */
     Optimizer *opt = optimizer_create_sgd(learning_rate, momentum, net);
 
     /* ── Training Loop ── */
     int print_every = epochs / 10;
-    if (print_every < 1) print_every = 1;
+    if (print_every < 1)
+        print_every = 1;
 
     printf("  Architecture: 2 → 4 (sigmoid) → 1 (sigmoid)\n");
     printf("  Optimizer:    SGD (lr=%.2f, momentum=%.2f)\n", learning_rate, momentum);
@@ -117,9 +115,8 @@ int main(int argc, char **argv) {
         Tensor *output = network_predict(net, input);
         double pred = tensor_get(output, 0, 0);
 
-        printf("  │  [%.0f, %.0f]    │   %.0f      │  %.4f  │\n",
-               xor_inputs[s][0], xor_inputs[s][1],
-               xor_targets[s], pred);
+        printf("  │  [%.0f, %.0f]    │   %.0f      │  %.4f  │\n", xor_inputs[s][0],
+               xor_inputs[s][1], xor_targets[s], pred);
 
         tensor_free(input);
         tensor_free(output);

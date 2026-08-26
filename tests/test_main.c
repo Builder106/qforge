@@ -6,9 +6,9 @@
 
 /* Single definition of the harness counters declared `extern` in
  * test_harness.h. All TUs that include the header read/write these. */
-int test_count    = 0;
+int test_count = 0;
 int test_failures = 0;
-int test_passes   = 0;
+int test_passes = 0;
 
 /* --- Tensor tests --- */
 extern void test_tensor_create_dimensions(void);
@@ -82,7 +82,6 @@ extern void test_optimizer_velocity_initial_zero(void);
 extern void test_optimizer_create_adam(void);
 extern void test_optimizer_adam_step(void);
 extern void test_optimizer_free_null(void);
-
 
 /* --- Scenario tests (multi-module integration) --- */
 extern void test_layer_caches_after_forward(void);
