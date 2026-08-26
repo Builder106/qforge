@@ -53,6 +53,7 @@ extern void test_mse_deriv(void);
 extern void test_cross_entropy_known_value(void);
 extern void test_cross_entropy_deriv(void);
 extern void test_cross_entropy_clamp(void);
+extern void test_cross_entropy_deriv_clamp(void);
 
 /* --- Layer tests --- */
 extern void test_layer_create(void);
@@ -156,6 +157,7 @@ int main(void) {
     RUN_TEST(test_cross_entropy_known_value);
     RUN_TEST(test_cross_entropy_deriv);
     RUN_TEST(test_cross_entropy_clamp);
+    RUN_TEST(test_cross_entropy_deriv_clamp);
 
     /* ── Layer Module ── */
     RUN_SUITE("Layer: Dense");

@@ -117,3 +117,21 @@ void test_cross_entropy_clamp(void) {
     tensor_free(pred);
     tensor_free(target);
 }
+
+void test_cross_entropy_deriv_clamp(void) {
+    /* pred=0.0 and pred=1.0 should trigger clamping in derivative */
+    Tensor *pred = tensor_create(1, 2);
+    Tensor *target = tensor_create(1, 2);
+    tensor_set(pred, 0, 0, 0.0);
+    tensor_set(pred, 0, 1, 1.0);
+    tensor_set(target, 0, 0, 1.0);
+    tensor_set(target, 0, 1, 0.0);
+
+    Tensor *grad = loss_cross_entropy_deriv(pred, target);
+    ASSERT_NOT_NULL(grad);
+    ASSERT_TRUE(tensor_get(grad, 0, 0) < 0);
+
+    tensor_free(pred);
+    tensor_free(target);
+    tensor_free(grad);
+}
