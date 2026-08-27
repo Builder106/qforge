@@ -22,7 +22,6 @@ web/diag.html
 *.swp
 *.swo
 *~
-.DS_Store
 
 # Debug
 core
