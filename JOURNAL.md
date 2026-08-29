@@ -12,6 +12,8 @@ Refactored the README introduction, tagline, and feature descriptions to highlig
 
 Implemented the Adam adaptive moment estimation optimizer (`optimizer_create_adam`) with first and second moment bias corrections in pure C99, extending the framework's optimization toolkit alongside SGD with momentum. In parallel, refactored `tensor_matmul`from standard`i-j-k`triple loops to unit-stride`i-k-j` iteration order to maximize CPU L1/L2 cache line hits and enable SIMD auto-vectorization. Verified zero memory leaks, numerical gradient alignment, and 62 passing unit tests across GCC and Clang.
 
+## 2026-05-11 — Replaced Homebrew emscripten with standalone emsdk to drop icu4c@77 #pivot
+
 `brew doctor`started nagging about a deprecated`icu4c@77`, and the chain turned out to be `emscripten → yuicompressor → icu4c@77`— Homebrew's emscripten formula drags in yuicompressor for JS minification, and that's the only thing still pinning the old ICU. Rather than chase a different C→WASM toolchain (Zig, WASI SDK, bare Clang all looked tempting but would've meant rewriting ~240`Module`/HEAP marshalling calls in the web demo for zero gain), the fix was just to swap the *source* of `emcc`: installed the official emsdk to `~/emsdk`and removed the brew formula, which let`brew autoremove`take yuicompressor and`icu4c@77`with it. Nice side effect — local now matches CI, which already builds via`mymindstorm/setup-emsdk`. Verified `make wasm` produces byte-identical artifacts before pulling the trigger.
 
 ## 2026-05-13 — Mermaid diagram wouldn't render on GitHub #incident
