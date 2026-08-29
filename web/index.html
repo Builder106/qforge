@@ -1,169 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>qforge — a neural network from scratch in C99</title>
-<meta name="description" content="A zero-dependency deep-learning framework written by hand in ~2,000 lines of C99. Trains a reinforcement-learning trading agent and generates synthetic market data — all running live in your browser via WebAssembly.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>qforge — a neural network from scratch in C99</title>
+  <meta name="description"
+    content="A zero-dependency deep-learning framework written by hand in ~2,000 lines of C99. Trains a reinforcement-learning trading agent and generates synthetic market data — all running live in your browser via WebAssembly.">
 
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
-<!-- ---- Social share metadata (Open Graph + Twitter Card) ---- -->
-<!--
+  <!-- ---- Social share metadata (Open Graph + Twitter Card) ---- -->
+  <!--
   Image is a 1200×630 PNG generated from og-image.svg via rsvg-convert.
   When platforms cache a preview, force a refresh via the Facebook Sharing
   Debugger or LinkedIn Post Inspector — they won't pick up changes here
   until the cache TTL expires (usually 7 days).
 -->
-<meta property="og:type"        content="website">
-<meta property="og:url"         content="https://qforge-neural.vercel.app/">
-<meta property="og:title"       content="qforge — a neural network from scratch in C99">
-<meta property="og:description" content="A zero-dependency deep-learning framework written by hand in ~2,000 lines of C99. Trains an RL trading agent and generates synthetic market data — all running live in your browser via WebAssembly.">
-<meta property="og:image"       content="https://qforge-neural.vercel.app/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt"   content="qforge — a neural network framework written from scratch in C99. 56 unit tests, 2,400 MFLOP/s, zero dependencies, MIT license.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://qforge-neural.vercel.app/">
+  <meta property="og:title" content="qforge — a neural network from scratch in C99">
+  <meta property="og:description"
+    content="A zero-dependency deep-learning framework written by hand in ~2,000 lines of C99. Trains an RL trading agent and generates synthetic market data — all running live in your browser via WebAssembly.">
+  <meta property="og:image" content="https://qforge-neural.vercel.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt"
+    content="qforge — a neural network framework written from scratch in C99. 56 unit tests, 2,400 MFLOP/s, zero dependencies, MIT license.">
 
-<meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="qforge — a neural network from scratch in C99">
-<meta name="twitter:description" content="A zero-dependency deep-learning framework written by hand in ~2,000 lines of C99. RL trading agent + synthetic market data, all in your browser via WebAssembly.">
-<meta name="twitter:image"       content="https://qforge-neural.vercel.app/og-image.png">
-<meta name="twitter:image:alt"   content="qforge — a neural network framework written from scratch in C99.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="qforge — a neural network from scratch in C99">
+  <meta name="twitter:description"
+    content="A zero-dependency deep-learning framework written by hand in ~2,000 lines of C99. RL trading agent + synthetic market data, all in your browser via WebAssembly.">
+  <meta name="twitter:image" content="https://qforge-neural.vercel.app/og-image.png">
+  <meta name="twitter:image:alt" content="qforge — a neural network framework written from scratch in C99.">
 
-<meta name="theme-color" content="#0b0d10">
+  <meta name="theme-color" content="#0b0d10">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3.8.0/dist/bundle/asciinema-player.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
-<link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3.8.0/dist/bundle/asciinema-player.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
+  <link rel="stylesheet" href="styles.css">
 
-<!-- ---- Vercel Web Analytics + Speed Insights ----
+  <!-- ---- Vercel Web Analytics + Speed Insights ----
   Vanilla-HTML / no-bundler path: Vercel auto-serves both scripts from
   the project's own origin once analytics is enabled in the dashboard.
   No npm package, no React component, no env vars. Local dev (file://
   or python3 -m http.server) loads 404s for these — harmless. -->
-<script defer src="/_vercel/insights/script.js"></script>
-<script defer src="/_vercel/speed-insights/script.js"></script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 
 <body>
 
-<header class="hero">
-  <div class="container">
-    <h1>qforge</h1>
-    <p class="tagline">A neural network framework written from scratch in <strong>~2,000 lines of C99</strong>. Zero dependencies — no BLAS, no PyTorch, just raw matrix math, backprop, and an SGD optimizer built by hand. Two finance applications on top: a reinforcement-learning <strong>trading agent</strong> that beats buy-and-hold, and a <strong>synthetic market data generator</strong> that preserves the statistical signatures of real returns.</p>
+  <header class="hero">
+    <div class="container">
+      <h1>qforge</h1>
+      <p class="tagline">A neural network framework written from scratch in <strong>~2,000 lines of C99</strong>. Zero
+        dependencies — no BLAS, no PyTorch, just raw matrix math, backprop, and an SGD optimizer built by hand. Two
+        finance applications on top: a reinforcement-learning <strong>trading agent</strong> that beats buy-and-hold,
+        and a <strong>synthetic market data generator</strong> that preserves the statistical signatures of real
+        returns.</p>
 
-    <div class="actions">
-      <a class="btn btn-primary" href="#run">Run it in your browser</a>
-      <a class="btn" href="https://github.com/Builder106/qforge" target="_blank" rel="noopener">View on GitHub →</a>
-    </div>
-
-    <ul class="stats">
-      <li><strong>56</strong> unit tests passing</li>
-      <li><strong>2,400</strong> MFLOP/s on one core</li>
-      <li><strong>~2,000</strong> lines of C</li>
-      <li><strong>0</strong> dependencies</li>
-    </ul>
-  </div>
-</header>
-
-<section class="section" id="watch">
-  <div class="container">
-    <h2>Watch it run</h2>
-    <p class="lede">Recorded terminal sessions. They autoplay when this section scrolls into view and loop. Click any demo to switch; the playback controls let you scrub or pause.</p>
-
-    <div class="tabs" role="tablist">
-      <button class="tab tab-active" data-cast="casts/dqn.cast"        data-rows="32" data-cols="80">DQN trader</button>
-      <button class="tab"            data-cast="casts/market_gen.cast" data-rows="32" data-cols="80">Market generator</button>
-      <button class="tab"            data-cast="casts/benchmark.cast"  data-rows="28" data-cols="80">Benchmarks</button>
-      <button class="tab"            data-cast="casts/xor.cast"        data-rows="24" data-cols="80">XOR (smoke test)</button>
-    </div>
-
-    <div id="player" class="player"></div>
-
-    <details class="caption">
-      <summary>What am I looking at?</summary>
-      <ul>
-        <li><strong>DQN trader</strong> — A 6-feature → 64 → 32 → 3 Q-network trains for 300 episodes on a simulated price series with regime changes. Buys, sells, and holds based on price, position, P&amp;L, volatility, and lagged returns. Compares final policy to a buy-and-hold baseline.</li>
-        <li><strong>Market generator</strong> — A 5 → 32 → 16 → 1 MLP trains on GARCH(1,1)-simulated S&amp;P 500 daily returns, then generates a new return series. The table compares stylized facts: fat tails, volatility clustering, and negative skewness all survive.</li>
-        <li><strong>Benchmarks</strong> — Wall-clock timing of matmul, transpose, element-wise ops, and full forward+backward+SGD training steps across multiple sizes.</li>
-        <li><strong>XOR</strong> — Classic 2 → 4 → 1 MLP convergence test. Trains to &lt; 0.01 MSE in well under a second.</li>
-      </ul>
-    </details>
-  </div>
-</section>
-
-<section class="section section-alt" id="run">
-  <div class="container">
-    <h2>Run it yourself</h2>
-    <p class="lede">The exact same C code, compiled to <strong>WebAssembly</strong> with Emscripten and executed in a Web Worker. No server — all computation happens locally in your browser.</p>
-
-    <div class="runner">
-      <div class="runner-controls">
-        <button class="btn-run" data-demo="xor">▶ XOR (~&lt;1s)</button>
-        <button class="btn-run" data-demo="benchmark">▶ Benchmarks (~5s)</button>
-        <button class="btn-run" data-demo="dqn">▶ DQN trader (~30s)</button>
-        <button class="btn-run" data-demo="market_gen">▶ Market generator (~20s)</button>
-        <button class="btn-run" data-demo="gradient_check">▶ Gradient check (~1s)</button>
-        <button class="btn-stop" id="stop-term" disabled>■ stop</button>
-        <button class="btn-clear" id="clear-term">clear</button>
+      <div class="actions">
+        <a class="btn btn-primary" href="#run">Run it in your browser</a>
+        <a class="btn" href="https://github.com/Builder106/qforge" target="_blank" rel="noopener">View on GitHub →</a>
       </div>
 
-      <details class="tweak-panel" id="tweak-panel">
-        <summary><span class="tweak-icon">⚙</span> tweak hyperparameters <span class="tweak-hint">— defaults match the recorded demos</span></summary>
+      <ul class="stats">
+        <li><strong>56</strong> unit tests passing</li>
+        <li><strong>2,400</strong> MFLOP/s on one core</li>
+        <li><strong>~2,000</strong> lines of C</li>
+        <li><strong>0</strong> dependencies</li>
+      </ul>
+    </div>
+  </header>
 
-        <div class="tweak-grid">
-          <div class="tweak-demo">
-            <h4>XOR</h4>
-            <label>
-              <span>epochs</span>
-              <input type="number" id="xor-epochs" value="10000" min="500" max="50000" step="500">
-            </label>
-            <label>
-              <span>learning rate</span>
-              <input type="number" id="xor-lr" value="1.0" min="0.05" max="3.0" step="0.05">
-            </label>
-          </div>
+  <section class="section" id="watch">
+    <div class="container">
+      <h2>Watch it run</h2>
+      <p class="lede">Recorded terminal sessions. They autoplay when this section scrolls into view and loop. Click any
+        demo to switch; the playback controls let you scrub or pause.</p>
 
-          <div class="tweak-demo">
-            <h4>DQN trader</h4>
-            <label>
-              <span>episodes</span>
-              <input type="number" id="dqn-episodes" value="300" min="20" max="1500" step="20">
-            </label>
-            <label>
-              <span>γ (discount)</span>
-              <input type="number" id="dqn-gamma" value="0.95" min="0.50" max="0.999" step="0.005">
-            </label>
-            <label>
-              <span>learning rate</span>
-              <input type="number" id="dqn-lr" value="0.001" min="0.00001" max="0.05" step="0.0001">
-            </label>
-            <label>
-              <span>ε decay</span>
-              <input type="number" id="dqn-eps-decay" value="0.995" min="0.95" max="0.9999" step="0.0005">
-            </label>
-          </div>
+      <div class="tabs" role="tablist">
+        <button class="tab tab-active" data-cast="casts/dqn.cast" data-rows="32" data-cols="80">DQN trader</button>
+        <button class="tab" data-cast="casts/market_gen.cast" data-rows="32" data-cols="80">Market generator</button>
+        <button class="tab" data-cast="casts/benchmark.cast" data-rows="28" data-cols="80">Benchmarks</button>
+        <button class="tab" data-cast="casts/xor.cast" data-rows="24" data-cols="80">XOR (smoke test)</button>
+      </div>
+
+      <div id="player" class="player"></div>
+
+      <details class="caption">
+        <summary>What am I looking at?</summary>
+        <ul>
+          <li><strong>DQN trader</strong> — A 6-feature → 64 → 32 → 3 Q-network trains for 300 episodes on a simulated
+            price series with regime changes. Buys, sells, and holds based on price, position, P&amp;L, volatility, and
+            lagged returns. Compares final policy to a buy-and-hold baseline.</li>
+          <li><strong>Market generator</strong> — A 5 → 32 → 16 → 1 MLP trains on GARCH(1,1)-simulated S&amp;P 500 daily
+            returns, then generates a new return series. The table compares stylized facts: fat tails, volatility
+            clustering, and negative skewness all survive.</li>
+          <li><strong>Benchmarks</strong> — Wall-clock timing of matmul, transpose, element-wise ops, and full
+            forward+backward+SGD training steps across multiple sizes.</li>
+          <li><strong>XOR</strong> — Classic 2 → 4 → 1 MLP convergence test. Trains to &lt; 0.01 MSE in well under a
+            second.</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="run">
+    <div class="container">
+      <h2>Run it yourself</h2>
+      <p class="lede">The exact same C code, compiled to <strong>WebAssembly</strong> with Emscripten and executed in a
+        Web Worker. No server — all computation happens locally in your browser.</p>
+
+      <div class="runner">
+        <div class="runner-controls">
+          <button class="btn-run" data-demo="xor">▶ XOR (~&lt;1s)</button>
+          <button class="btn-run" data-demo="benchmark">▶ Benchmarks (~5s)</button>
+          <button class="btn-run" data-demo="dqn">▶ DQN trader (~30s)</button>
+          <button class="btn-run" data-demo="market_gen">▶ Market generator (~20s)</button>
+          <button class="btn-run" data-demo="gradient_check">▶ Gradient check (~1s)</button>
+          <button class="btn-stop" id="stop-term" disabled>■ stop</button>
+          <button class="btn-clear" id="clear-term">clear</button>
         </div>
 
-        <p class="tweak-foot">
-          The other demos run with fixed defaults — their parameters aren't tunable yet.
-          <button type="button" class="btn-link" id="tweak-reset">reset to defaults</button>
-        </p>
-      </details>
+        <details class="tweak-panel" id="tweak-panel">
+          <summary><span class="tweak-icon">⚙</span> tweak hyperparameters <span class="tweak-hint">— defaults match the
+              recorded demos</span></summary>
 
-      <div id="terminal" class="terminal"></div>
-      <p class="hint" id="hint">↑ Pick a demo. Output is read-only — scroll with your mouse wheel over the terminal, or hit <strong>stop</strong> to kill a running demo.</p>
+          <div class="tweak-grid">
+            <div class="tweak-demo">
+              <h4>XOR</h4>
+              <label>
+                <span>epochs</span>
+                <input type="number" id="xor-epochs" value="10000" min="500" max="50000" step="500">
+              </label>
+              <label>
+                <span>learning rate</span>
+                <input type="number" id="xor-lr" value="1.0" min="0.05" max="3.0" step="0.05">
+              </label>
+            </div>
+
+            <div class="tweak-demo">
+              <h4>DQN trader</h4>
+              <label>
+                <span>episodes</span>
+                <input type="number" id="dqn-episodes" value="300" min="20" max="1500" step="20">
+              </label>
+              <label>
+                <span>γ (discount)</span>
+                <input type="number" id="dqn-gamma" value="0.95" min="0.50" max="0.999" step="0.005">
+              </label>
+              <label>
+                <span>learning rate</span>
+                <input type="number" id="dqn-lr" value="0.001" min="0.00001" max="0.05" step="0.0001">
+              </label>
+              <label>
+                <span>ε decay</span>
+                <input type="number" id="dqn-eps-decay" value="0.995" min="0.95" max="0.9999" step="0.0005">
+              </label>
+            </div>
+          </div>
+
+          <p class="tweak-foot">
+            The other demos run with fixed defaults — their parameters aren't tunable yet.
+            <button type="button" class="btn-link" id="tweak-reset">reset to defaults</button>
+          </p>
+        </details>
+
+        <div id="terminal" class="terminal"></div>
+        <p class="hint" id="hint">↑ Pick a demo. Output is read-only — scroll with your mouse wheel over the terminal,
+          or hit <strong>stop</strong> to kill a running demo.</p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="section" id="how">
-  <div class="container">
-    <h2>How it works</h2>
+  <section class="section" id="how">
+    <div class="container">
+      <h2>How it works</h2>
 
-    <div class="arch">
-<pre>
+      <div class="arch">
+        <pre>
  Tensor       →  matrix algebra (multiply, transpose, add, hadamard)
    ↓
  Activation   →  ReLU, Sigmoid, Tanh, Softmax (+ derivatives)
@@ -176,35 +195,42 @@
    ↓
  Optimizer    →  SGD with momentum (per-layer velocity buffers)
 </pre>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Correctness</h3>
+          <p>Every layer is test-driven. Backpropagation is independently verified against <strong>central finite
+              differences</strong> (<code>dL/dw ≈ [L(w+ε) − L(w−ε)] / 2ε</code>) — max relative error
+            <code>≤ 2.3 × 10⁻⁷</code> across four architectures.</p>
+        </div>
+        <div class="card">
+          <h3>Numerical stability</h3>
+          <p>Sigmoid branches on sign of input. Softmax subtracts row-max before <code>exp()</code>. Cross-entropy
+            clamps predictions to <code>[ε, 1−ε]</code>. Weights init via Xavier or He, auto-selected by activation
+            type.</p>
+        </div>
+        <div class="card">
+          <h3>Memory safety</h3>
+          <p>Every tensor op returns a freshly allocated tensor; ownership is explicit. Verified leak-free with
+            AddressSanitizer on the full test suite plus all example binaries.</p>
+        </div>
+        <div class="card">
+          <h3>Performance</h3>
+          <p>Plain C with <code>-O2</code>, no SIMD intrinsics or BLAS. 64×64 matmul: <strong>0.22 ms</strong> (2.4
+            GFLOP/s). A full forward + backward + SGD step on a 16→32→1 net: <strong>0.011 ms</strong>.</p>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <div class="grid">
-      <div class="card">
-        <h3>Correctness</h3>
-        <p>Every layer is test-driven. Backpropagation is independently verified against <strong>central finite differences</strong> (<code>dL/dw ≈ [L(w+ε) − L(w−ε)] / 2ε</code>) — max relative error <code>≤ 2.3 × 10⁻⁷</code> across four architectures.</p>
-      </div>
-      <div class="card">
-        <h3>Numerical stability</h3>
-        <p>Sigmoid branches on sign of input. Softmax subtracts row-max before <code>exp()</code>. Cross-entropy clamps predictions to <code>[ε, 1−ε]</code>. Weights init via Xavier or He, auto-selected by activation type.</p>
-      </div>
-      <div class="card">
-        <h3>Memory safety</h3>
-        <p>Every tensor op returns a freshly allocated tensor; ownership is explicit. Verified leak-free with AddressSanitizer on the full test suite plus all example binaries.</p>
-      </div>
-      <div class="card">
-        <h3>Performance</h3>
-        <p>Plain C with <code>-O2</code>, no SIMD intrinsics or BLAS. 64×64 matmul: <strong>0.22 ms</strong> (2.4 GFLOP/s). A full forward + backward + SGD step on a 16→32→1 net: <strong>0.011 ms</strong>.</p>
-      </div>
-    </div>
-  </div>
-</section>
+  <section class="section section-alt" id="code">
+    <div class="container">
+      <h2>The code</h2>
+      <p class="lede">Six modules, ~2,000 lines, built bottom-up TDD over 14 commits. Every function has a test before
+        it has an implementation.</p>
 
-<section class="section section-alt" id="code">
-  <div class="container">
-    <h2>The code</h2>
-    <p class="lede">Six modules, ~2,000 lines, built bottom-up TDD over 14 commits. Every function has a test before it has an implementation.</p>
-
-    <pre class="tree">qforge/
+      <pre class="tree">qforge/
 ├── include/                    # public headers
 │   ├── tensor.h                  matrix math
 │   ├── activation.h              ReLU, Sigmoid, Tanh, Softmax
@@ -224,21 +250,24 @@
 └── web/                        # this page (asciinema + WASM build)
 </pre>
 
-    <p class="cta">
-      <a class="btn btn-primary" href="https://github.com/Builder106/qforge" target="_blank" rel="noopener">Read the source on GitHub →</a>
-    </p>
-  </div>
-</section>
+      <p class="cta">
+        <a class="btn btn-primary" href="https://github.com/Builder106/qforge" target="_blank" rel="noopener">Read the
+          source on GitHub →</a>
+      </p>
+    </div>
+  </section>
 
-<footer>
-  <div class="container">
-    <p>Built by <a href="mailto:vaughanolayinka@gmail.com">Yinka Vaughan</a> · MIT license · <a href="https://github.com/Builder106/qforge" target="_blank" rel="noopener">source on GitHub</a></p>
-  </div>
-</footer>
+  <footer>
+    <div class="container">
+      <p>Built by <a href="mailto:vaughanolayinka@gmail.com">Yinka Vaughan</a> · MIT license · <a
+          href="https://github.com/Builder106/qforge" target="_blank" rel="noopener">source on GitHub</a></p>
+    </div>
+  </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/asciinema-player@3.8.0/dist/bundle/asciinema-player.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
-<script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/asciinema-player@3.8.0/dist/bundle/asciinema-player.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
+  <script src="app.js"></script>
 
 </body>
+
 </html>
