@@ -1,14 +1,22 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/e2e"
+  - package-ecosystem: npm
+    directory: /e2e
     schedule:
-      interval: "weekly"
+      interval: weekly
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "weekly"
+      interval: weekly
     groups:
       actions:
-        patterns: ["*"]
+        patterns:
+          - "*"
