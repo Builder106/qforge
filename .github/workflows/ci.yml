@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -201,9 +201,29 @@ jobs:
           path: e2e/playwright-report/
           retention-days: 7
 
-# ---- Deployment ----
-# Vercel handles deployment via its native GitHub integration (auto-deploy on
-# push to main, preview deploys on PRs). The CI jobs above run in parallel
-# with Vercel's build — they don't gate it. To require these checks before
-# Vercel ships to production, enable "Only deploy if checks pass" in the
-# Vercel project settings (Settings → Git → Production Branch checks).
+  deploy:
+    name: Trigger Vercel Deploy
+    needs: [secrets, coverage, sanitizers, wasm-build, e2e]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy to Staging
+        if: github.ref == 'refs/heads/staging'
+        env:
+          HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_STAGING }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "VERCEL_DEPLOY_HOOK_STAGING is not set; skipping deploy hook trigger"
+            exit 0
+          fi
+          curl -sS -f -X POST "$HOOK_URL"
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
+        env:
+          HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_PROD }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "VERCEL_DEPLOY_HOOK_PROD is not set; skipping deploy hook trigger"
+            exit 1
+          fi
+          curl -sS -f -X POST "$HOOK_URL"

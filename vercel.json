@@ -57,10 +57,6 @@
     }
   ],
   "git": {
-    "deploymentEnabled": {
-      "main": true,
-      "staging": true,
-      "**": false
-    }
+    "deploymentEnabled": false
   }
 }
