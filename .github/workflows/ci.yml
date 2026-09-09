@@ -72,7 +72,6 @@ jobs:
         shell: msys2 {0}
         run: make test
 
-
   coverage:
     name: Code coverage (100% target)
     runs-on: ubuntu-latest
@@ -125,8 +124,7 @@ jobs:
           ASAN_OPTIONS: "detect_leaks=1:abort_on_error=1"
         run: |
           make clean
-          make test
-          make integration
+          make CC="$CC" CFLAGS="$CFLAGS" test integration
       - name: Test with GCC UndefinedBehaviorSanitizer (UBSan)
         if: matrix.sanitizer == 'ubsan'
         env:
@@ -135,8 +133,7 @@ jobs:
           UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
         run: |
           make clean
-          make test
-          make integration
+          make CC="$CC" CFLAGS="$CFLAGS" test integration
 
   sanitizers:
     name: Clang Sanitizers (${{ matrix.sanitizer }})
@@ -153,22 +150,20 @@ jobs:
         if: matrix.sanitizer == 'asan'
         env:
           CC: clang
-          CFLAGS: "-fsanitize=address -fno-omit-frame-pointer -g -O1"
+          CFLAGS: "-std=c99 -Wall -Wextra -Werror -pedantic -fsanitize=address -fno-omit-frame-pointer -g -O1"
           ASAN_OPTIONS: "detect_leaks=1:abort_on_error=1"
         run: |
           make clean
-          make test
-          make integration
+          make CC="$CC" CFLAGS="$CFLAGS" test integration
       - name: Test with UndefinedBehaviorSanitizer (UBSan)
         if: matrix.sanitizer == 'ubsan'
         env:
           CC: clang
-          CFLAGS: "-fsanitize=undefined -fno-omit-frame-pointer -g -O1"
+          CFLAGS: "-std=c99 -Wall -Wextra -Werror -pedantic -fsanitize=undefined -fno-omit-frame-pointer -g -O1"
           UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
         run: |
           make clean
-          make test
-          make integration
+          make CC="$CC" CFLAGS="$CFLAGS" test integration
 
 
   wasm-build:
