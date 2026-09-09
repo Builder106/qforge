@@ -134,7 +134,13 @@ static double stat_kurtosis(const double *data, int n) {
 
 static double stat_autocorr_sq(const double *data, int n, int lag_k) {
     /* Autocorrelation of squared returns at lag k */
-    double *sq = (double *)malloc((size_t)n * sizeof(double));
+    if (n <= 0 || lag_k <= 0 || lag_k >= n)
+        return 0.0;
+
+    double *sq = (double *)calloc((size_t)n, sizeof(*sq));
+    if (sq == NULL)
+        return 0.0;
+
     for (int i = 0; i < n; i++)
         sq[i] = data[i] * data[i];
 
