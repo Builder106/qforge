@@ -74,7 +74,7 @@ jobs:
 
   coverage:
     name: Code coverage (100% target)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - name: Install lcov
@@ -101,7 +101,7 @@ jobs:
 
   benchmark:
     name: Native benchmark
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - name: Run benchmark
@@ -109,7 +109,7 @@ jobs:
 
   gcc-sanitizers:
     name: GCC Sanitizers (${{ matrix.sanitizer }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -137,7 +137,7 @@ jobs:
 
   sanitizers:
     name: Clang Sanitizers (${{ matrix.sanitizer }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -168,7 +168,7 @@ jobs:
 
   wasm-build:
     name: WASM build drift check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
@@ -200,7 +200,7 @@ jobs:
 
   e2e:
     name: Web E2E (Playwright + Gherkin BDD)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: wasm-build
     steps:
       - uses: actions/checkout@v7
