@@ -4,6 +4,14 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-10-15: Redrew the README module map #decision
+
+The first static diagram made every module look like the same card and used incoming-edge badges that were hard to interpret. The revised figure groups modules by role and shows the nine direct include relationships without those badges. The editable HTML and rendered PNG remain paired in `docs/`.
+
+## 2026-10-13: Replace the README Mermaid diagram #decision
+
+The README now uses a static diagram with an editable HTML source at `docs/architecture.html`. PNG keeps the GitHub rendering consistent. The dependency graph retains all seven modules and all nine directed edges from the original Mermaid source. Ranked rows show how tensor math reaches layers, training, and applications; fan-in badges mark shared inputs.
+
 ## 2026-08-14: Accessible plain-English documentation update #decision
 
 Refactored the README introduction, tagline, and feature descriptions to highlight the zero-dependency neural network and reinforcement learning trader in plain English. Removed unnecessary technical shorthand and punctuation artifacts while keeping the low-level C99 matrix benchmarks intact for systems engineers.

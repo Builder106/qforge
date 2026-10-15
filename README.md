@@ -89,33 +89,9 @@ The project has two layers: a **core engine**(the neural network library) and**a
 
 Built bottom-up from raw matrix math to a complete learning system. Every arrow is a real `#include`:
 
-```mermaid
-flowchart TB
-    Tensor["`**Tensor**
-    matmul · transpose · hadamard · broadcasting`"]
-    Activation["`**Activation**
-    ReLU · Sigmoid · Tanh · Softmax (+ derivatives)`"]
-    Loss["`**Loss**
-    MSE · Cross-Entropy (ε-clamped)`"]
-    Layer["`**Layer**
-    Dense — forward + backward, Xavier/He init`"]
-    Network["`**Network**
-    Sequential model — stack layers, train, predict`"]
-    Optimizer["`**Optimizer**
-    SGD with momentum & Adam adaptive estimation`"]
-    Apps[/"`**Applications**
-    XOR · DQN trader · Market generator · Benchmarks`"/]
+![QForge learning engine](docs/architecture.png)
 
-    Tensor --> Activation
-    Tensor --> Loss
-    Tensor --> Layer
-    Activation --> Layer
-    Layer --> Network
-    Loss --> Optimizer
-    Network --> Optimizer
-    Network --> Apps
-    Optimizer --> Apps
-```
+Tensor handles matmul, transpose, Hadamard products, and broadcasting. Activation covers ReLU, sigmoid, tanh, softmax, and their derivatives; Loss covers MSE and epsilon-clamped cross-entropy. Dense layers use forward and backward passes with Xavier or He initialization. The network trains and predicts with SGD plus momentum or Adam, then powers the XOR, DQN trading, market-generation, and benchmark applications.
 
 Six modules, ~2,000 lines total. Each one is independently testable — the [56-test unit suite](tests/) walks bottom-up, the same way the code was built.
 
