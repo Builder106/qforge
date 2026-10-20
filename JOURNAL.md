@@ -4,9 +4,13 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-10-19: Redraw the module map as layers #decision
+
+The module map is now one chain (Activation, Layer, Network, Optimizer, examples) with Loss feeding the examples and Tensor drawn as the base every module includes. The previous version spread six modules over four mostly empty lanes with a long Loss wire across them.
+
 ## 2026-10-15: Redrew the README module map #decision
 
-The first static diagram made every module look like the same card and used incoming-edge badges that were hard to interpret. The revised figure groups modules by role and shows the nine direct include relationships without those badges. The editable HTML and rendered PNG remain paired in `docs/`.
+The first static diagram made every module look like the same card and used incoming-edge badges that were hard to interpret. The revised figure groups modules by role and shows nine selected direct include relationships without those badges. A source audit removed the false Loss-to-Optimizer link and added the actual Loss-to-Applications link. The figure now uses the web UI's blue and green tokens, square module frames, and a dark PNG paired with the light PNG. Both renders come from one editable HTML source in `docs/`.
 
 ## 2026-10-13: Replace the README Mermaid diagram #decision
 

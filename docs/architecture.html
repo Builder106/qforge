@@ -1,9 +1,176 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>QForge module map</title>
-<style>html,body{margin:0;background:#f8f8fc}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.figure-scroll{max-width:960px;margin:auto;overflow-x:auto}svg{display:block;width:100%;min-width:960px}@media print{.figure-scroll{overflow-x:visible}svg{min-width:0}}</style></head>
-<body><div class="figure-scroll"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="figure-title figure-desc">
-<title id="figure-title">QForge module map</title><desc id="figure-desc">Seven modules and nine direct include relationships: Tensor feeds Activation, Layer and Loss; Activation feeds Layer; Layer feeds Network; Loss and Network feed Optimizer; Network and Optimizer feed Applications.</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#7445b6" stroke-width="1.8"/></marker></defs>
-<rect width="960" height="600" fill="#f8f8fc"/>
-<text x="40" y="67" font-size="30" fill="#222139" font-weight="700">QForge module map</text><path d="M40 94 H920" fill="none" stroke="#c8d2d9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/><rect x="40" y="113" width="180" height="433" rx="2" fill="#fff" stroke="#e0dce9" stroke-width="1"/><text x="52" y="136" font-size="11" fill="#6a6580" font-weight="700">FOUNDATION</text><rect x="250" y="113" width="300" height="433" rx="2" fill="#fff" stroke="#e0dce9" stroke-width="1"/><text x="262" y="136" font-size="11" fill="#6a6580" font-weight="700">COMPUTE</text><rect x="580" y="113" width="170" height="433" rx="2" fill="#fff" stroke="#e0dce9" stroke-width="1"/><text x="592" y="136" font-size="11" fill="#6a6580" font-weight="700">TRAINING</text><rect x="780" y="113" width="140" height="433" rx="2" fill="#fff" stroke="#e0dce9" stroke-width="1"/><text x="792" y="136" font-size="11" fill="#6a6580" font-weight="700">USE</text><path d="M198 194 H275" fill="none" stroke="#7445b6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/><path d="M198 204 H236 V295 H275" fill="none" stroke="#7445b6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/><path d="M198 214 H226 V420 H275" fill="none" stroke="#7445b6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/><path d="M380 225 V265" fill="none" stroke="#7445b6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/><path d="M485 295 H603" fill="none" stroke="#7445b6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/><path d="M485 420 H603" fill="none" stroke="#7445b6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/><path d="M665 325 V390" fill="none" stroke="#7445b6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/><path d="M727 295 H762 V348 H792" fill="none" stroke="#7445b6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/><path d="M727 420 H771 V371 H792" fill="none" stroke="#7445b6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/><rect x="62" y="180" width="136" height="56" rx="3" fill="#fff" stroke="#bdb5ca" stroke-width="1.4"/><text x="73" y="204" font-size="15" fill="#222139" font-weight="700">Tensor</text><text x="73" y="222" font-size="10" fill="#645e72" font-weight="400">matmul · transpose</text><rect x="275" y="165" width="210" height="60" rx="3" fill="#fff" stroke="#bdb5ca" stroke-width="1.4"/><text x="286" y="189" font-size="15" fill="#222139" font-weight="700">Activation</text><text x="286" y="209" font-size="11" fill="#645e72" font-weight="400">ReLU · sigmoid · tanh</text><rect x="275" y="265" width="210" height="60" rx="3" fill="#fff" stroke="#bdb5ca" stroke-width="1.4"/><text x="286" y="289" font-size="15" fill="#222139" font-weight="700">Layer</text><text x="286" y="309" font-size="11" fill="#645e72" font-weight="400">dense · initialization</text><rect x="275" y="390" width="210" height="60" rx="3" fill="#fff" stroke="#bdb5ca" stroke-width="1.4"/><text x="286" y="414" font-size="15" fill="#222139" font-weight="700">Loss</text><text x="286" y="434" font-size="11" fill="#645e72" font-weight="400">MSE · cross-entropy</text><rect x="603" y="265" width="124" height="60" rx="3" fill="#f1ebf9" stroke="#7445b6" stroke-width="1.4"/><text x="614" y="289" font-size="15" fill="#222139" font-weight="700">Network</text><text x="614" y="307" font-size="10" fill="#645e72" font-weight="400">train · predict</text><rect x="603" y="390" width="124" height="60" rx="3" fill="#f1ebf9" stroke="#7445b6" stroke-width="1.4"/><text x="614" y="414" font-size="15" fill="#222139" font-weight="700">Optimizer</text><text x="614" y="432" font-size="10" fill="#645e72" font-weight="400">SGD · Adam</text><rect x="792" y="330" width="116" height="60" rx="3" fill="#fff" stroke="#bdb5ca" stroke-width="1.4"/><text x="803" y="354" font-size="12" fill="#222139" font-weight="700">Applications</text><text x="803" y="372" font-size="9" fill="#645e72" font-weight="400">XOR · DQN · market</text><text x="40" y="578" font-size="12" fill="#625e72" font-weight="400">Arrows show direct #include relationships.</text>
-</svg></div></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QForge module layers</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root { color-scheme: light dark; --bg: #ffffff; --ink: #1f2328; --muted: #59636e; --edge: #59636e; --box: #8c959f; --group: #d1d9e0; --groupfill: #f6f8fa; --accent: #0969da; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --ink: #f0f6fc; --muted: #9198a1; --edge: #9198a1; --box: #656c76; --group: #3d444d; --groupfill: #151b23; --accent: #4493f8; } }
+html, body { margin: 0; background: var(--bg); }
+main { max-width: 876px; margin: 0 auto; }
+svg { display: block; width: 100%; height: auto; }
+text { font-family: "IBM Plex Sans", system-ui, sans-serif; fill: var(--ink); }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.muted { fill: var(--muted); }
+.accent-text { fill: var(--accent); }
+.bg, .halo { fill: var(--bg); }
+.node { fill: var(--bg); stroke-width: 1.25; }
+.node.box { stroke: var(--box); }
+.node.accent { stroke: var(--accent); stroke-width: 2; }
+.group { fill: var(--groupfill); stroke: var(--group); }
+.boundary { fill: none; stroke: var(--box); stroke-dasharray: 6 6; }
+.edge { fill: none; stroke: var(--edge); stroke-width: 1.5; }
+.edge.accent { stroke: var(--accent); stroke-width: 2; }
+.edge.dashed { stroke-dasharray: 6 5; }
+.lifeline { fill: none; stroke: var(--group); stroke-dasharray: 4 5; }
+.tip { fill: var(--edge); }
+.tip-accent { fill: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 876 344" role="img" aria-labelledby="diagram-title diagram-desc">
+<title id="diagram-title">QForge module layers</title>
+<desc id="diagram-desc">Tensor is the base layer, and every other module includes it. Activation feeds Layer, Layer feeds Network, Network feeds Optimizer, and Optimizer feeds the example programs. The examples also use Loss directly.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="tip" d="M0,0 L10,5 L0,10 Z"/></marker>
+<marker id="arrow-accent" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="tip-accent" d="M0,0 L10,5 L0,10 Z"/></marker>
+</defs>
+<rect class="bg" width="876" height="344"/>
+<rect class="node box" x="16" y="16" width="140" height="67" rx="6"/>
+<text x="30" y="43" font-size="16" font-weight="600">Activation</text>
+<text x="30" y="64" font-size="14" class="muted">ReLU, sigmoid</text>
+<rect class="node box" x="192" y="16" width="140" height="67" rx="6"/>
+<text x="206" y="43" font-size="16" font-weight="600">Layer</text>
+<text x="206" y="64" font-size="14" class="muted">dense</text>
+<rect class="node box" x="368" y="16" width="140" height="67" rx="6"/>
+<text x="382" y="43" font-size="16" font-weight="600">Network</text>
+<text x="382" y="64" font-size="14" class="muted">train, predict</text>
+<rect class="node box" x="544" y="16" width="140" height="67" rx="6"/>
+<text x="558" y="43" font-size="16" font-weight="600">Optimizer</text>
+<text x="558" y="64" font-size="14" class="muted">SGD, Adam</text>
+<rect class="node box" x="720" y="16" width="140" height="67" rx="6"/>
+<text x="734" y="43" font-size="16" font-weight="600">Examples</text>
+<text x="734" y="64" font-size="14" class="muted">XOR, DQN, more</text>
+<rect class="node box" x="16" y="120" width="140" height="88" rx="6"/>
+<text x="30" y="147" font-size="16" font-weight="600">Loss</text>
+<text x="30" y="168" font-size="14" class="muted">MSE</text>
+<text x="30" y="189" font-size="14" class="muted">cross-entropy</text>
+<rect class="node box" x="16" y="240" width="844" height="88" rx="6"/>
+<text x="30" y="267" font-size="16" font-weight="600">Tensor</text>
+<text x="30" y="288" font-size="14" class="muted">matmul, transpose, Hadamard products, broadcasting</text>
+<text x="30" y="309" font-size="14" class="muted">every module above includes it</text>
+<path class="edge" d="M156,49.5 L192,49.5" marker-end="url(#arrow)"/>
+<path class="edge" d="M332,49.5 L368,49.5" marker-end="url(#arrow)"/>
+<path class="edge" d="M508,49.5 L544,49.5" marker-end="url(#arrow)"/>
+<path class="edge" d="M684,49.5 L720,49.5" marker-end="url(#arrow)"/>
+<path class="edge" d="M156,164 L790,164 L790,83" marker-end="url(#arrow)"/>
+</svg>
+</main>
+<script type="application/json" id="diagram-spec">
+{
+  "title": "QForge module layers",
+  "desc": "Tensor is the base layer, and every other module includes it. Activation feeds Layer, Layer feeds Network, Network feeds Optimizer, and Optimizer feeds the example programs. The examples also use Loss directly.",
+  "width": 880,
+  "nodes": [
+    {
+      "id": "act",
+      "x": 16,
+      "y": 16,
+      "w": 140,
+      "title": "Activation",
+      "lines": [
+        "ReLU, sigmoid"
+      ]
+    },
+    {
+      "id": "layer",
+      "x": 192,
+      "y": 16,
+      "w": 140,
+      "title": "Layer",
+      "lines": [
+        "dense"
+      ]
+    },
+    {
+      "id": "net",
+      "x": 368,
+      "y": 16,
+      "w": 140,
+      "title": "Network",
+      "lines": [
+        "train, predict"
+      ]
+    },
+    {
+      "id": "opt",
+      "x": 544,
+      "y": 16,
+      "w": 140,
+      "title": "Optimizer",
+      "lines": [
+        "SGD, Adam"
+      ]
+    },
+    {
+      "id": "ex",
+      "x": 720,
+      "y": 16,
+      "w": 140,
+      "title": "Examples",
+      "lines": [
+        "XOR, DQN, more"
+      ]
+    },
+    {
+      "id": "loss",
+      "x": 16,
+      "y": 120,
+      "w": 140,
+      "title": "Loss",
+      "lines": [
+        "MSE",
+        "cross-entropy"
+      ]
+    },
+    {
+      "id": "tensor",
+      "x": 16,
+      "y": 240,
+      "w": 844,
+      "title": "Tensor",
+      "lines": [
+        "matmul, transpose, Hadamard products, broadcasting",
+        "every module above includes it"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "act.r",
+      "to": "layer.l"
+    },
+    {
+      "from": "layer.r",
+      "to": "net.l"
+    },
+    {
+      "from": "net.r",
+      "to": "opt.l"
+    },
+    {
+      "from": "opt.r",
+      "to": "ex.l"
+    },
+    {
+      "from": "loss.r",
+      "to": "ex.b@0.5"
+    }
+  ]
+}
+</script>
+</body>
+</html>
