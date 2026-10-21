@@ -87,14 +87,7 @@ The project has two layers: a **core engine**(the neural network library) and**a
 
 ### Core Engine
 
-Built bottom-up from raw matrix math to a complete learning system. Each arrow points from a module to the module that includes it. Tensor sits underneath, and every module includes it:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.png">
-  <img src="docs/architecture.png" alt="Activation feeds Layer, Layer feeds Network, Network feeds Optimizer, and Optimizer feeds the example programs. Loss feeds the examples directly. Tensor is the base layer that every module includes." width="876">
-</picture>
-
-[Editable HTML source](docs/architecture.html).
+Built bottom-up from raw matrix math to a complete learning system. Every module includes Tensor. Above it, each module builds on the one before: Activation, then Layer, Network, and Optimizer. Loss depends on Tensor alone. The example programs include Network, Optimizer, and Loss directly.
 
 Tensor handles matmul, transpose, Hadamard products, and broadcasting. Activation covers ReLU, sigmoid, tanh, softmax, and their derivatives; Loss covers MSE and epsilon-clamped cross-entropy. Dense layers use forward and backward passes with Xavier or He initialization. The network trains and predicts with SGD plus momentum or Adam, then powers the XOR, DQN trading, market-generation, and benchmark applications.
 

@@ -4,6 +4,10 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-10-21: Replace the module map with a sentence #decision
+
+The map was a straight include chain with one side branch and a Tensor box that had no edges. One sentence states the same include order, checked against the headers.
+
 ## 2026-10-19: Redraw the module map as layers #decision
 
 The module map is now one chain (Activation, Layer, Network, Optimizer, examples) with Loss feeding the examples and Tensor drawn as the base every module includes. The previous version spread six modules over four mostly empty lanes with a long Loss wire across them.
