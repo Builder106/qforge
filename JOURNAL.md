@@ -4,6 +4,12 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-10-23: Make deprecated C declarations fatal in CI #ci #decision
+
+GCC, Clang, and Emscripten builds now pass
+`-Werror=deprecated-declarations`. Calls marked deprecated fail in regular,
+sanitizer, and WebAssembly builds.
+
 ## 2026-10-21: Replace the module map with a sentence #decision
 
 The map was a straight include chain with one side branch and a Tensor box that had no edges. One sentence states the same include order, checked against the headers.

@@ -4,7 +4,7 @@
 # ============================================================================
 
 CC       = gcc
-CFLAGS   = -std=c99 -Wall -Wextra -Werror -pedantic -g -O2
+CFLAGS   = -std=c99 -Wall -Wextra -Werror=deprecated-declarations -Werror -pedantic -g -O2
 INCLUDES = -Iinclude
 
 # Source files
@@ -127,7 +127,7 @@ memcheck: $(TEST_BIN)
 
 EMCC       = emcc
 WASM_DIR   = web/wasm
-EMCC_FLAGS = -O2 -Iinclude \
+EMCC_FLAGS = -O2 -Iinclude -Werror=deprecated-declarations \
              -sMODULARIZE=1 \
              -sENVIRONMENT=web,worker \
              -sALLOW_MEMORY_GROWTH=1 \
