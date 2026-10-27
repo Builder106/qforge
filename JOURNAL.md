@@ -4,6 +4,10 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-10-27: Allow stable multi-digit action majors #ci #decision
+
+QForge uses `mymindstorm/setup-emsdk@v16`, the newest stable major tag. The fleet policy now accepts multi-digit majors and does not require an older tag to keep the version to one digit.
+
 ## 2026-10-23: Make deprecated C declarations fatal in CI #ci #decision
 
 GCC, Clang, and Emscripten builds now pass
