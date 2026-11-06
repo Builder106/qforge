@@ -22,7 +22,7 @@ NEURAL_SRCS = $(SRC_DIR)/tensor.c \
               $(SRC_DIR)/network.c \
               $(SRC_DIR)/optimizer.c
 
-QUANT_SRCS  = $(SRC_DIR)/order_book.c
+QUANT_SRCS  = $(SRC_DIR)/order_book.c $(SRC_DIR)/simd_match.c
 
 # SRCS preserves the neural engine baseline for WASM and existing demos
 SRCS     = $(NEURAL_SRCS)
@@ -39,6 +39,7 @@ TEST_SRCS = $(TEST_DIR)/test_main.c \
             $(TEST_DIR)/test_network.c \
             $(TEST_DIR)/test_optimizer.c \
             $(TEST_DIR)/test_order_book.c \
+            $(TEST_DIR)/test_simd_match.c \
             $(TEST_DIR)/test_scenarios.c
 TEST_BIN  = test_runner
 CPP_TEST_BIN = test_runner_cpp

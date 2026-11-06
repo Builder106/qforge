@@ -5,6 +5,7 @@
 #define _POSIX_C_SOURCE 199309L
 
 #include "order_book.h"
+#include "simd_match.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -90,7 +91,8 @@ int main(int argc, char **argv) {
     double match_rate = (double)match_pairs / match_time;
     double match_latency_ns = (match_time / (double)match_pairs) * 1e9;
 
-    printf("  [Stage 3: Matching] %zu trade matches (crossing path)\n", match_pairs);
+    printf("  [Stage 3: SIMD Matching] %zu trade matches (crossing path, %s)\n", match_pairs,
+           lob_simd_active_backend_name());
     printf("    Elapsed:    %.4f sec\n", match_time);
     printf("    Throughput: %.2f million matches/sec\n", match_rate / 1e6);
     printf("    Latency:    %.1f ns / match\n\n", match_latency_ns);
@@ -124,6 +126,27 @@ int main(int argc, char **argv) {
 
     lob_queue_free(queue);
     lob_free(book);
+
+    /* ── Stage 5: SIMD Vectorized Batch Execution ── */
+    size_t batch_ops = 1000000;
+    uint32_t maker_qtys[4] = {100, 200, 150, 300};
+    uint32_t m_out[4], r_out[4], r_taker;
+
+    t0 = get_time_sec();
+    for (size_t i = 0; i < batch_ops; i++) {
+        lob_simd_match_batch_u32(250, maker_qtys, 4, m_out, r_out, &r_taker);
+    }
+    t1 = get_time_sec();
+    double simd_time = t1 - t0;
+    double simd_rate = (double)(batch_ops * 4) / simd_time;
+    double simd_latency_ns = (simd_time / (double)batch_ops) * 1e9;
+
+    printf("  [Stage 5: SIMD Vectorized Execution] %zu orders evaluated (%s)\n", batch_ops * 4,
+           lob_simd_active_backend_name());
+    printf("    Elapsed:    %.4f sec\n", simd_time);
+    printf("    Throughput: %.2f million orders evaluated/sec\n", simd_rate / 1e6);
+    printf("    Latency:    %.1f ns / 4-order batch (%.2f ns / order)\n\n", simd_latency_ns,
+           simd_latency_ns / 4.0);
 
     printf("  ✓ Benchmark completed with zero memory leaks.\n\n");
     return 0;

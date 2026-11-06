@@ -105,6 +105,16 @@ extern void test_lob_order_types(void);
 extern void test_lob_validation_and_errors(void);
 extern void test_lob_command_queue(void);
 
+/* --- SIMD Matching Engine tests --- */
+extern void test_simd_backend_detection(void);
+extern void test_simd_batch_matching_basic(void);
+extern void test_simd_batch_matching_permutations(void);
+extern void test_simd_batch_matching_overflow(void);
+extern void test_simd_price_crossing(void);
+extern void test_simd_volume_accumulation(void);
+extern void test_simd_level_matching(void);
+extern void test_simd_fok_and_market_sweep(void);
+
 int main(void) {
     printf("\n");
     printf("╔══════════════════════════════════════════╗\n");
@@ -231,6 +241,17 @@ int main(void) {
 
     RUN_SUITE("L3 Limit Order Book: Lock-Free Command Queue");
     RUN_TEST(test_lob_command_queue);
+
+    /* ── SIMD Matching Engine Module ── */
+    RUN_SUITE("SIMD Matching Engine: Vectorized Instruction Optimizations");
+    RUN_TEST(test_simd_backend_detection);
+    RUN_TEST(test_simd_batch_matching_basic);
+    RUN_TEST(test_simd_batch_matching_permutations);
+    RUN_TEST(test_simd_batch_matching_overflow);
+    RUN_TEST(test_simd_price_crossing);
+    RUN_TEST(test_simd_volume_accumulation);
+    RUN_TEST(test_simd_level_matching);
+    RUN_TEST(test_simd_fok_and_market_sweep);
 
     /* ── Report ── */
     TEST_REPORT();

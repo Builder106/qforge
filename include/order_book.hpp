@@ -10,6 +10,7 @@
 #define ORDER_BOOK_HPP
 
 #include "order_book.h"
+#include "simd_match.h"
 
 #include <cstdint>
 #include <optional>
@@ -46,6 +47,13 @@ enum class Result : int {
     PoolExhausted = LOB_RESULT_POOL_EXHAUSTED,
     PostOnlyCrossed = LOB_RESULT_POST_ONLY_CROSSED,
     FokNotFilled = LOB_RESULT_FOK_NOT_FILLED
+};
+
+enum class SimdBackend : uint8_t {
+    Portable = LOB_SIMD_BACKEND_PORTABLE,
+    SSE42 = LOB_SIMD_BACKEND_SSE42,
+    AVX2 = LOB_SIMD_BACKEND_AVX2,
+    Neon = LOB_SIMD_BACKEND_NEON
 };
 
 struct Match {
@@ -223,6 +231,33 @@ public:
 
     lob_book_t* handle() noexcept { return book_; }
     const lob_book_t* handle() const noexcept { return book_; }
+
+    static const char* simd_backend_name() noexcept {
+        return lob_simd_active_backend_name();
+    }
+
+    static SimdBackend simd_backend() noexcept {
+        return static_cast<SimdBackend>(lob_simd_get_backend());
+    }
+
+    static uint32_t match_quantities_simd(uint32_t taker_qty,
+                                          const std::vector<uint32_t>& maker_qtys,
+                                          std::vector<uint32_t>& matched_qtys,
+                                          std::vector<uint32_t>& rem_maker_qtys,
+                                          uint32_t* rem_taker_qty = nullptr) {
+        if (maker_qtys.empty()) {
+            if (rem_taker_qty) *rem_taker_qty = taker_qty;
+            matched_qtys.clear();
+            rem_maker_qtys.clear();
+            return 0;
+        }
+        matched_qtys.resize(maker_qtys.size());
+        rem_maker_qtys.resize(maker_qtys.size());
+        return lob_simd_match_batch_u32(taker_qty, maker_qtys.data(),
+                                        static_cast<uint32_t>(maker_qtys.size()),
+                                        matched_qtys.data(), rem_maker_qtys.data(),
+                                        rem_taker_qty);
+    }
 
 private:
     static void match_recorder(const lob_match_t* m, void* user_data) {

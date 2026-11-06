@@ -3,6 +3,7 @@
  * ============================================================================ */
 
 #include "order_book.h"
+#include "simd_match.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -412,6 +413,149 @@ static void lob_remove_level(lob_book_t *book, lob_price_level_t *level) {
  * Order Operations
  * ---------------------------------------------------------------------------- */
 
+/* ----------------------------------------------------------------------------
+ * Vectorized SIMD Level Matching
+ * ---------------------------------------------------------------------------- */
+
+uint32_t lob_simd_match_level(lob_book_t *book, lob_price_level_t *level, uint64_t taker_order_id,
+                              lob_side_t taker_side, uint32_t *remaining_qty,
+                              lob_match_callback_t on_match, void *user_data) {
+    if (!book || !level || !remaining_qty || *remaining_qty == 0) {
+        return 0;
+    }
+
+    uint32_t total_level_matched = 0;
+
+    while (*remaining_qty > 0 && level->order_count > 0 && level->head) {
+        if (level->order_count == 1) {
+            /* Single resting order fast path */
+            lob_order_t *maker = level->head;
+            uint32_t cur_rem = *remaining_qty;
+            uint32_t match_qty = (cur_rem < maker->qty) ? cur_rem : maker->qty;
+
+            *remaining_qty -= match_qty;
+            maker->qty -= match_qty;
+            maker->filled_qty += match_qty;
+            level->total_qty -= match_qty;
+            book->total_volume += match_qty;
+            book->trade_count++;
+            total_level_matched += match_qty;
+
+            if (on_match) {
+                lob_match_t match;
+                match.maker_order_id = maker->order_id;
+                match.taker_order_id = taker_order_id;
+                match.price = level->price;
+                match.qty = match_qty;
+                match.taker_side = (uint8_t)taker_side;
+                match._pad[0] = 0;
+                match._pad[1] = 0;
+                match._pad[2] = 0;
+                on_match(&match, user_data);
+            }
+
+            if (maker->qty == 0) {
+                maker->status = LOB_STATUS_FILLED;
+                lob_order_t *next_maker = maker->next;
+                level->head = next_maker;
+                if (next_maker) {
+                    next_maker->prev = NULL;
+                } else {
+                    level->tail = NULL;
+                }
+                level->order_count--;
+                book->active_orders--;
+
+                lob_map_remove(&book->order_map, maker->order_id);
+                uint32_t midx = maker->pool_index;
+                memset(maker, 0, sizeof(lob_order_t));
+                lob_pool_push(&book->order_pool, midx);
+            }
+        } else {
+            /* Vectorized batch path: match up to 4 orders simultaneously */
+            lob_order_t *batch_orders[4];
+            uint32_t batch_qtys[4];
+            uint32_t batch_matched[4];
+            uint32_t batch_rem[4];
+            uint32_t batch_count = 0;
+
+            lob_order_t *curr = level->head;
+            while (curr && batch_count < 4) {
+                batch_orders[batch_count] = curr;
+                batch_qtys[batch_count] = curr->qty;
+                batch_count++;
+                curr = curr->next;
+            }
+
+            uint32_t rem_taker = *remaining_qty;
+            uint32_t matched = lob_simd_match_batch_u32(*remaining_qty, batch_qtys, batch_count,
+                                                        batch_matched, batch_rem, &rem_taker);
+            *remaining_qty = rem_taker;
+            total_level_matched += matched;
+
+            uint32_t filled_orders = 0;
+            for (uint32_t k = 0; k < batch_count; k++) {
+                lob_order_t *maker = batch_orders[k];
+                uint32_t m_qty = batch_matched[k];
+                if (m_qty > 0) {
+                    maker->qty = batch_rem[k];
+                    maker->filled_qty += m_qty;
+                    level->total_qty -= m_qty;
+                    book->total_volume += m_qty;
+                    book->trade_count++;
+
+                    if (on_match) {
+                        lob_match_t match;
+                        match.maker_order_id = maker->order_id;
+                        match.taker_order_id = taker_order_id;
+                        match.price = level->price;
+                        match.qty = m_qty;
+                        match.taker_side = (uint8_t)taker_side;
+                        match._pad[0] = 0;
+                        match._pad[1] = 0;
+                        match._pad[2] = 0;
+                        on_match(&match, user_data);
+                    }
+                }
+
+                if (batch_rem[k] == 0) {
+                    filled_orders++;
+                } else {
+                    break;
+                }
+            }
+
+            /* Recycle filled orders to memory pool */
+            for (uint32_t k = 0; k < filled_orders; k++) {
+                lob_order_t *maker = batch_orders[k];
+                maker->status = LOB_STATUS_FILLED;
+                lob_map_remove(&book->order_map, maker->order_id);
+                uint32_t midx = maker->pool_index;
+                memset(maker, 0, sizeof(lob_order_t));
+                lob_pool_push(&book->order_pool, midx);
+            }
+
+            level->order_count -= filled_orders;
+            book->active_orders -= filled_orders;
+
+            if (filled_orders < batch_count) {
+                lob_order_t *new_head = batch_orders[filled_orders];
+                level->head = new_head;
+                new_head->prev = NULL;
+            } else {
+                level->head = curr;
+                if (curr) {
+                    curr->prev = NULL;
+                } else {
+                    level->tail = NULL;
+                }
+            }
+        }
+    }
+
+    return total_level_matched;
+}
+
 lob_result_t lob_add_order(lob_book_t *book, uint64_t order_id, lob_side_t side, uint64_t price,
                            uint32_t qty, lob_type_t type, lob_match_callback_t on_match,
                            void *user_data) {
@@ -435,26 +579,26 @@ lob_result_t lob_add_order(lob_book_t *book, uint64_t order_id, lob_side_t side,
         }
     }
 
-    /* Fill-Or-Kill (FOK) pre-check: verify entire quantity can be filled */
+    /* Fill-Or-Kill (FOK) pre-check: verify entire quantity can be filled via SIMD accumulation */
     if (type == LOB_TYPE_FOK) {
         uint64_t fillable = 0;
-        if (side == LOB_SIDE_BUY) {
-            lob_price_level_t *lvl = book->asks_head;
-            while (lvl && lvl->price <= price) {
-                fillable += lvl->total_qty;
-                if (fillable >= qty) {
-                    break;
-                }
+        lob_price_level_t *lvl = (side == LOB_SIDE_BUY) ? book->asks_head : book->bids_head;
+        uint64_t prices[16];
+        uint64_t volumes[16];
+
+        while (lvl && fillable < qty) {
+            uint32_t chunk_count = 0;
+            while (lvl && chunk_count < 16) {
+                prices[chunk_count] = lvl->price;
+                volumes[chunk_count] = lvl->total_qty;
+                chunk_count++;
                 lvl = lvl->next;
             }
-        } else {
-            lob_price_level_t *lvl = book->bids_head;
-            while (lvl && lvl->price >= price) {
-                fillable += lvl->total_qty;
-                if (fillable >= qty) {
-                    break;
-                }
-                lvl = lvl->next;
+            uint32_t checked = 0;
+            fillable += lob_simd_accumulate_volume_u64(prices, volumes, chunk_count, price, side,
+                                                       qty - fillable, &checked);
+            if (checked < chunk_count) {
+                break;
             }
         }
         if (fillable < qty) {
@@ -472,48 +616,8 @@ lob_result_t lob_add_order(lob_book_t *book, uint64_t order_id, lob_side_t side,
                 break; /* Price does not cross */
             }
 
-            lob_order_t *maker = ask_lvl->head;
-            while (maker && remaining_qty > 0) {
-                uint32_t match_qty = (remaining_qty < maker->qty) ? remaining_qty : maker->qty;
-                remaining_qty -= match_qty;
-                maker->qty -= match_qty;
-                maker->filled_qty += match_qty;
-                ask_lvl->total_qty -= match_qty;
-                book->total_volume += match_qty;
-                book->trade_count++;
-
-                if (on_match) {
-                    lob_match_t match;
-                    match.maker_order_id = maker->order_id;
-                    match.taker_order_id = order_id;
-                    match.price = ask_lvl->price;
-                    match.qty = match_qty;
-                    match.taker_side = LOB_SIDE_BUY;
-                    on_match(&match, user_data);
-                }
-
-                if (maker->qty == 0) {
-                    /* Maker order completely filled */
-                    maker->status = LOB_STATUS_FILLED;
-                    lob_order_t *next_maker = maker->next;
-
-                    ask_lvl->head = next_maker;
-                    if (next_maker) {
-                        next_maker->prev = NULL;
-                    } else {
-                        ask_lvl->tail = NULL;
-                    }
-                    ask_lvl->order_count--;
-                    book->active_orders--;
-
-                    lob_map_remove(&book->order_map, maker->order_id);
-                    uint32_t midx = maker->pool_index;
-                    memset(maker, 0, sizeof(lob_order_t));
-                    lob_pool_push(&book->order_pool, midx);
-
-                    maker = next_maker;
-                }
-            }
+            lob_simd_match_level(book, ask_lvl, order_id, LOB_SIDE_BUY, &remaining_qty, on_match,
+                                 user_data);
 
             if (ask_lvl->order_count == 0) {
                 lob_remove_level(book, ask_lvl);
@@ -527,47 +631,8 @@ lob_result_t lob_add_order(lob_book_t *book, uint64_t order_id, lob_side_t side,
                 break; /* Price does not cross */
             }
 
-            lob_order_t *maker = bid_lvl->head;
-            while (maker && remaining_qty > 0) {
-                uint32_t match_qty = (remaining_qty < maker->qty) ? remaining_qty : maker->qty;
-                remaining_qty -= match_qty;
-                maker->qty -= match_qty;
-                maker->filled_qty += match_qty;
-                bid_lvl->total_qty -= match_qty;
-                book->total_volume += match_qty;
-                book->trade_count++;
-
-                if (on_match) {
-                    lob_match_t match;
-                    match.maker_order_id = maker->order_id;
-                    match.taker_order_id = order_id;
-                    match.price = bid_lvl->price;
-                    match.qty = match_qty;
-                    match.taker_side = LOB_SIDE_SELL;
-                    on_match(&match, user_data);
-                }
-
-                if (maker->qty == 0) {
-                    maker->status = LOB_STATUS_FILLED;
-                    lob_order_t *next_maker = maker->next;
-
-                    bid_lvl->head = next_maker;
-                    if (next_maker) {
-                        next_maker->prev = NULL;
-                    } else {
-                        bid_lvl->tail = NULL;
-                    }
-                    bid_lvl->order_count--;
-                    book->active_orders--;
-
-                    lob_map_remove(&book->order_map, maker->order_id);
-                    uint32_t midx = maker->pool_index;
-                    memset(maker, 0, sizeof(lob_order_t));
-                    lob_pool_push(&book->order_pool, midx);
-
-                    maker = next_maker;
-                }
-            }
+            lob_simd_match_level(book, bid_lvl, order_id, LOB_SIDE_SELL, &remaining_qty, on_match,
+                                 user_data);
 
             if (bid_lvl->order_count == 0) {
                 lob_remove_level(book, bid_lvl);

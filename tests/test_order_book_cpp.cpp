@@ -97,6 +97,26 @@ void test_cpp_queue_and_move_semantics() {
     assert(assigned_book.order_count() == 2);
 }
 
+void test_cpp_simd_matching() {
+    const char* backend = qforge::LimitOrderBook::simd_backend_name();
+    assert(backend != nullptr);
+    assert(std::string(backend).length() > 0);
+
+    // Vectorized quantity matching helper
+    std::vector<uint32_t> makers = {10, 20, 30, 40};
+    std::vector<uint32_t> matched;
+    std::vector<uint32_t> rem_makers;
+    uint32_t rem_taker = 0;
+
+    uint32_t total = qforge::LimitOrderBook::match_quantities_simd(
+        25, makers, matched, rem_makers, &rem_taker);
+    assert(total == 25);
+    assert(rem_taker == 0);
+    assert(matched.size() == 4);
+    assert(matched[0] == 10 && matched[1] == 15 && matched[2] == 0 && matched[3] == 0);
+    assert(rem_makers[0] == 0 && rem_makers[1] == 5 && rem_makers[2] == 30 && rem_makers[3] == 40);
+}
+
 int main() {
     std::cout << "[C++ Tests] Running LimitOrderBook C++17 test suite..." << std::endl;
     test_cpp_basic_lifecycle();
@@ -105,6 +125,8 @@ int main() {
     std::cout << "  [PASS] test_cpp_matching_and_events" << std::endl;
     test_cpp_queue_and_move_semantics();
     std::cout << "  [PASS] test_cpp_queue_and_move_semantics" << std::endl;
+    test_cpp_simd_matching();
+    std::cout << "  [PASS] test_cpp_simd_matching (" << qforge::LimitOrderBook::simd_backend_name() << ")" << std::endl;
     std::cout << "[C++ Tests] All C++17 tests passed successfully!" << std::endl;
     return 0;
 }
