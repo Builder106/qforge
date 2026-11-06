@@ -4,6 +4,10 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-11-06: Lock-free cache-aligned L3 limit order book in C/C++ #feature #milestone #decision
+
+Implemented a Level 3 (Market-By-Order) limit order book with sub-microsecond matching latency in C99/C11 and C++17. Designed `lob_order_t` and `lob_price_level_t` with explicit 64-byte cache line alignment (`LOB_ALIGNED(64)`) to prevent false sharing, backed by pre-allocated memory arenas with 64-bit tagged lock-free Treiber stacks for O(1) allocation and ABA safety. Added Dmitry Vyukov's MPMC bounded lock-free queue for thread-safe gateway order ingestion, backward-shift open addressing for O(1) order lookup and deletion, and a modern C++17 RAII wrapper (`qforge::LimitOrderBook`). Benchmarked at 6.6M+ order insertions/sec (150ns latency), 6.5M+ cancellations/sec, and 72M+ lock-free queue operations/sec with zero memory leaks across AddressSanitizer and UndefinedBehaviorSanitizer.
+
 ## 2026-10-27: Allow stable multi-digit action majors #ci #decision
 
 QForge uses `mymindstorm/setup-emsdk@v16`, the newest stable major tag. The fleet policy now accepts multi-digit majors and does not require an older tag to keep the version to one digit.

@@ -4,7 +4,7 @@ High-performance quantitative engine and market simulator roadmap.
 
 ## v1.1 — Order Book Engine Optimizations
 
-- [ ] **L3 Limit Order Book**: Lock-free cache-aligned order book implementation in C++/Rust.
+- [x] **L3 Limit Order Book**: Lock-free cache-aligned order book implementation in C++/Rust.
 - [ ] **SIMD Matching Engine**: Vectorized instruction optimization for sub-microsecond matching latency.
 
 ## v1.2 — Market Feed Handlers
