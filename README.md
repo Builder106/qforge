@@ -13,6 +13,10 @@
 
 > **Building artificial intelligence from raw math.** A self-teaching trading AI written in pure C without external machine learning libraries.
 
+<p align="center">
+  <img src="docs/screenshot.png" alt="The qforge project page: the name, a short description of a neural network framework in C99 with two finance applications, buttons to run it in the browser or view it on GitHub, and a row of figures for unit tests passing, MFLOP/s on one core, lines of C and dependencies." width="880">
+</p>
+
 ## 💡 What is QForge?
 
 Most modern AI relies on massive third-party software libraries. QForge builds an entire learning engine from the ground up using pure math and foundational C code. It generates a simulated market and trains an AI agent to trade over time through trial and error.
