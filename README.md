@@ -79,6 +79,7 @@ make market_gen   # Generate synthetic market data (~20 sec)
 | `make examples` | Train on the XOR problem (hello world of AI) |
 | `make bench` | Measure computation speed (MFLOP/s) |
 | `make lob_bench` | Benchmark L3 limit order book throughput and latency |
+| `make pcap_bench` | Benchmark PCAP binary parsing and exchange feed replay |
 | `make test_cpp` | Run modern C++17 unit tests for L3 limit order book |
 | `make gradcheck` | Verify math correctness via finite differences |
 | `make wasm` | Build every example as a WebAssembly module |

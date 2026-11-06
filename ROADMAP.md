@@ -9,7 +9,7 @@ High-performance quantitative engine and market simulator roadmap.
 
 ## v1.2 — Market Feed Handlers
 
-- [ ] **PCAP Binary Parser**: Nanosecond packet capture replay for exchange feed testing.
+- [x] **PCAP Binary Parser**: Nanosecond packet capture replay for exchange feed testing.
 - [ ] **Risk Limit Engine**: Real-time margin and pre-trade risk controls.
 
 ## Out of Scope
