@@ -5,6 +5,8 @@
 
 CC       = gcc
 CFLAGS   = -std=c99 -Wall -Wextra -Werror=deprecated-declarations -Werror -pedantic -g -O2
+CXX      ?= g++
+CXXFLAGS ?= -std=c++17 -Wall -Wextra -Werror -pedantic -g -O2
 INCLUDES = -Iinclude
 
 # Source files
@@ -13,14 +15,20 @@ TEST_DIR  = tests
 INC_DIR   = include
 EXAMPLE_DIR = examples
 
-SRCS = $(SRC_DIR)/tensor.c \
-       $(SRC_DIR)/activation.c \
-       $(SRC_DIR)/loss.c \
-       $(SRC_DIR)/layer.c \
-       $(SRC_DIR)/network.c \
-       $(SRC_DIR)/optimizer.c
+NEURAL_SRCS = $(SRC_DIR)/tensor.c \
+              $(SRC_DIR)/activation.c \
+              $(SRC_DIR)/loss.c \
+              $(SRC_DIR)/layer.c \
+              $(SRC_DIR)/network.c \
+              $(SRC_DIR)/optimizer.c
 
-OBJS = $(SRCS:.c=.o)
+QUANT_SRCS  = $(SRC_DIR)/order_book.c
+
+# SRCS preserves the neural engine baseline for WASM and existing demos
+SRCS     = $(NEURAL_SRCS)
+ALL_SRCS = $(NEURAL_SRCS) $(QUANT_SRCS)
+
+OBJS = $(ALL_SRCS:.c=.o)
 
 # Test files
 TEST_SRCS = $(TEST_DIR)/test_main.c \
@@ -30,8 +38,10 @@ TEST_SRCS = $(TEST_DIR)/test_main.c \
             $(TEST_DIR)/test_layer.c \
             $(TEST_DIR)/test_network.c \
             $(TEST_DIR)/test_optimizer.c \
+            $(TEST_DIR)/test_order_book.c \
             $(TEST_DIR)/test_scenarios.c
 TEST_BIN  = test_runner
+CPP_TEST_BIN = test_runner_cpp
 
 # Example binaries
 XOR_BIN       = xor_example
@@ -39,12 +49,13 @@ BENCH_BIN     = benchmark
 GRADCHECK_BIN = gradient_check
 MKTGEN_BIN    = market_gen_bin
 DQN_BIN       = dqn_trader_bin
+LOB_BENCH_BIN = lob_benchmark
 
 # ============================================================================
 # Targets
 # ============================================================================
 
-.PHONY: all test coverage clean memcheck examples bench gradcheck market_gen dqn wasm wasm-clean integration e2e e2e-install
+.PHONY: all test test_cpp coverage clean memcheck examples bench gradcheck market_gen dqn lob_bench wasm wasm-clean integration e2e e2e-install
 
 all: $(OBJS)
 
@@ -56,12 +67,18 @@ $(SRC_DIR)/%.o: $(SRC_DIR)/%.c $(INC_DIR)/%.h
 test: $(TEST_BIN)
 	./$(TEST_BIN)
 
-$(TEST_BIN): $(SRCS) $(TEST_SRCS)
+$(TEST_BIN): $(ALL_SRCS) $(TEST_SRCS)
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -lm -o $@
+
+# ---- C++17 Order Book Tests ----
+test_cpp: $(QUANT_SRCS) $(TEST_DIR)/test_order_book_cpp.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $(CPP_TEST_BIN)
+	./$(CPP_TEST_BIN)
+	rm -f $(CPP_TEST_BIN)
 
 # ---- Code Coverage ----
 coverage: clean
-	$(CC) $(CFLAGS) $(INCLUDES) -fprofile-arcs -ftest-coverage $(SRCS) $(TEST_SRCS) -lm -o $(TEST_BIN)_cov
+	$(CC) $(CFLAGS) $(INCLUDES) -fprofile-arcs -ftest-coverage $(ALL_SRCS) $(TEST_SRCS) -lm -o $(TEST_BIN)_cov
 	./$(TEST_BIN)_cov
 	@if command -v lcov > /dev/null 2>&1; then \
 		lcov --capture --directory . --output-file coverage.info --rc branch_coverage=1 --rc derive_function_end_line=0 2>/dev/null || lcov --capture --directory . --output-file coverage.info; \
@@ -110,13 +127,20 @@ dqn: $(DQN_BIN)
 $(DQN_BIN): $(SRCS) $(EXAMPLE_DIR)/dqn_trader.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -lm -o $@
 
+# ---- L3 Order Book Benchmark ----
+lob_bench: $(LOB_BENCH_BIN)
+	./$(LOB_BENCH_BIN)
+
+$(LOB_BENCH_BIN): $(QUANT_SRCS) $(EXAMPLE_DIR)/order_book_benchmark.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
+
 # ---- Memory Check (Valgrind or LeakSanitizer) ----
 memcheck: $(TEST_BIN)
 	@if command -v valgrind > /dev/null 2>&1; then \
 		valgrind --leak-check=full --error-exitcode=1 ./$(TEST_BIN); \
 	else \
 		echo "Valgrind not found. Rebuilding with AddressSanitizer..."; \
-		$(CC) $(CFLAGS) $(INCLUDES) -fsanitize=address $(SRCS) $(TEST_SRCS) -lm -o $(TEST_BIN)_asan; \
+		$(CC) $(CFLAGS) $(INCLUDES) -fsanitize=address $(ALL_SRCS) $(TEST_SRCS) -lm -o $(TEST_BIN)_asan; \
 		./$(TEST_BIN)_asan; \
 		rm -f $(TEST_BIN)_asan; \
 	fi
@@ -186,5 +210,5 @@ e2e:
 
 # ---- Clean ----
 clean:
-	rm -rf $(SRC_DIR)/*.o $(TEST_BIN) $(TEST_BIN)_asan $(TEST_BIN)_cov $(XOR_BIN) $(BENCH_BIN) $(GRADCHECK_BIN) $(MKTGEN_BIN) $(DQN_BIN) *.gcda *.gcno *.gcov $(SRC_DIR)/*.gcda $(SRC_DIR)/*.gcno $(TEST_DIR)/*.gcda $(TEST_DIR)/*.gcno coverage*.info coverage_html *.dSYM $(TEST_BIN)*.dSYM
+	rm -rf $(SRC_DIR)/*.o $(TEST_BIN) $(TEST_BIN)_asan $(TEST_BIN)_cov $(CPP_TEST_BIN) $(XOR_BIN) $(BENCH_BIN) $(GRADCHECK_BIN) $(MKTGEN_BIN) $(DQN_BIN) $(LOB_BENCH_BIN) *.gcda *.gcno *.gcov $(SRC_DIR)/*.gcda $(SRC_DIR)/*.gcno $(TEST_DIR)/*.gcda $(TEST_DIR)/*.gcno coverage*.info coverage_html *.dSYM $(TEST_BIN)*.dSYM
 

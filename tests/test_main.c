@@ -91,6 +91,20 @@ extern void test_xor_converges(void);
 extern void test_tensor_copy_is_deep(void);
 extern void test_tensor_matmul_4x2_2x3(void);
 
+/* --- L3 Limit Order Book tests --- */
+extern void test_lob_cache_alignment(void);
+extern void test_lob_create_and_free(void);
+extern void test_lob_pool_exhaustion(void);
+extern void test_lob_clear(void);
+extern void test_lob_basic_bbo(void);
+extern void test_lob_price_time_priority(void);
+extern void test_lob_multi_level_matching_and_depth(void);
+extern void test_lob_cancel_orders(void);
+extern void test_lob_modify_orders(void);
+extern void test_lob_order_types(void);
+extern void test_lob_validation_and_errors(void);
+extern void test_lob_command_queue(void);
+
 int main(void) {
     printf("\n");
     printf("╔══════════════════════════════════════════╗\n");
@@ -198,6 +212,25 @@ int main(void) {
     RUN_TEST(test_tensor_matmul_4x2_2x3);
     RUN_TEST(test_optimizer_reduces_loss_on_linear_regression);
     RUN_TEST(test_xor_converges);
+
+    /* ── L3 Limit Order Book Module ── */
+    RUN_SUITE("L3 Limit Order Book: Cache Alignment & Memory");
+    RUN_TEST(test_lob_cache_alignment);
+    RUN_TEST(test_lob_create_and_free);
+    RUN_TEST(test_lob_pool_exhaustion);
+    RUN_TEST(test_lob_clear);
+
+    RUN_SUITE("L3 Limit Order Book: Matching & Priority");
+    RUN_TEST(test_lob_basic_bbo);
+    RUN_TEST(test_lob_price_time_priority);
+    RUN_TEST(test_lob_multi_level_matching_and_depth);
+    RUN_TEST(test_lob_cancel_orders);
+    RUN_TEST(test_lob_modify_orders);
+    RUN_TEST(test_lob_order_types);
+    RUN_TEST(test_lob_validation_and_errors);
+
+    RUN_SUITE("L3 Limit Order Book: Lock-Free Command Queue");
+    RUN_TEST(test_lob_command_queue);
 
     /* ── Report ── */
     TEST_REPORT();
