@@ -50,23 +50,29 @@ static inline uint64_t pcap_bswap64(uint64_t val) {
 #endif
 }
 
-static inline uint16_t pcap_be16(uint16_t val) {
+#if defined(__GNUC__) || defined(__clang__)
+#define PCAP_UNUSED __attribute__((unused))
+#else
+#define PCAP_UNUSED
+#endif
+
+static inline PCAP_UNUSED uint16_t pcap_be16(uint16_t val) {
     return pcap_is_little_endian() ? pcap_bswap16(val) : val;
 }
 
-static inline uint32_t pcap_be32(uint32_t val) {
+static inline PCAP_UNUSED uint32_t pcap_be32(uint32_t val) {
     return pcap_is_little_endian() ? pcap_bswap32(val) : val;
 }
 
-static inline uint64_t pcap_be64(uint64_t val) {
+static inline PCAP_UNUSED uint64_t pcap_be64(uint64_t val) {
     return pcap_is_little_endian() ? pcap_bswap64(val) : val;
 }
 
-static inline uint16_t pcap_le16(uint16_t val) {
+static inline PCAP_UNUSED uint16_t pcap_le16(uint16_t val) {
     return pcap_is_little_endian() ? val : pcap_bswap16(val);
 }
 
-static inline uint64_t pcap_le64(uint64_t val) {
+static inline PCAP_UNUSED uint64_t pcap_le64(uint64_t val) {
     return pcap_is_little_endian() ? val : pcap_bswap64(val);
 }
 
@@ -93,7 +99,7 @@ static inline uint16_t pcap_read_le16(const uint8_t *p) {
     return (uint16_t)(((uint16_t)p[1] << 8) | (uint16_t)p[0]);
 }
 
-static inline uint64_t pcap_read_le64(const uint8_t *p) {
+static inline PCAP_UNUSED uint64_t pcap_read_le64(const uint8_t *p) {
     return (uint64_t)p[0] | ((uint64_t)p[1] << 8) | ((uint64_t)p[2] << 16) |
            ((uint64_t)p[3] << 24) | ((uint64_t)p[4] << 32) | ((uint64_t)p[5] << 40) |
            ((uint64_t)p[6] << 48) | ((uint64_t)p[7] << 56);

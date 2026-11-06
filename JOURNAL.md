@@ -4,6 +4,10 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-11-06: Mark unused endian helpers with unused attribute for Clang #fix
+
+In `src/pcap_parser.c`, several static inline byte-swap and endian conversion helpers (`pcap_be16`, `pcap_be32`, `pcap_be64`, `pcap_le16`, `pcap_le64`, `pcap_read_le64`) triggered `-Werror -Wunused-function` under Clang on strict `-Werror` builds. Defined `PCAP_UNUSED` (`__attribute__((unused))` under GCC/Clang) and annotated the static inline helpers to compile warning-free across all toolchains.
+
 ## 2026-11-06: Implement saturating unsigned prefix sums for AVX2 matching kernel #fix #perf
 
 In `src/simd_match.c`, the AVX2 batch matching kernel computed prefix sums with standard 32-bit addition (`_mm_add_epi32`), which wrapped modulo $2^{32}$ when maker order quantities summed past 4B, causing `test_simd_batch_matching_overflow` to fail. Added `mm_qadd_epu32` to provide unsigned saturating addition using vector minimums and bitwise overflow masking, matching the behavior of ARM NEON's `vqaddq_u32`.
