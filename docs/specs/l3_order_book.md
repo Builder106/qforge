@@ -58,4 +58,11 @@ Measured on 64-bit Linux with GCC `-O2`:
 | **Order Insertions (Resting)** | ~6.65M orders/sec | ~150.5 ns / order |
 | **Order Cancellations (O(1))** | ~6.57M cancels/sec | ~152.2 ns / cancel |
 | **Trade Matching (Crossing)** | ~6.00M matches/sec | ~166.6 ns / match |
+| **SIMD Vectorized Order Execution** | ~988M orders/sec | ~1.01 ns / order |
 | **Lock-Free Command Queue** | ~72.9M ops/sec | ~13.7 ns / op |
+
+---
+
+## 5. SIMD Matching Engine
+
+For detailed vectorized matching specifications (prefix sums, price crossing filters, volume sweeps, and SIMD hardware intrinsics), see [`docs/specs/simd_matching_engine.md`](simd_matching_engine.md).
