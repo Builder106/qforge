@@ -334,6 +334,16 @@ static uint64_t accumulate_volume_neon(const uint64_t *prices, const uint64_t *v
 #if defined(LOB_HAS_X86) && defined(LOB_HAS_TARGET_ATTR)
 
 LOB_TARGET_AVX2
+static inline __m128i mm_qadd_epu32(__m128i a, __m128i b) {
+    __m128i sum = _mm_add_epi32(a, b);
+    __m128i min_val = _mm_min_epu32(sum, a);
+    __m128i eq_min = _mm_cmpeq_epi32(min_val, sum);
+    __m128i eq_a = _mm_cmpeq_epi32(sum, a);
+    __m128i overflow_mask = _mm_andnot_si128(eq_a, eq_min);
+    return _mm_or_si128(sum, overflow_mask);
+}
+
+LOB_TARGET_AVX2
 static uint32_t match_batch_avx2(uint32_t taker_qty, const uint32_t *maker_qtys, uint32_t count,
                                  uint32_t *matched_qtys, uint32_t *remaining_maker_qtys,
                                  uint32_t *remaining_taker_qty) {
@@ -344,9 +354,9 @@ static uint32_t match_batch_avx2(uint32_t taker_qty, const uint32_t *maker_qtys,
     while (i + 4 <= count && cur_taker > 0) {
         __m128i q = _mm_loadu_si128((const __m128i *)(const void *)&maker_qtys[i]);
 
-        /* Prefix sum */
-        __m128i a = _mm_add_epi32(q, _mm_slli_si128(q, 4));
-        __m128i p = _mm_add_epi32(a, _mm_slli_si128(a, 8));
+        /* Prefix sum with saturating addition */
+        __m128i a = mm_qadd_epu32(q, _mm_slli_si128(q, 4));
+        __m128i p = mm_qadd_epu32(a, _mm_slli_si128(a, 8));
         __m128i p_prev = _mm_slli_si128(p, 4);
 
         __m128i v_taker = _mm_set1_epi32((int)cur_taker);

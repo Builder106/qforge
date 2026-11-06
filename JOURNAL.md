@@ -4,6 +4,10 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-11-06: Implement saturating unsigned prefix sums for AVX2 matching kernel #fix #perf
+
+In `src/simd_match.c`, the AVX2 batch matching kernel computed prefix sums with standard 32-bit addition (`_mm_add_epi32`), which wrapped modulo $2^{32}$ when maker order quantities summed past 4B, causing `test_simd_batch_matching_overflow` to fail. Added `mm_qadd_epu32` to provide unsigned saturating addition using vector minimums and bitwise overflow masking, matching the behavior of ARM NEON's `vqaddq_u32`.
+
 ## 2026-11-06: Vectorized SIMD matching engine with sub-microsecond execution latency #feature #milestone #decision
 
 Vectorized the L3 Limit Order Book matching path using SIMD instructions across ARM NEON (128-bit), x86 AVX2 (256-bit) / SSE4.2 (128-bit), and portable C99 auto-vectorized fallbacks. Implemented `lob_simd_match_batch_u32` for branchless order execution using saturating prefix sums (`vqaddq_u32`), shifted budget subtraction (`vqsubq_u32`), and vector minimums (`vminq_u32`), achieving ~988M orders evaluated/second at 1.01ns/order (4.0ns per 4-order batch). Added vectorized 64-bit price crossing filters (`lob_simd_compare_prices_u64`) and parallel volume accumulation (`lob_simd_accumulate_volume_u64`) for accelerated Fill-Or-Kill (FOK) pre-trade verification. Verified zero memory leaks under AddressSanitizer and UndefinedBehaviorSanitizer across 87 unit tests and C++17 wrappers.
