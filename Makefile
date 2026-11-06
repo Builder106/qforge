@@ -22,7 +22,7 @@ NEURAL_SRCS = $(SRC_DIR)/tensor.c \
               $(SRC_DIR)/network.c \
               $(SRC_DIR)/optimizer.c
 
-QUANT_SRCS  = $(SRC_DIR)/order_book.c $(SRC_DIR)/simd_match.c
+QUANT_SRCS  = $(SRC_DIR)/order_book.c $(SRC_DIR)/simd_match.c $(SRC_DIR)/pcap_parser.c
 
 # SRCS preserves the neural engine baseline for WASM and existing demos
 SRCS     = $(NEURAL_SRCS)
@@ -40,6 +40,7 @@ TEST_SRCS = $(TEST_DIR)/test_main.c \
             $(TEST_DIR)/test_optimizer.c \
             $(TEST_DIR)/test_order_book.c \
             $(TEST_DIR)/test_simd_match.c \
+            $(TEST_DIR)/test_pcap_parser.c \
             $(TEST_DIR)/test_scenarios.c
 TEST_BIN  = test_runner
 CPP_TEST_BIN = test_runner_cpp
@@ -51,12 +52,13 @@ GRADCHECK_BIN = gradient_check
 MKTGEN_BIN    = market_gen_bin
 DQN_BIN       = dqn_trader_bin
 LOB_BENCH_BIN = lob_benchmark
+PCAP_BENCH_BIN = pcap_benchmark
 
 # ============================================================================
 # Targets
 # ============================================================================
 
-.PHONY: all test test_cpp coverage clean memcheck examples bench gradcheck market_gen dqn lob_bench wasm wasm-clean integration e2e e2e-install
+.PHONY: all test test_cpp coverage clean memcheck examples bench gradcheck market_gen dqn lob_bench pcap_bench wasm wasm-clean integration e2e e2e-install
 
 all: $(OBJS)
 
@@ -135,6 +137,13 @@ lob_bench: $(LOB_BENCH_BIN)
 $(LOB_BENCH_BIN): $(QUANT_SRCS) $(EXAMPLE_DIR)/order_book_benchmark.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
+# ---- PCAP Binary Parser & Feed Replay Benchmark ----
+pcap_bench: $(PCAP_BENCH_BIN)
+	./$(PCAP_BENCH_BIN)
+
+$(PCAP_BENCH_BIN): $(QUANT_SRCS) $(EXAMPLE_DIR)/pcap_replay_benchmark.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
+
 # ---- Memory Check (Valgrind or LeakSanitizer) ----
 memcheck: $(TEST_BIN)
 	@if command -v valgrind > /dev/null 2>&1; then \
@@ -211,5 +220,5 @@ e2e:
 
 # ---- Clean ----
 clean:
-	rm -rf $(SRC_DIR)/*.o $(TEST_BIN) $(TEST_BIN)_asan $(TEST_BIN)_cov $(CPP_TEST_BIN) $(XOR_BIN) $(BENCH_BIN) $(GRADCHECK_BIN) $(MKTGEN_BIN) $(DQN_BIN) $(LOB_BENCH_BIN) *.gcda *.gcno *.gcov $(SRC_DIR)/*.gcda $(SRC_DIR)/*.gcno $(TEST_DIR)/*.gcda $(TEST_DIR)/*.gcno coverage*.info coverage_html *.dSYM $(TEST_BIN)*.dSYM
+	rm -rf $(SRC_DIR)/*.o $(TEST_BIN) $(TEST_BIN)_asan $(TEST_BIN)_cov $(CPP_TEST_BIN) $(XOR_BIN) $(BENCH_BIN) $(GRADCHECK_BIN) $(MKTGEN_BIN) $(DQN_BIN) $(LOB_BENCH_BIN) $(PCAP_BENCH_BIN) *.pcap *.gcda *.gcno *.gcov $(SRC_DIR)/*.gcda $(SRC_DIR)/*.gcno $(TEST_DIR)/*.gcda $(TEST_DIR)/*.gcno coverage*.info coverage_html *.dSYM $(TEST_BIN)*.dSYM
 

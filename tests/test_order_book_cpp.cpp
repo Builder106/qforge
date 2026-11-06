@@ -3,8 +3,10 @@
  * ============================================================================ */
 
 #include "order_book.hpp"
+#include "pcap_parser.hpp"
 
 #include <cassert>
+#include <cstdio>
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -117,6 +119,86 @@ void test_cpp_simd_matching() {
     assert(rem_makers[0] == 0 && rem_makers[1] == 5 && rem_makers[2] == 30 && rem_makers[3] == 40);
 }
 
+void test_cpp_pcap_reader_writer() {
+    const std::string tmp_file = "test_cpp_temp.pcap";
+    {
+        qforge::PcapWriter writer(tmp_file, true);
+        assert(writer.is_valid());
+
+        std::vector<uint8_t> pkt1 = {0x01, 0x02, 0x03, 0x04};
+        std::vector<uint8_t> pkt2 = {0x05, 0x06, 0x07, 0x08, 0x09};
+
+        assert(writer.write_packet(1000000000ULL, pkt1) == qforge::PcapStatus::Ok);
+        assert(writer.write_packet(1000000050ULL, pkt2) == qforge::PcapStatus::Ok);
+    }
+
+    {
+        qforge::PcapReader reader(tmp_file);
+        assert(reader.is_valid());
+        assert(reader.is_nanosecond());
+
+        auto p1 = reader.next_packet();
+        assert(p1.has_value());
+        assert(p1->timestamp_ns == 1000000000ULL);
+        assert(p1->incl_len == 4);
+
+        auto p2 = reader.next_packet();
+        assert(p2.has_value());
+        assert(p2->timestamp_ns == 1000000050ULL);
+        assert(p2->incl_len == 5);
+
+        auto p3 = reader.next_packet();
+        assert(!p3.has_value());
+    }
+
+    std::remove(tmp_file.c_str());
+}
+
+void test_cpp_pcap_replayer_to_book() {
+    const std::string tmp_file = "test_cpp_feed.pcap";
+    {
+        qforge::PcapWriter writer(tmp_file, true);
+        uint8_t dst_mac[6] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
+        uint8_t src_mac[6] = {0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb};
+
+        // Write ITCH Add Buy Order
+        uint8_t pkt[128];
+        size_t elen = pcap_encode_ethernet(pkt, sizeof(pkt), dst_mac, src_mac, PCAP_ETHERTYPE_IPV4);
+        size_t ilen = pcap_encode_ipv4(pkt + elen, sizeof(pkt) - elen, 0x0A000001, 0x0A000002, PCAP_PROTO_UDP, 8 + 36);
+        size_t ulen = pcap_encode_udp(pkt + elen + ilen, sizeof(pkt) - elen - ilen, 5000, 5001, 36);
+        pcap_encode_itch_add(pkt + elen + ilen + ulen, sizeof(pkt) - elen - ilen - ulen,
+                             1000, 1001, LOB_SIDE_BUY, 100, "AAPL", 15000);
+        writer.write_packet(1000, pkt, static_cast<uint32_t>(elen + ilen + ulen + 36));
+
+        // Write ITCH Add Sell Order
+        pcap_encode_itch_add(pkt + elen + ilen + ulen, sizeof(pkt) - elen - ilen - ulen,
+                             2000, 1002, LOB_SIDE_SELL, 200, "AAPL", 15500);
+        writer.write_packet(2000, pkt, static_cast<uint32_t>(elen + ilen + ulen + 36));
+    }
+
+    {
+        qforge::PcapReader reader(tmp_file);
+        assert(reader.is_valid());
+
+        qforge::LimitOrderBook book(64, 32);
+        qforge::FeedReplayer replayer(reader, 0.0);
+        assert(replayer.is_valid());
+
+        auto status = replayer.run_into_order_book(book);
+        assert(status == qforge::PcapStatus::Ok);
+
+        assert(book.order_count() == 2);
+        assert(book.best_bid().has_value() && book.best_bid()->first == 15000);
+        assert(book.best_ask().has_value() && book.best_ask()->first == 15500);
+
+        auto stats = replayer.stats();
+        assert(stats.total_packets == 2);
+        assert(stats.feed_messages == 2);
+    }
+
+    std::remove(tmp_file.c_str());
+}
+
 int main() {
     std::cout << "[C++ Tests] Running LimitOrderBook C++17 test suite..." << std::endl;
     test_cpp_basic_lifecycle();
@@ -127,6 +209,10 @@ int main() {
     std::cout << "  [PASS] test_cpp_queue_and_move_semantics" << std::endl;
     test_cpp_simd_matching();
     std::cout << "  [PASS] test_cpp_simd_matching (" << qforge::LimitOrderBook::simd_backend_name() << ")" << std::endl;
+    test_cpp_pcap_reader_writer();
+    std::cout << "  [PASS] test_cpp_pcap_reader_writer" << std::endl;
+    test_cpp_pcap_replayer_to_book();
+    std::cout << "  [PASS] test_cpp_pcap_replayer_to_book" << std::endl;
     std::cout << "[C++ Tests] All C++17 tests passed successfully!" << std::endl;
     return 0;
 }

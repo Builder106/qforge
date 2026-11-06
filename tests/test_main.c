@@ -115,6 +115,16 @@ extern void test_simd_volume_accumulation(void);
 extern void test_simd_level_matching(void);
 extern void test_simd_fok_and_market_sweep(void);
 
+/* --- PCAP Binary Parser & Feed Replayer tests --- */
+extern void test_pcap_global_header_parsing(void);
+extern void test_pcap_writer_and_reader_roundtrip(void);
+extern void test_pcap_protocol_decoding(void);
+extern void test_pcap_itch_parsing(void);
+extern void test_pcap_moldudp64_parsing(void);
+extern void test_pcap_feed_to_order_book(void);
+extern void test_pcap_replayer_modes(void);
+extern void test_pcap_error_handling(void);
+
 int main(void) {
     printf("\n");
     printf("╔══════════════════════════════════════════╗\n");
@@ -252,6 +262,17 @@ int main(void) {
     RUN_TEST(test_simd_volume_accumulation);
     RUN_TEST(test_simd_level_matching);
     RUN_TEST(test_simd_fok_and_market_sweep);
+
+    /* ── PCAP Binary Parser & Feed Replayer Module ── */
+    RUN_SUITE("PCAP Binary Parser & Nanosecond Feed Replayer");
+    RUN_TEST(test_pcap_global_header_parsing);
+    RUN_TEST(test_pcap_writer_and_reader_roundtrip);
+    RUN_TEST(test_pcap_protocol_decoding);
+    RUN_TEST(test_pcap_itch_parsing);
+    RUN_TEST(test_pcap_moldudp64_parsing);
+    RUN_TEST(test_pcap_feed_to_order_book);
+    RUN_TEST(test_pcap_replayer_modes);
+    RUN_TEST(test_pcap_error_handling);
 
     /* ── Report ── */
     TEST_REPORT();
