@@ -125,6 +125,18 @@ extern void test_pcap_feed_to_order_book(void);
 extern void test_pcap_replayer_modes(void);
 extern void test_pcap_error_handling(void);
 
+/* --- Risk Limit Engine tests --- */
+extern void test_risk_validation(void);
+extern void test_risk_order_controls(void);
+extern void test_risk_margin_reservations(void);
+extern void test_risk_execution_loss_reservation(void);
+extern void test_risk_position_extremes(void);
+extern void test_risk_maintenance_boundary(void);
+extern void test_risk_fill_lifecycle(void);
+extern void test_risk_margin_breach_and_halt(void);
+extern void test_risk_overflow(void);
+extern void test_risk_book_integration(void);
+
 int main(void) {
     printf("\n");
     printf("╔══════════════════════════════════════════╗\n");
@@ -273,6 +285,18 @@ int main(void) {
     RUN_TEST(test_pcap_feed_to_order_book);
     RUN_TEST(test_pcap_replayer_modes);
     RUN_TEST(test_pcap_error_handling);
+
+    RUN_SUITE("Risk Limit Engine: Pre-trade Controls & Real-time Margin");
+    RUN_TEST(test_risk_validation);
+    RUN_TEST(test_risk_order_controls);
+    RUN_TEST(test_risk_margin_reservations);
+    RUN_TEST(test_risk_execution_loss_reservation);
+    RUN_TEST(test_risk_position_extremes);
+    RUN_TEST(test_risk_maintenance_boundary);
+    RUN_TEST(test_risk_fill_lifecycle);
+    RUN_TEST(test_risk_margin_breach_and_halt);
+    RUN_TEST(test_risk_overflow);
+    RUN_TEST(test_risk_book_integration);
 
     /* ── Report ── */
     TEST_REPORT();

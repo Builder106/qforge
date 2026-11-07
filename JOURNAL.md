@@ -4,6 +4,10 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-11-07: Account-scoped deterministic risk reservations #feature #milestone #decision
+
+Implemented the Risk Limit Engine as a bounded, single-writer C99 component per account/instrument, using the L3 book's integer tick units and C++17-compatible API. Gateways reserve before routing and reconcile fills and confirmed cancellations explicitly; historical feed replay remains account-agnostic. Chose conservative gross pending exposure, separate one-sided position checks, and adverse execution loss reservations rather than portfolio offsets. Configurable initial/maintenance basis-point margin, mark-to-market equity and a kill switch enforce pre-trade limits without floating-point arithmetic or hot-path allocation; checked overflow blocks new orders. Closing orders use the same conservative controls, while exchange-specific margin, portfolio netting and liquidation remain outside this milestone.
+
 ## 2026-11-06: Enable POSIX.1-2008 and Darwin macros for pcap parser #fix
 
 In `src/pcap_parser.c`, defining `_POSIX_C_SOURCE 199309L` masked C99 `snprintf` in `<stdio.h>` under Apple Clang on macOS. Updated feature macros to `_POSIX_C_SOURCE 200809L` and defined `_DARWIN_C_SOURCE` so `clock_gettime`, `nanosleep`, and `snprintf` remain visible across macOS and Linux without implicit declaration errors.

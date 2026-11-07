@@ -4,6 +4,7 @@
 
 #include "order_book.hpp"
 #include "pcap_parser.hpp"
+#include "risk_engine.h"
 
 #include <cassert>
 #include <cstdio>
@@ -199,6 +200,22 @@ void test_cpp_pcap_replayer_to_book() {
     std::remove(tmp_file.c_str());
 }
 
+void test_cpp_risk_lifecycle() {
+    const risk_limits_t limits = {100, 10000, 100, 5000, 2500};
+    risk_engine_t *engine = risk_create(&limits, 8, 1000, 100);
+    assert(engine != nullptr);
+    assert(risk_reserve(engine, 1, LOB_SIDE_BUY, 100, 20) == RISK_OK);
+    assert(risk_fill(engine, 1, 100, 10) == RISK_OK);
+    assert(risk_release(engine, 1) == RISK_OK);
+    assert(risk_mark(engine, 80) == RISK_OK);
+    risk_state_t state{};
+    assert(risk_get_state(engine, &state) == RISK_OK);
+    assert(state.position == 10 && state.cash == 0 && state.equity == 800);
+    assert(state.initial_margin == 400 && state.maintenance_margin == 200);
+    assert(!state.maintenance_breached && state.open_orders == 0);
+    risk_free(engine);
+}
+
 int main() {
     std::cout << "[C++ Tests] Running LimitOrderBook C++17 test suite..." << std::endl;
     test_cpp_basic_lifecycle();
@@ -213,6 +230,8 @@ int main() {
     std::cout << "  [PASS] test_cpp_pcap_reader_writer" << std::endl;
     test_cpp_pcap_replayer_to_book();
     std::cout << "  [PASS] test_cpp_pcap_replayer_to_book" << std::endl;
+    test_cpp_risk_lifecycle();
+    std::cout << "  [PASS] test_cpp_risk_lifecycle" << std::endl;
     std::cout << "[C++ Tests] All C++17 tests passed successfully!" << std::endl;
     return 0;
 }

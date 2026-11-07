@@ -7,7 +7,7 @@
 [![CI](https://github.com/Builder106/qforge/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Builder106/qforge/actions/workflows/ci.yml)
 [![C99](https://img.shields.io/badge/C-99-A8B9CC.svg?logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C99)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-103%20passing-success.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-105%20passing-success.svg)](tests/)
 [![WebAssembly](https://img.shields.io/badge/WebAssembly-Emscripten-654FF0.svg?logo=webassembly&logoColor=white)](https://emscripten.org)
 [![Demo](https://img.shields.io/badge/demo-live-success.svg?logo=vercel&logoColor=white)](https://qforge-neural.vercel.app)
 
@@ -124,6 +124,12 @@ A reinforcement learning agent that learns to trade by trial and error — no hu
 ---
 
 ## Technical Details
+
+The backend [Risk Limit Engine](docs/specs/risk_limit_engine.md) provides account-scoped
+pre-trade quantity, notional and position limits, collateral reservations, real-time
+initial/maintenance margin, and a kill switch. Gateways use `risk_reserve` before
+routing and report fills, confirmed cancellations and price marks through the
+C99/C++17 API in `include/risk_engine.h`.
 
 <details>
 <summary><strong>Architecture diagram</strong></summary>
