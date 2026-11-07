@@ -4,6 +4,10 @@
 > things happen — retrospectives need this raw material to land.
 > Reverse-chronological; one paragraph max per entry.
 
+## 2026-11-06: Enable POSIX.1-2008 and Darwin macros for pcap parser #fix
+
+In `src/pcap_parser.c`, defining `_POSIX_C_SOURCE 199309L` masked C99 `snprintf` in `<stdio.h>` under Apple Clang on macOS. Updated feature macros to `_POSIX_C_SOURCE 200809L` and defined `_DARWIN_C_SOURCE` so `clock_gettime`, `nanosleep`, and `snprintf` remain visible across macOS and Linux without implicit declaration errors.
+
 ## 2026-11-06: Mark unused endian helpers with unused attribute for Clang #fix
 
 In `src/pcap_parser.c`, several static inline byte-swap and endian conversion helpers (`pcap_be16`, `pcap_be32`, `pcap_be64`, `pcap_le16`, `pcap_le64`, `pcap_read_le64`) triggered `-Werror -Wunused-function` under Clang on strict `-Werror` builds. Defined `PCAP_UNUSED` (`__attribute__((unused))` under GCC/Clang) and annotated the static inline helpers to compile warning-free across all toolchains.
