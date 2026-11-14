@@ -1,16 +1,16 @@
 # QForge Roadmap
 
-High-performance quantitative engine and market simulator roadmap.
+Plans for the quantitative engine and market simulator.
 
 ## v1.1 — Order Book Engine Optimizations
 
-- [x] **L3 Limit Order Book**: Lock-free cache-aligned order book implementation in C++/Rust.
-- [x] **SIMD Matching Engine**: Vectorized instruction optimization for sub-microsecond matching latency.
+- [x] **L3 Limit Order Book**: Implement a lock-free, cache-aligned order book in C with a C++17 wrapper.
+- [x] **SIMD Matching Engine**: Use vectorized instructions for sub-microsecond matching latency.
 
 ## v1.2 — Market Feed Handlers
 
-- [x] **PCAP Binary Parser**: Nanosecond packet capture replay for exchange feed testing.
-- [x] **Risk Limit Engine**: Real-time margin and pre-trade risk controls.
+- [x] **PCAP Binary Parser**: Replay packet captures at nanosecond precision for exchange feed testing.
+- [x] **Risk Limit Engine**: Provide real-time margin and pre-trade risk controls.
 
 ## Out of Scope
 

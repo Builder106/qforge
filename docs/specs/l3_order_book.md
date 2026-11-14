@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-The QForge L3 Limit Order Book provides an ultra-low-latency Market-By-Order (MBO) order matching engine implemented with zero third-party dependencies. It supports high-throughput quantitative trading simulation, order matching, and real-time market data feed generation.
+The QForge L3 Limit Order Book is a Market-By-Order (MBO) matching engine with no third-party dependencies. It supports quantitative trading simulation, order matching, and real-time market data feed generation at high throughput and low latency.
 
 Both C99/C11 and modern C++17 interfaces are provided:
 - **C Header / Implementation**: `include/order_book.h` and `src/order_book.c`

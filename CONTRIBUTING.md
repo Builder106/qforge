@@ -1,6 +1,6 @@
 # Contributing to qforge
 
-Thanks for considering a contribution. qforge is a zero-dependency C99 deep-learning framework with a WASM-powered web demo on top. The codebase is small (~2,000 lines of C), test-driven, and intentionally readable — every piece is meant to be inspectable from the bottom up.
+Thanks for considering a contribution. qforge is a zero-dependency C99 deep-learning framework with a WASM-powered web demo. The core is about 2,000 lines of C, built with tests alongside each module so readers can follow it from the bottom up.
 
 ## TL;DR
 
@@ -71,13 +71,13 @@ qforge/
 The project follows a few non-negotiable conventions:
 
 1. **C99, strict warnings.** All translation units must compile cleanly with `-std=c99 -Wall -Wextra -Werror -pedantic`. CI fails on warnings.
-2. **Test-first.** New engine functionality belongs in `tests/test_*.c`*before* the implementation. The commit history walks through this — see`feat: implement tensor module with tests (TDD)`.
-3. **Heap-allocated tensors are caller-owned.** Every tensor operation in `src/tensor.c`returns a fresh`Tensor*`. Callers must `tensor_free()` the result. Don't introduce in-place mutation without a strong reason.
-4. **Fail fast on shape mismatches.** `assert()`for dimension errors. The library is internal — callers should not pass invalid shapes, so asserts are correct rather than defensive`if`-then-`return`.
-5. **No external dependencies.** Adding `-l<something>`to the link line is a no. The only allowed include outside`<stdio.h>`, `<stdlib.h>`, `<string.h>`, `<math.h>`, `<assert.h>`, `<time.h>` is the project's own headers.
+2. **Test-first.** Add tests for new engine functionality in `tests/test_*.c` *before* implementing it. The commit history shows this approach; see `feat: implement tensor module with tests (TDD)`.
+3. **Heap-allocated tensors are caller-owned.** Every tensor operation in `src/tensor.c` returns a fresh `Tensor*`. Callers must `tensor_free()` the result. Don't introduce in-place mutation without a strong reason.
+4. **Fail fast on shape mismatches.** Use `assert()` for dimension errors. The library is internal, and callers should not pass invalid shapes, so use assertions instead of defensive `if`-then-`return` branches.
+5. **No external dependencies.** Don't add `-l<something>` to the link line. The only allowed includes outside `<stdio.h>`, `<stdlib.h>`, `<string.h>`, `<math.h>`, `<assert.h>`, `<time.h>` are the project's own headers.
 6. **Comments explain *why*, not *what*.** Identifiers should carry the *what*. Comments are for non-obvious invariants, hidden constraints, or workarounds for specific bugs.
 
-The frontend (`web/`) follows the same spirit — vanilla JS, no bundler, no framework. The page works without JavaScript-the-platform churn.
+The frontend (`web/`) uses vanilla JS without a bundler or framework.
 
 ## Workflows for common changes
 

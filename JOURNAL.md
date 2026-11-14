@@ -6,7 +6,7 @@
 
 ## 2026-11-07: Account-scoped deterministic risk reservations #feature #milestone #decision
 
-Implemented the Risk Limit Engine as a bounded, single-writer C99 component per account/instrument, using the L3 book's integer tick units and C++17-compatible API. Gateways reserve before routing and reconcile fills and confirmed cancellations explicitly; historical feed replay remains account-agnostic. Chose conservative gross pending exposure, separate one-sided position checks, and adverse execution loss reservations rather than portfolio offsets. Configurable initial/maintenance basis-point margin, mark-to-market equity and a kill switch enforce pre-trade limits without floating-point arithmetic or hot-path allocation; checked overflow blocks new orders. Closing orders use the same conservative controls, while exchange-specific margin, portfolio netting and liquidation remain outside this milestone.
+Implemented the Risk Limit Engine as a bounded, single-writer C99 component for each account/instrument. It uses the L3 book's integer tick units and has a C++17-compatible API. Gateways reserve before routing, then reconcile fills and confirmed cancellations; historical feed replay remains account-agnostic. The model reserves gross pending exposure and adverse execution losses and checks each side's position separately, without portfolio offsets. Configurable initial/maintenance basis-point margin, mark-to-market equity and a kill switch enforce pre-trade limits without floating-point arithmetic or hot-path allocation; checked overflow blocks new orders. Closing orders use the same controls. Exchange-specific margin, portfolio netting and liquidation remain outside this milestone.
 
 ## 2026-11-06: Enable POSIX.1-2008 and Darwin macros for pcap parser #fix
 
@@ -64,7 +64,7 @@ Refactored the README introduction, tagline, and feature descriptions to highlig
 
 ## 2026-07-24 — Adam Optimizer Implementation and i-k-j Matmul Cache Locality #feature #milestone
 
-Implemented the Adam adaptive moment estimation optimizer (`optimizer_create_adam`) with first and second moment bias corrections in pure C99, extending the framework's optimization toolkit alongside SGD with momentum. In parallel, refactored `tensor_matmul`from standard`i-j-k`triple loops to unit-stride`i-k-j` iteration order to maximize CPU L1/L2 cache line hits and enable SIMD auto-vectorization. Verified zero memory leaks, numerical gradient alignment, and 62 passing unit tests across GCC and Clang.
+Implemented the Adam adaptive moment estimation optimizer (`optimizer_create_adam`) in C99, including first and second moment bias corrections alongside the existing SGD with momentum. Also changed `tensor_matmul` from `i-j-k` loops to unit-stride `i-k-j` iteration for better CPU L1/L2 cache locality and SIMD auto-vectorization. Verified zero memory leaks, numerical gradient alignment, and 62 passing unit tests across GCC and Clang.
 
 ## 2026-05-13 — Mermaid diagram wouldn't render on GitHub #incident
 

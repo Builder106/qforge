@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-The QForge PCAP Binary Parser and Exchange Feed Replayer provides a high-throughput, zero-dependency network packet capture replay engine with nanosecond timestamp precision. It allows quantitative trading algorithms, matching engines, and risk controllers to be backtested and benchmarked against realistic historical exchange packet captures at line rate or with cycle-accurate pacing.
+The QForge PCAP parser and exchange feed replayer handles network captures with nanosecond timestamp precision and no external dependencies. It can backtest and benchmark trading algorithms, matching engines, and risk controllers against historical exchange packet captures, either at line rate or with cycle-accurate pacing.
 
 Interfaces:
 - **C99 Core Interface**: `include/pcap_parser.h` and `src/pcap_parser.c`

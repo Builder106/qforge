@@ -19,9 +19,9 @@
 
 ## 💡 What is QForge?
 
-Most modern AI relies on massive third-party software libraries. QForge builds an entire learning engine from the ground up using pure math and foundational C code. It generates a simulated market and trains an AI agent to trade over time through trial and error.
+QForge is a learning engine written in C. It includes a simulated market and trains an agent to trade through trial and error.
 
-This project builds a brain for trading from scratch without TensorFlow, PyTorch, or external dependencies:
+The project builds its own neural network and trading components without TensorFlow, PyTorch, or external dependencies:
 
 1. **Learns patterns**: A neural network trained on market data that generates realistic synthetic stock returns for stress-testing portfolios.
 2. **Makes trades**: An AI trading agent that learns when to buy, sell, or hold, outperforming a passive buy-and-hold strategy.
@@ -90,15 +90,15 @@ make market_gen   # Generate synthetic market data (~20 sec)
 
 ## How It Works
 
-The project has two layers: a **core engine**(the neural network library) and**applications** that use it.
+The project has two layers: a **core engine** (the neural network library) and **applications** that use it.
 
 ### Core Engine
 
-Built bottom-up from raw matrix math to a complete learning system. Every module includes Tensor. Above it, each module builds on the one before: Activation, then Layer, Network, and Optimizer. Loss depends on Tensor alone. The example programs include Network, Optimizer, and Loss directly.
+The engine builds from matrix operations to a learning system. Every module includes Tensor. Above it, each module builds on the one before: Activation, then Layer, Network, and Optimizer. Loss depends on Tensor alone. The example programs include Network, Optimizer, and Loss directly.
 
 Tensor handles matmul, transpose, Hadamard products, and broadcasting. Activation covers ReLU, sigmoid, tanh, softmax, and their derivatives; Loss covers MSE and epsilon-clamped cross-entropy. Dense layers use forward and backward passes with Xavier or He initialization. The network trains and predicts with SGD plus momentum or Adam, then powers the XOR, DQN trading, market-generation, and benchmark applications.
 
-Six modules, ~2,000 lines total. Each one is independently testable — the [56-test unit suite](tests/) walks bottom-up, the same way the code was built.
+The six modules total ~2,000 lines and can be tested independently. The [56-test unit suite](tests/) follows the same bottom-up structure.
 
 ### Application 1: Synthetic Market Data Generator
 
@@ -190,7 +190,7 @@ Backpropagation correctness validated against central finite differences:
 
 - **Softmax**: Subtracts row-max before `exp()` to prevent overflow
 - **Sigmoid**: Branches on sign to avoid large negative exponents
-- **Cross-Entropy**: Clamps predictions to `[ε, 1-ε]`to avoid`log(0)`
+- **Cross-Entropy**: Clamps predictions to `[ε, 1-ε]` to avoid `log(0)`
 - **Weight Init**: Xavier (sigmoid/tanh) and He (ReLU), auto-selected
 
 </details>

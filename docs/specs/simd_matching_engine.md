@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-The QForge SIMD Matching Engine provides vectorized instruction optimizations for order matching in the Level 3 (Market-By-Order) limit order book. By exploiting hardware vector registers (ARM NEON 128-bit, Intel/AMD AVX2 256-bit, SSE4.2 128-bit, and portable C99 auto-vectorized loops), the engine executes matching logic with sub-microsecond latency and near-gigahertz order evaluation rates.
+The QForge SIMD matching engine uses vector instructions for order matching in the Level 3 (Market-By-Order) limit order book. It supports ARM NEON 128-bit, Intel/AMD AVX2 256-bit, SSE4.2 128-bit, and portable C99 auto-vectorized loops. The measured results below show sub-microsecond matching latency and order evaluation rates near one billion per second.
 
 Zero third-party library dependencies are required. All vector operations adhere strictly to C99 standards with compiler target multi-versioning.
 
